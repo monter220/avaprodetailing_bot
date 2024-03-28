@@ -14,7 +14,7 @@ class User(Base):
     phone = Column(String)
     discount_points = Column(Integer, default=100)
     reg_date = Column(DateTime, default=datetime.now)
-    end_points_date = Column(DateTime, default=datetime.now().date() + timedelta(days=365))
+    # end_points_date = Column(DateTime, default=datetime.now().date() + timedelta(days=365))
     is_client = Column(Boolean, default=1)
     is_super = Column(Boolean, default=0)
     reservations = relationship('Car', cascade='delete')

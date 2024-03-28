@@ -23,7 +23,7 @@ class UserCreate(BaseModel):
 class UserDB(UserCreate):
     reg_date: datetime
     discount_points: NonNegativeInt
-    end_points_date: datetime
+    # end_points_date: datetime
 
     class Config:
         orm_mode = True
