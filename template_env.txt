@@ -1,0 +1,2 @@
+APP_TITLE=AvaProDetailing_Bot
+DATABASE_URL=sqlite+aiosqlite:///./avaprodetailing_bot.db
