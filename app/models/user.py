@@ -12,7 +12,7 @@ class User(Base):
     patronymic = Column(String)
     date_birth = Column(DateTime)
     phone = Column(String)
-    discount_points = Column(Integer, default=100)
+    # discount_points = Column(Integer, default=100)
     reg_date = Column(DateTime, default=datetime.now)
     # end_points_date = Column(DateTime, default=datetime.now().date() + timedelta(days=365))
     is_client = Column(Boolean, default=1)
