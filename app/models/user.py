@@ -1,5 +1,5 @@
-from datetime import datetime, timedelta
-from sqlalchemy import Column, Boolean, Integer, DateTime, String
+from datetime import datetime
+from sqlalchemy import Column, Boolean, Integer, DateTime, String, ForeignKey
 from sqlalchemy.orm import relationship
 
 from app.core.db import Base
@@ -12,9 +12,6 @@ class User(Base):
     patronymic = Column(String)
     date_birth = Column(DateTime)
     phone = Column(String)
-    # discount_points = Column(Integer, default=100)
     reg_date = Column(DateTime, default=datetime.now)
-    # end_points_date = Column(DateTime, default=datetime.now().date() + timedelta(days=365))
-    is_client = Column(Boolean, default=1)
-    is_super = Column(Boolean, default=0)
+    role = Column(Integer, ForeignKey('role.id'), default=1)
     reservations = relationship('Car', cascade='delete')
