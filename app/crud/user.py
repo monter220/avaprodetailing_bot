@@ -21,5 +21,17 @@ class CRUDUser(CRUDBase):
         )
         return db_user_id.scalars().first()
 
+    async def tg_exist(
+            self,
+            user_id: int,
+            session: AsyncSession,
+    ) -> Optional[int]:
+        db_user_tg = await session.execute(
+            select(User.tg_id).where(
+                User.id == user_id
+            )
+        )
+        return db_user_tg.scalars().first()
+
 
 user_crud = CRUDUser(User)
