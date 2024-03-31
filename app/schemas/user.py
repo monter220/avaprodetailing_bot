@@ -1,6 +1,7 @@
 from datetime import datetime, date, timedelta
 from typing import Optional
 
+# from phonenumbers.phonenumber import PhoneNumber
 from pydantic import (
     BaseModel,
     Field,
@@ -9,7 +10,7 @@ from pydantic import (
     Extra,
 )
 
-from app.core.managment.phonecheck import PhoneNumber
+# from app.core.managment.phonecheck import PhoneNumber
 from app.core.config import settings
 
 
@@ -19,7 +20,7 @@ class UserCreate(BaseModel):
     name: str = Field(min_length=settings.max_fio_len)
     patronymic: Optional[str] = Field(None, min_length=settings.max_fio_len)
     date_birth: date
-    phone: PhoneNumber
+    phone: str
 
     @validator('surname', 'name', 'patronymic')
     def check_alphabet_only(cls, value):

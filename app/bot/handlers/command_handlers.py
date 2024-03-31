@@ -3,14 +3,14 @@ from aiogram.filters import CommandStart
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from app.core.config import settings
-from bot.constants.answer_messages import START_COMMAND_MESSAGE_ANSWER
+from app.bot.constants.answer_messages import START_COMMAND_MESSAGE_ANSWER
 
 router = Router()
 
 
 @router.message(
     CommandStart(),
-    types.Chat.type == 'private'
+    # types.Chat.type == 'private'
 )
 async def start(message: types.Message):
     """
