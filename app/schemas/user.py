@@ -5,9 +5,7 @@ from pydantic import (
     BaseModel,
     Field,
     PositiveInt,
-    NonNegativeInt,
     validator,
-    Extra,
 )
 
 from app.core.managment.phonecheck import PhoneNumber
@@ -23,7 +21,7 @@ class UserCreate(BaseModel):
 
     @validator('surname', 'name', 'patronymic')
     def check_alphabet_only(cls, value):
-        check = value.replace(' ','').replace('-','')
+        check = value.replace(' ', '').replace('-', '')
         if check.isalpha():
             return value
         raise ValueError('Поле содержит недопустимые символ')
