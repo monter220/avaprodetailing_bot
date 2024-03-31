@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, date, timedelta
 from typing import Optional
 
 from pydantic import (
@@ -18,14 +18,29 @@ class UserCreate(BaseModel):
     surname: str = Field(min_length=2)
     name: str = Field(min_length=2)
     patronymic: Optional[str]
-    date_birth: datetime
+    date_birth: date
     phone: PhoneNumber
+
+    @validator('surname', 'name', 'patronymic')
+    def check_alphabet_only(cls, value):
+        check = value.replace(' ','').replace('-','')
+        if check.isalpha():
+            return value
+        raise ValueError('Поле содержит недопустимые символ')
+
+    @validator('date_birth')
+    def check_age(cls, value):
+        if (
+                timedelta(days=40177.5) >=
+                date.today()-value >=
+                timedelta(days=5844)
+        ):
+            return value
+        raise ValueError('Ваш возраст не соответствует допустимому')
 
 
 class UserDB(UserCreate):
     reg_date: datetime
-    # discount_points: NonNegativeInt
-    # end_points_date: datetime
 
     class Config:
         orm_mode = True
