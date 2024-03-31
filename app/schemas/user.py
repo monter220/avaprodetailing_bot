@@ -10,13 +10,14 @@ from pydantic import (
 )
 
 from app.core.managment.phonecheck import PhoneNumber
+from app.core.config import settings
 
 
 class UserCreate(BaseModel):
     tg_id: Optional[PositiveInt]
-    surname: str = Field(min_length=2)
-    name: str = Field(min_length=2)
-    patronymic: Optional[str]
+    surname: str = Field(min_length=settings.max_fio_len)
+    name: str = Field(min_length=settings.max_fio_len)
+    patronymic: Optional[str] = Field(None, min_length=settings.max_fio_len)
     date_birth: date
     phone: PhoneNumber
 
@@ -25,17 +26,17 @@ class UserCreate(BaseModel):
         check = value.replace(' ', '').replace('-', '')
         if check.isalpha():
             return value
-        raise ValueError('Поле содержит недопустимые символ')
+        raise ValueError(settings.fio_alphabet_error)
 
     @validator('date_birth')
     def check_age(cls, value):
         if (
-                timedelta(days=40177.5) >=
+                timedelta(days=settings.max_age) >=
                 date.today()-value >=
-                timedelta(days=5844)
+                timedelta(days=settings.max_age)
         ):
             return value
-        raise ValueError('Ваш возраст не соответствует допустимому')
+        raise ValueError(settings.age_error)
 
     class Config:
         extra = Extra.forbid
