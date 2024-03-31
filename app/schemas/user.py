@@ -10,6 +10,8 @@ from pydantic import (
     Extra,
 )
 
+from app.core.managment.phonecheck import PhoneNumber
+
 
 class UserCreate(BaseModel):
     tg_id: Optional[PositiveInt]
@@ -17,7 +19,7 @@ class UserCreate(BaseModel):
     name: str = Field(min_length=2)
     patronymic: Optional[str]
     date_birth: datetime
-    phone: str
+    phone: PhoneNumber
 
 
 class UserDB(UserCreate):
