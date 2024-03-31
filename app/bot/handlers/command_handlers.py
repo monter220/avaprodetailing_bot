@@ -1,4 +1,4 @@
-from aiogram import html, types, Router
+from aiogram import F, html, types, Router
 from aiogram.filters import CommandStart
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
@@ -10,7 +10,7 @@ router = Router()
 
 @router.message(
     CommandStart(),
-    # types.Chat.type == 'private'
+    F.chat.type == 'private'
 )
 async def start(message: types.Message):
     """
