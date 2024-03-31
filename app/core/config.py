@@ -25,8 +25,9 @@ class Settings(BaseSettings):
     dp: Dispatcher = Dispatcher()
     telegram_bot_token: str
     telegram_webapp_url: str
+    host_ip: str
     host_url: str
-    app_port: int
+    app_port: str  # Из энва ест в виде стринга, переконвертирую в мейне
 
     class Config:
         env_file = '.env'

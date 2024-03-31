@@ -63,4 +63,4 @@ async def bot_webhook(update: dict):
 
 if __name__ == '__main__':
 
-    uvicorn.run(app, host='0.0.0.0', port=8383)
+    uvicorn.run(app, host=settings.host_ip, port=int(settings.app_port))
