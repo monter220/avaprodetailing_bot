@@ -1,3 +1,5 @@
+from aiogram import Bot, Dispatcher, types
+from aiogram.client.bot import DefaultBotProperties
 from pydantic import BaseSettings
 
 
@@ -19,6 +21,18 @@ class Settings(BaseSettings):
     min_age: int = 5844
     max_age: int = 40178
     age_error: str = 'Ваш возраст не соответствует допустимому'
+      
+    telegram_bot_token: str
+    bot: Bot = Bot(
+        token=telegram_bot_token,
+        default=DefaultBotProperties(
+            parse_mode=types.ParseMode.HTML,
+        )
+    )
+    dp: Dispatcher = Dispatcher()
+    web_hook_path: str = f'/webhook/bot/{telegram_bot_token}'
+    telegram_webapp_url: str
+    app_port: str
 
     class Config:
         env_file = '.env'
