@@ -6,6 +6,7 @@ from pydantic import (
     Field,
     PositiveInt,
     validator,
+    Extra,
 )
 
 from app.core.managment.phonecheck import PhoneNumber
@@ -35,6 +36,9 @@ class UserCreate(BaseModel):
         ):
             return value
         raise ValueError('Ваш возраст не соответствует допустимому')
+
+    class Config:
+        extra = Extra.forbid
 
 
 class UserDB(UserCreate):
