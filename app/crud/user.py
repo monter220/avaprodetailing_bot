@@ -33,5 +33,17 @@ class CRUDUser(CRUDBase):
         )
         return db_user_tg.scalars().first()
 
+    async def tg_login_check(
+            self,
+            tg_id: int,
+            session: AsyncSession,
+    ) -> Optional[int]:
+        db_user_id = await session.execute(
+            select(User).where(
+                User.tg_id == tg_id
+            )
+        )
+        return db_user_id.scalars().first()
+
 
 user_crud = CRUDUser(User)

@@ -4,11 +4,12 @@ from aiogram import types
 from fastapi import FastAPI
 import uvicorn
 
-# Импортируем роутер.
 from app.api.routers import main_router
 from app.core.config import settings
 from app.core.config_logger import logger
 from bot.handlers import command_router
+from app.core.init_db import create_role
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -35,6 +36,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title=settings.app_title,
               lifespan=lifespan)
+app.include_router(main_router)
 
 
 @app.post(path=settings.web_hook_path)
@@ -44,6 +46,11 @@ async def bot_webhook(update: dict):
     telegram_update = types.Update(**update)
     await settings.dp.feed_update(bot=settings.bot,
                                   update=telegram_update)
+
+    
+@app.on_event('startup')
+async def startup():
+    await create_role()
 
 
 if __name__ == '__main__':
