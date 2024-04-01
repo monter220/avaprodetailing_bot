@@ -1,1 +1,1 @@
-from .command_handlers import router as command_router
+from .message_handlers import router as command_router

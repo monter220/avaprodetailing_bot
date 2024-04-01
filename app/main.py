@@ -19,7 +19,7 @@ bot: Bot = Bot(
         parse_mode=settings.bot_parse_mode,
     )
 )
-web_hook_path: str = f'{settings.host_url}/webhook/bot/{settings.telegram_bot_token}'
+web_hook_path: str = f'{settings.host_url}/webhook'
 
 
 @asynccontextmanager

@@ -1,15 +1,13 @@
 from aiogram import F, html, types, Router
-from aiogram.filters import CommandStart
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from app.core.config import settings
-from app.bot.constants.answer_messages import START_COMMAND_MESSAGE_ANSWER
+from app.bot.translates.ruRU.answer_messages import ANY_MESSAGE_ANSWER
 
 router = Router()
 
 
 @router.message(
-    CommandStart(),
     F.chat.type == 'private'
 )
 async def start(message: types.Message):
@@ -20,17 +18,14 @@ async def start(message: types.Message):
 
     keyboard = InlineKeyboardBuilder()
 
-    keyboard.add(
-        types.InlineKeyboardButton(
+    keyboard.button(
             text='Открыть веб-страницу',
             web_app=types.WebAppInfo(settings.telegram_webapp_url),
-        )
     )
 
     await message.answer(
-        text=f'{START_COMMAND_MESSAGE_ANSWER}'.format(
+        text=ANY_MESSAGE_ANSWER.format(
             user_full_name=html.quote(message.from_user.full_name)   
         ),
         reply_markup=keyboard.as_markup()
     )
-    return
