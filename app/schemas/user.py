@@ -1,7 +1,8 @@
+import phonenumbers
+
 from datetime import datetime, date, timedelta
 from typing import Optional
 
-# from phonenumbers.phonenumber import PhoneNumber
 from pydantic import (
     BaseModel,
     Field,
@@ -10,7 +11,6 @@ from pydantic import (
     Extra,
 )
 
-# from app.core.managment.phonecheck import PhoneNumber
 from app.core.config import settings
 
 
@@ -20,7 +20,7 @@ class UserCreate(BaseModel):
     name: str = Field(min_length=settings.max_fio_len)
     patronymic: Optional[str] = Field(None, min_length=settings.max_fio_len)
     date_birth: date
-    phone: str
+    phone: str = Field(max_length=settings.max_phone_len)
 
     @validator('surname', 'name', 'patronymic')
     def check_alphabet_only(cls, value):
@@ -38,6 +38,18 @@ class UserCreate(BaseModel):
         ):
             return value
         raise ValueError(settings.age_error)
+
+    @validator('phone')
+    def check_phone(cls, value):
+        if value[0] == '8' or value[0] == '7':
+            v = '+7' + value[1::]
+        try:
+            return phonenumbers.format_number(
+                phonenumbers.parse(value),
+                phonenumbers.PhoneNumberFormat.E164
+            )
+        except phonenumbers.phonenumberutil.NumberParseException:
+            raise ValueError(settings.phone_error)
 
     class Config:
         extra = Extra.forbid

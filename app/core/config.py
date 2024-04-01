@@ -14,6 +14,8 @@ class Settings(BaseSettings):
     min_age: int = 5844
     max_age: int = 40178
     age_error: str = 'Ваш возраст не соответствует допустимому'
+    max_phone_len: int = 15
+    phone_error: str = 'invalid phone number format'
 
     dp: Dispatcher = Dispatcher()
     bot_drop_pending_updates: bool = 1

@@ -1,5 +1,13 @@
 from datetime import datetime
-from sqlalchemy import Column, Integer, DateTime, String, ForeignKey, Date
+from sqlalchemy import (
+    Column,
+    Integer,
+    DateTime,
+    String,
+    ForeignKey,
+    Date,
+    Boolean,
+)
 from sqlalchemy.orm import relationship
 
 from app.core.db import Base
@@ -19,4 +27,5 @@ class User(Base):
     reg_date = Column(DateTime, default=datetime.now)
     role = Column(
         Integer, ForeignKey('role.id'), default=settings.default_role)
+    is_ban = Column(Boolean, default=0)
     reservations = relationship('Car', cascade='delete')
