@@ -1,5 +1,4 @@
 from aiogram import Dispatcher
-from aiogram.client.bot import DefaultBotProperties
 from pydantic_settings import BaseSettings
 
 
@@ -9,12 +8,6 @@ class Settings(BaseSettings):
     role_list: str = '{1:"client",2:"administrator",3:"superuser"}'
     default_role: int = 1
 
-    access_token_expire_minutes: int = 30
-    refresh_token_expire_minutes: int = 10080
-    hash_algorithm: str = 'HS256'
-    jwt_secret_key: str = 'JWT_SECRET_KEY'
-    jwt_refresh_secret_key: str = 'JWT_REFRESH_SECRET_KEY'
-
     min_fio_len: int = 2
     max_fio_len: int = 100
     fio_alphabet_error: str = 'Поле содержит недопустимые символ'
@@ -23,11 +16,14 @@ class Settings(BaseSettings):
     age_error: str = 'Ваш возраст не соответствует допустимому'
 
     dp: Dispatcher = Dispatcher()
-    telegram_bot_token: str
-    telegram_webapp_url: str
-    host_ip: str
-    host_url: str
-    app_port: str  # Из энва ест в виде стринга, переконвертирую в мейне
+    bot_drop_pending_updates: bool = 1
+    bot_request_timeout: int = 30
+    bot_parse_mode: str = 'html'
+    telegram_bot_token: str = '123456789'
+    telegram_webapp_url: str = 'https://ya.ru'
+    host_ip: str = '0.0.0.0'
+    host_url: str = 'https://example.com'
+    app_port: int = 443  # Из энва ест в виде стринга, переконвертирую в мейне
 
     class Config:
         env_file = '.env'
