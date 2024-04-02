@@ -8,7 +8,7 @@ from app.api.routers import main_router
 from app.core.config import settings
 from app.core.config_logger import logger
 from app.bot.handlers import command_router
-from app.core.init_db import create_role
+from app.core.init_db import create_role, create_paytype
 from aiogram import Bot
 from aiogram.client.bot import DefaultBotProperties
 
@@ -28,6 +28,7 @@ async def lifespan(app: FastAPI):
 
     logger.info('Приложение запущено.')
     await create_role()
+    await create_paytype()
     await bot.set_webhook(
         url=web_hook_path,
         drop_pending_updates=settings.bot_drop_pending_updates,  # Дропает апдейты, которые пришли во время запуска бота.

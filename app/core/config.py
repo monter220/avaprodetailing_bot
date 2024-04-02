@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     database_url: str
     role_list: str = '{1:"client",2:"administrator",3:"superuser"}'
     default_role: int = 1
+    paytype_list: str = '{1:"наличный расчет",2:"безналичный расчет"}'
 
     min_fio_len: int = 2
     max_fio_len: int = 100
