@@ -13,7 +13,7 @@ async def create_role():
     if settings.role_list is not None:
         role_dict = eval(settings.role_list)
         async with get_async_session_context() as session:
-            if not await role_crud.empty(session):
+            if not await role_crud.check_empty(session):
                 for id in role_dict.keys():
                     await role_crud.create(
                         RoleCreate(
@@ -25,7 +25,7 @@ async def create_paytype():
     if settings.paytype_list is not None:
         paytype_dict = eval(settings.paytype_list)
         async with get_async_session_context() as session:
-            if not await paytype_crud.empty(session):
+            if not await paytype_crud.check_empty(session):
                 for id in paytype_dict.keys():
                     await paytype_crud.create(
                         PayTypeCreate(

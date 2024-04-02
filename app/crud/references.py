@@ -9,7 +9,7 @@ from app.models import Role, PayType
 
 class CRUDReferences(CRUDBase):
 
-    async def empty(
+    async def check_empty(
             self,
             session: AsyncSession,
     ) -> Optional[int]:
