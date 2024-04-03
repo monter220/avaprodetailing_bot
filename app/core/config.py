@@ -21,9 +21,10 @@ class Settings(BaseSettings):
     max_name_len: int = 50
     min_address_len: int = 1
     max_address_len: int = 250
-    min_description_len = 1
     name_error: str = 'Имя не может быть пустым!'
     address_error: str = 'Адрес автомойки не может быть пустым!'
+    err_msg_field_not_unique: str = 'Поле <{}> не уникально!'
+
 
     dp: Dispatcher = Dispatcher()
     bot_drop_pending_updates: bool = 1

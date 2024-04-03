@@ -1,48 +1,39 @@
-from typing import Optional, Annotated
+from typing import Optional
 
 from pydantic import BaseModel, Field, Extra, field_validator
 
 from app.core.config import settings
-from app.core.constrants import POINT_CREATE_EXAMPLES, POINT_UPDATE_EXAMPLES
 
 
 class PointBase(BaseModel):
-    name: Annotated[
-        Optional[str], Field(
-            min_length=settings.min_name_len,
-            max_length=settings.max_name_len
-        )
-    ] = None
-    description: Annotated[
-        Optional[str], Field(
-            min_length=settings.min_description_len,
-        )
-    ] = None
-    address: Annotated[
-        Optional[str], Field(
-            min_length=settings.min_address_len,
-            max_length=settings.max_address_len
-        )
-    ] = None
+    name: Optional[str] = Field(
+        None,
+        min_length=settings.min_name_len,
+        max_length=settings.max_name_len
+    )
+    description: Optional[str]
+    address: Optional[str] = Field(
+        None,
+        min_length=settings.min_address_len,
+        max_length=settings.max_address_len
+    )
 
-    class Config:
-        extra = Extra.forbid
+
+class Config:
+    extra = Extra.forbid
 
 
 class PointCreate(PointBase):
-    name: Annotated[str, Field(
+    name: str = Field(
+        ...,
         min_length=settings.min_name_len,
         max_length=settings.max_name_len
-    )]
-    address: Annotated[str, Field(
+    )
+    address: str = Field(
+        ...,
         min_length=settings.min_address_len,
         max_length=settings.max_address_len
-    )]
-
-    class Config:
-        schema_extra = {
-            'examples': POINT_CREATE_EXAMPLES
-        }
+    )
 
 
 class PointUpdate(PointBase):
@@ -57,11 +48,6 @@ class PointUpdate(PointBase):
         if value is None:
             raise ValueError(settings.address_error)
         return value
-
-    class Config:
-        schema_extra = {
-            'examples': POINT_UPDATE_EXAMPLES
-        }
 
 
 class PointDB(PointBase):

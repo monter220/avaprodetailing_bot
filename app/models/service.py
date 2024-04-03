@@ -17,9 +17,9 @@ class Service(NameDescr):
     """
     Модель услуги
     """
-    cost = Column(PositiveFloat, comment='Минимальная сумма услуги')
+    cost = Column(Float, comment='Минимальная сумма услуги')
     default_bonus_p = Column(
-        PositiveFloat,
+        Float,
         comment='Минимальный бонус по услуге'
     )
     category_id = Column(
