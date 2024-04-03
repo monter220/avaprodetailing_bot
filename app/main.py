@@ -1,7 +1,9 @@
 from contextlib import asynccontextmanager
 
-from aiogram import types
+from aiogram import Bot, types
+from aiogram.client.bot import DefaultBotProperties
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 import uvicorn
 
 from app.api.routers import main_router
@@ -9,9 +11,7 @@ from app.core.config import settings
 from app.core.config_logger import logger
 from app.bot.handlers import command_router
 from app.core.init_db import create_role, create_paytype
-from aiogram import Bot
-from aiogram.client.bot import DefaultBotProperties
-from fastapi.staticfiles import StaticFiles
+from app.middlewares import TelegramIDCheckingMiddleware
 
 
 bot: Bot = Bot(
@@ -51,6 +51,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title=settings.app_title,
               lifespan=lifespan)
 
+app.add_middleware(TelegramIDCheckingMiddleware)  # Добавление middleware для проверки Telegram ID.
 app.mount('/static', StaticFiles(directory='app/templates/static'), name='static')  # Подключение статических файлов.
 
 app.include_router(main_router)

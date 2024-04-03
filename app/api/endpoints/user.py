@@ -27,9 +27,16 @@ def render_sign_in_template(request: Request):
 async def process_user_telegram_id(request: Request, user_telegram_id: str):
     """Промежуточный эндпойнт для добавления куки. """
 
-    return RedirectResponse(
-        '/phone', {'request': request}
-    ).set_cookie(key='user_telegram_id', value=user_telegram_id)
+    response = RedirectResponse('/phone', {'request': request})
+    response.set_cookie(key='tg_id', value=user_telegram_id, expires=3600)
+
+    return response
+
+
+async def get_tg_id_cookie(request: Request):
+    """Функция для получения куки tg_id.  """
+
+    return await request.cookies.get('tg_id')
 
 
 @router.get('/phone')
@@ -45,21 +52,20 @@ def render_phone_template(request: Request):
 @router.post('/phone')
 async def process_user_phone(
     request: Request,
-    session: AsyncSession = Depends(get_async_session)
+    session: AsyncSession = Depends(get_async_session),
+    user_telegram_id: str = Depends(get_tg_id_cookie)
 ):
 
     """Функция для редиректа пользователя, согласно его роли."""
 
     form_data = await request.form()
     phone_number = form_data.get('phone')
-    user_telegram_id = await request.cookies.get('user_telegram_id')
 
     user = await user_crud.phone_number_exist(phone_number, session)
 
     if not user:
         response = RedirectResponse('/registration')
-        response.set_cookie(key='user_telegram_id', value=user_telegram_id)
-        response.set_cookie(key='phone', value=phone_number)
+        response.set_cookie(key='phone', value=phone_number, expires=3600)
         return response
 
     if user.tg_id is None:
@@ -92,7 +98,8 @@ def render_registration_template(request: Request):
 @router.post('/registration')
 async def registrate_user(
     request: Request,
-    session: AsyncSession = Depends(get_async_session)
+    session: AsyncSession = Depends(get_async_session),
+    user_telegram_id: str = Depends(get_tg_id_cookie)
 ):
     """Функция для регистрации пользователя."""
 
@@ -100,7 +107,6 @@ async def registrate_user(
     # обычного пользователя, поля is_admin или is_superuser нету
 
     form_data = await request.form()
-    telegram_id = request.cookies.get('user_telegram_id')
     phone = request.cookies.get('phone')
 
     surname = form_data.get('surname')
@@ -109,7 +115,7 @@ async def registrate_user(
     date_birth = form_data.get('date_birth')
 
     user_create_data = {
-        'tg_id': telegram_id,
+        'tg_id': user_telegram_id,
         'phone': phone,
         'surname': surname,
         'name': name,
