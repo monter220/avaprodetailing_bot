@@ -5,8 +5,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.db import get_async_session
 from app.crud.user import user_crud
-from app.schemas.user import UserCreate, UserDB
-from app.api.validators import check_duplicate
 
 
 router = APIRouter()
