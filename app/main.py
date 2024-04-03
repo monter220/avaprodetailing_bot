@@ -11,6 +11,7 @@ from app.bot.handlers import command_router
 from app.core.init_db import create_role, create_paytype
 from aiogram import Bot
 from aiogram.client.bot import DefaultBotProperties
+from fastapi.staticfiles import StaticFiles
 
 
 bot: Bot = Bot(
@@ -49,6 +50,9 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title=settings.app_title,
               lifespan=lifespan)
+
+app.mount('/static', StaticFiles(directory='app/templates/static'), name='static')  # Подключение статических файлов.
+
 app.include_router(main_router)
 
 
