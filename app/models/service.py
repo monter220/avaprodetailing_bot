@@ -26,7 +26,7 @@ class Service(NameDescr):
         ForeignKey('category.id'),
         comment='Категория услуги'
     )
-    point = Column(
+    point_id = Column(
         Integer,
         ForeignKey('point.id'),
         comment='Автомойка, на которой оказывается услуга'
