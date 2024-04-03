@@ -8,6 +8,7 @@ class TelegramIDCheckingMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         """Мидлварь для проверки наличия tg_id в куках реквеста."""
 
+        # TODO: Вынести exclusions в константы
         exclusions = ('/', '/docs')  # Исключения для которых не проверяется tg_id.
 
         if request.url.path.startswith('/static'):  # Отдельная обработка для путей статики

@@ -55,6 +55,9 @@ async def process_user_phone(
 
     if not user:
         response = RedirectResponse('/registration')
+
+        # TODO: Вынести время жизни кук в константы
+
         response.set_cookie(key='phone', value=phone_number, expires=2592000)
         return response
 
