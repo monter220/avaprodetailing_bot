@@ -1,3 +1,4 @@
+from pydantic import PositiveFloat
 from sqlalchemy import Column, Float, CheckConstraint, Integer, ForeignKey
 from sqlalchemy.orm import relationship
 
@@ -16,9 +17,9 @@ class Service(NameDescr):
     """
     Модель услуги
     """
-    cost = Column(Float, comment='Минимальная сумма услуги')
+    cost = Column(PositiveFloat, comment='Минимальная сумма услуги')
     default_bonus_p = Column(
-        Float,
+        PositiveFloat,
         comment='Минимальный бонус по услуге'
     )
     category_id = Column(
@@ -30,11 +31,4 @@ class Service(NameDescr):
         Integer,
         ForeignKey('point.id'),
         comment='Автомойка, на которой оказывается услуга'
-    )
-
-    __table_args__ = (
-        # Проверка на то, чтобы стоимость была положительной
-        CheckConstraint('cost > 0', name='cost_positive'),
-        # Проверка на то, чтобы бонус по умолчанию был положительный
-        CheckConstraint('default_bonus_p > 0', name='bonus_positive'),
     )
