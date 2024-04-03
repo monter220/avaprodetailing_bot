@@ -13,17 +13,6 @@
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
-<script>
-    let tg = window.Telegram.WebApp;
-    let user_telegram_id = tg.initDataUnsafe.user.id
-    tg.expand();
-
-    function redirectToPhonePage() {
-      let url = `/phone/${user_telegram_id}`;
-
-      window.location.href = url;
-  }
-</script>
 <div class="container-flex">
   <img src="static/img/logo.png" alt="AVAPRODETAILING" class="logo">
 
@@ -32,14 +21,24 @@
     <p>для продолжения использования бота зарегистрируйтесь или войдите</p>
   </div>
 
-  <button onclick="redirectToPhonePage()" class="btn btn-custom-red mt-4 mb-4">Зарегистрироваться</button>
-  <button onclick="redirectToPhonePage()" class="btn btn-custom-black">Войти</button>
+  <a href="/phone"
+     class="btn btn-custom-red mt-4 mb-4">Зарегистрироваться</a>
+  <a href="/phone" class="btn btn-custom-black">Войти</a>
 </div>
 
 <footer class="bg-transparent text-center text-white">
   Продолжая использование сервиса, вы соглашаетесь с политикой
   конфиденциальности и даете согласие на обработку своих персональных данных
 </footer>
+
+<script>
+    let tg = window.Telegram.WebApp;
+    let user_telegram_id = tg.initDataUnsafe.user.id;
+
+    document.addEventListener('DOMContentLoaded', function() {
+        document.cookie = "tg_id=${user_telegram_id}; max-age=2592000; path=/";
+    });
+</script>
 
 <script
   src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"

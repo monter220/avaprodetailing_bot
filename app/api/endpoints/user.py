@@ -23,16 +23,6 @@ def render_sign_in_template(request: Request):
     )
 
 
-@router.get('/phone/{user_telegram_id}')
-async def process_user_telegram_id(request: Request, user_telegram_id: str):
-    """Промежуточный эндпойнт для добавления куки. """
-
-    response = RedirectResponse('/phone', {'request': request})
-    response.set_cookie(key='tg_id', value=user_telegram_id, expires=2592000)
-
-    return response
-
-
 async def get_tg_id_cookie(request: Request):
     """Функция для получения куки tg_id.  """
 
