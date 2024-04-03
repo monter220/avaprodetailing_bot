@@ -28,7 +28,7 @@ async def process_user_telegram_id(request: Request, user_telegram_id: str):
     """Промежуточный эндпойнт для добавления куки. """
 
     response = RedirectResponse('/phone', {'request': request})
-    response.set_cookie(key='tg_id', value=user_telegram_id, expires=3600)
+    response.set_cookie(key='tg_id', value=user_telegram_id, expires=2592000)
 
     return response
 
@@ -65,7 +65,7 @@ async def process_user_phone(
 
     if not user:
         response = RedirectResponse('/registration')
-        response.set_cookie(key='phone', value=phone_number, expires=3600)
+        response.set_cookie(key='phone', value=phone_number, expires=2592000)
         return response
 
     if user.tg_id is None:
