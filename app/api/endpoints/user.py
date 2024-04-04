@@ -53,7 +53,8 @@ async def render_sign_in_template(request: Request):
 @router.get('/phone')
 async def render_phone_template(
     request: Request,
-    user_telegram_id: str = Depends(get_tg_id_cookie)
+    user_telegram_id: str = Depends(get_tg_id_cookie),
+    session: AsyncSession = Depends(get_async_session)
 ):
     """
     Функция для рендеринга страницы из шаблона.
@@ -64,7 +65,8 @@ async def render_phone_template(
     """
 
     user: Optional[User] = await user_crud.get_user_by_telegram_id(
-        int(user_telegram_id)
+        int(user_telegram_id),
+        session
     )
 
     if user is not None and user.phone is not None:
@@ -87,6 +89,11 @@ async def render_phone_template(
                 {'request': request,
                  'title': 'Введите номер телефона'}
             )
+    return templates.TemplateResponse(
+        'guest/phone.html',
+        {'request': request,
+         'title': 'Введите номер телефона'}
+    )
 
 
 @router.post('/phone')

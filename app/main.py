@@ -37,7 +37,6 @@ async def lifespan(app: FastAPI):
         # Таймаут на обработку запроса - позволяет не загонять бота в цикл,
         # при получении ошибки от API.
     )
-    app.include_router(main_router)
     settings.dp.include_routers(
         command_router,
     )
