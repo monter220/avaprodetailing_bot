@@ -28,6 +28,8 @@ class Settings(BaseSettings):
     host_url: str = 'https://example.com'
     app_port: int = 443
 
+    cookies_ttl: int = 2592000
+
     class Config:
         env_file = '.env'
 

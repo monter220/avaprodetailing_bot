@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 
 from app.core.db import get_async_session
+from app.core.config import settings
 from app.crud.user import user_crud
 from app.models.user import User
 
@@ -44,7 +45,8 @@ async def render_sign_in_template(request: Request):
 
     return templates.TemplateResponse(
         'guest/sign-in.html',
-        {'request': request}
+        {'request': request,
+         'title': 'Добро пожаловать!'}
     )
 
 
@@ -82,7 +84,8 @@ async def render_phone_template(
         else:
             return templates.TemplateResponse(
                 'guest/phone.html',
-                {'request': request}
+                {'request': request,
+                 'title': 'Введите номер телефона'}
             )
 
 
@@ -107,7 +110,9 @@ async def process_user_phone(
     if errors:
         return templates.TemplateResponse(
             'guest/phone.html',
-            {'request': request, 'errors': errors}
+            {'request': request,
+             'title': 'Введите номер телефона',
+             'errors': errors}
         )
 
     user = await user_crud.get_user_by_phone_number(phone_number, session)
@@ -118,8 +123,11 @@ async def process_user_phone(
             status_code=status.HTTP_302_FOUND,
         )
 
-        # TODO: Вынести время жизни кук в константы
-        response.set_cookie(key='phone', value=phone_number, expires=2592000)
+        response.set_cookie(
+            key='phone',
+            value=phone_number,
+            expires=settings.cookies_ttl
+        )
 
         return response
 
@@ -146,7 +154,8 @@ def render_registration_template(request: Request):
 
     return templates.TemplateResponse(
         'guest/registration.html',
-        {'request': request}
+        {'request': request,
+         'title': 'Регистрация'}
     )
 
 
@@ -194,7 +203,8 @@ def render_success_registration_template(request: Request):
 
     return templates.TemplateResponse(
         'guest/success_registration.html',
-        {'request': request}
+        {'request': request,
+         'title': 'Вы успешно зарегистрировались!'}
     )
 
 
