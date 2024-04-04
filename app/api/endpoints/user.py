@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Optional
 
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import RedirectResponse
@@ -8,6 +9,7 @@ from starlette import status
 
 from app.core.db import get_async_session
 from app.crud.user import user_crud
+from app.models.user import User
 
 router = APIRouter()
 
@@ -16,14 +18,19 @@ templates = Jinja2Templates(
 )
 
 
-@router.get('/')
-def render_sign_in_template(request: Request):
-    """Функция для рендеринга страницы из шаблона. """
+def validate_user_phone_number(phone_number: str):
+    """Функция для валидации номера телефона. """
 
-    return templates.TemplateResponse(
-        'sign-in.html',
-        {'request': request}
-    )
+    if len(phone_number) != 12:
+        raise ValueError('Неверная длина номера телефона!')
+
+    if not phone_number.startswith('+'):
+        raise ValueError('Номер телефона должен начинаться с "+"!')
+
+    if not phone_number.replace('+', '').isdigit():
+        raise ValueError('Номер телефона должен состоять только из цифр!')
+
+    return phone_number
 
 
 async def get_tg_id_cookie(request: Request):
@@ -31,14 +38,52 @@ async def get_tg_id_cookie(request: Request):
     return request.cookies.get('tg_id')
 
 
-@router.get('/phone')
-def render_phone_template(request: Request):
+@router.get('/')
+async def render_sign_in_template(request: Request):
     """Функция для рендеринга страницы из шаблона. """
 
     return templates.TemplateResponse(
-        'phone.html',
+        'guest/sign-in.html',
         {'request': request}
     )
+
+
+@router.get('/phone')
+async def render_phone_template(
+    request: Request,
+    user_telegram_id: str = Depends(get_tg_id_cookie)
+):
+    """
+    Функция для рендеринга страницы из шаблона.
+    Проверяет, есть ли Телеграм айди пользоваителя в бд.
+    Если есть,то проверяет, есть ли у него номер телефона.
+    Если есть - редиректит его, согласно его роли.
+    Если нет - открывает страницу для ввода номера.
+    """
+
+    user: Optional[User] = await user_crud.get_user_by_telegram_id(
+        int(user_telegram_id)
+    )
+
+    if user is not None and user.phone is not None:
+
+        if user.role.name == 'superuser':  # Шаблонов и роутеров нет
+            response = RedirectResponse('/superuser')
+            return response
+
+        elif user.role.name == 'administrator':  # Шаблонов и роутеров нет
+            response = RedirectResponse('/administrator')
+            return response
+
+        elif user.role.name == 'user':  # Шаблонов и роутеров нет
+            response = RedirectResponse('/user')
+            return response
+
+        else:
+            return templates.TemplateResponse(
+                'guest/phone.html',
+                {'request': request}
+            )
 
 
 @router.post('/phone')
@@ -50,10 +95,22 @@ async def process_user_phone(
     """Функция для редиректа пользователя, согласно его роли."""
 
     form_data = await request.form()
-    phone_number = form_data.get('phone')
-    # TODO Нет валидации номера!
+    raw_phone_number = form_data.get('phone')
 
-    user = await user_crud.phone_number_exist(phone_number, session)
+    errors = []
+
+    try:
+        phone_number = validate_user_phone_number(raw_phone_number)
+    except ValueError as e:
+        errors.append(str(e))
+
+    if errors:
+        return templates.TemplateResponse(
+            'guest/phone.html',
+            {'request': request, 'errors': errors}
+        )
+
+    user = await user_crud.get_user_by_phone_number(phone_number, session)
 
     if not user:
         response = RedirectResponse(
@@ -88,7 +145,7 @@ def render_registration_template(request: Request):
     """Функция для рендеринга страницы из шаблона. """
 
     return templates.TemplateResponse(
-        'registration.html',
+        'guest/registration.html',
         {'request': request}
     )
 
@@ -136,7 +193,7 @@ def render_success_registration_template(request: Request):
     """Функция для рендеринга страницы из шаблона. """
 
     return templates.TemplateResponse(
-        'success_registration.html',
+        'guest/success_registration.html',
         {'request': request}
     )
 

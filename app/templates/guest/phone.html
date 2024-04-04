@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-flex">
+    <img src="static/img/logo.png" alt="AVAPRODETAILING" class="logo">
+  
+    <form action="/phone" method="post">
+      <div class="form-group">
+        <label for="phone">Введите номер телефона</label>
+        <input type="tel" class="form-control" id="phone"
+               placeholder="+7 XXX XXX XX XX" name="phone" required>
+        {% if errors %}
+          <ul class="errors">
+            {% for error in errors %}
+              <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      </div>
+      <button type="submit" class="btn btn-custom-red mt-4 mb-4">Продолжить</button>
+    </form>
+</div>
+{% endblock content %}

@@ -14,7 +14,10 @@ class TelegramIDCheckingMiddleware(BaseHTTPMiddleware):
         if request.url.path.startswith('/static'):
             return await call_next(request)
 
-        if request.url.path not in exclusions and 'tg_id' not in request.cookies:
+        if (
+            request.url.path not in exclusions
+            and 'tg_id' not in request.cookies
+        ):
             return RedirectResponse('/')
 
         response = await call_next(request)

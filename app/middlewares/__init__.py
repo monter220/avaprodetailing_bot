@@ -1,1 +1,1 @@
-from .middlewares import TelegramIDCheckingMiddleware
+from .middlewares import TelegramIDCheckingMiddleware # noqa

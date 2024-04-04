@@ -26,7 +26,7 @@ class Settings(BaseSettings):
     web_app_url: str
     host_ip: str = '0.0.0.0'
     host_url: str = 'https://example.com'
-    app_port: int = 443  # Из энва ест в виде стринга, переконвертирую в мейне
+    app_port: int = 443
 
     class Config:
         env_file = '.env'

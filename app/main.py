@@ -34,7 +34,8 @@ async def lifespan(app: FastAPI):
         drop_pending_updates=settings.bot_drop_pending_updates,
         # Дропает апдейты, которые пришли во время запуска бота.
         request_timeout=settings.bot_request_timeout,
-        # Таймаут на обработку запроса - позволяет не загонять бота в цикл, при получении ошибки от API.
+        # Таймаут на обработку запроса - позволяет не загонять бота в цикл,
+        # при получении ошибки от API.
     )
     app.include_router(main_router)
     settings.dp.include_routers(
