@@ -32,8 +32,7 @@ class CRUDBase:
             obj_in,
             session: AsyncSession,
     ):
-        obj_in_data = obj_in.dict()
-        db_obj = self.model(**obj_in_data)
+        db_obj = self.model(**obj_in)
         session.add(db_obj)
         await session.commit()
         await session.refresh(db_obj)

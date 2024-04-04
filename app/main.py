@@ -13,7 +13,6 @@ from app.bot.handlers import command_router
 from app.core.init_db import create_role, create_paytype
 from app.middlewares import TelegramIDCheckingMiddleware
 
-
 bot: Bot = Bot(
     token=settings.telegram_bot_token,
     default=DefaultBotProperties(
@@ -32,8 +31,10 @@ async def lifespan(app: FastAPI):
     await create_paytype()
     await bot.set_webhook(
         url=web_hook_path,
-        drop_pending_updates=settings.bot_drop_pending_updates,  # Дропает апдейты, которые пришли во время запуска бота.
-        request_timeout=settings.bot_request_timeout,  # Таймаут на обработку запроса - позволяет не загонять бота в цикл, при получении ошибки от API.
+        drop_pending_updates=settings.bot_drop_pending_updates,
+        # Дропает апдейты, которые пришли во время запуска бота.
+        request_timeout=settings.bot_request_timeout,
+        # Таймаут на обработку запроса - позволяет не загонять бота в цикл, при получении ошибки от API.
     )
     app.include_router(main_router)
     settings.dp.include_routers(
@@ -43,7 +44,8 @@ async def lifespan(app: FastAPI):
     yield
 
     await bot.delete_webhook(
-        drop_pending_updates=settings.bot_drop_pending_updates,  # Дропает апдейты, которые пришли во время остановки бота.
+        drop_pending_updates=settings.bot_drop_pending_updates,
+        # Дропает апдейты, которые пришли во время остановки бота.
     )
     logger.info('Приложение остановлено.')
 
@@ -51,21 +53,19 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title=settings.app_title,
               lifespan=lifespan)
 
-app.add_middleware(TelegramIDCheckingMiddleware)  # Добавление middleware для проверки Telegram ID.
-app.mount('/static', StaticFiles(directory='app/templates/static'), name='static')  # Подключение статических файлов.
+app.add_middleware(TelegramIDCheckingMiddleware)
+app.mount('/static', StaticFiles(directory='app/templates/static'),
+          name='static')  # Подключение статических файлов.
 
 app.include_router(main_router)
 
 
-@app.post(path=web_hook_path)
+@app.post(path='/webhook')
 async def bot_webhook(update: dict):
     """Функция для приёма сообщений из Telegram."""
-
     telegram_update = types.Update(**update)
-    await settings.dp.feed_update(bot=bot,
-                                  update=telegram_update)
+    await settings.dp.feed_update(bot=bot, update=telegram_update)
 
 
 if __name__ == '__main__':
-
     uvicorn.run(app, host=settings.host_ip, port=settings.app_port)

@@ -9,9 +9,9 @@ class TelegramIDCheckingMiddleware(BaseHTTPMiddleware):
         """Мидлварь для проверки наличия tg_id в куках реквеста."""
 
         # TODO: Вынести exclusions в константы
-        exclusions = ('/', '/docs')  # Исключения для которых не проверяется tg_id.
+        exclusions = ('/', '/docs', '/webhook')
 
-        if request.url.path.startswith('/static'):  # Отдельная обработка для путей статики
+        if request.url.path.startswith('/static'):
             return await call_next(request)
 
         if request.url.path not in exclusions and 'tg_id' not in request.cookies:

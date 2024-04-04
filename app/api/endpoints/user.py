@@ -1,17 +1,20 @@
+from datetime import datetime
+
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.ext.asyncio import AsyncSession
+from starlette import status
 
 from app.core.db import get_async_session
 from app.crud.user import user_crud
-
 
 router = APIRouter()
 
 templates = Jinja2Templates(
     directory='app/templates'
 )
+
 
 @router.get('/')
 def render_sign_in_template(request: Request):
@@ -25,8 +28,7 @@ def render_sign_in_template(request: Request):
 
 async def get_tg_id_cookie(request: Request):
     """Функция для получения куки tg_id.  """
-
-    return await request.cookies.get('tg_id')
+    return request.cookies.get('tg_id')
 
 
 @router.get('/phone')
@@ -45,20 +47,23 @@ async def process_user_phone(
     session: AsyncSession = Depends(get_async_session),
     user_telegram_id: str = Depends(get_tg_id_cookie)
 ):
-
     """Функция для редиректа пользователя, согласно его роли."""
 
     form_data = await request.form()
     phone_number = form_data.get('phone')
+    # TODO Нет валидации номера!
 
     user = await user_crud.phone_number_exist(phone_number, session)
 
     if not user:
-        response = RedirectResponse('/registration')
+        response = RedirectResponse(
+            '/registration',
+            status_code=status.HTTP_302_FOUND,
+        )
 
         # TODO: Вынести время жизни кук в константы
-
         response.set_cookie(key='phone', value=phone_number, expires=2592000)
+
         return response
 
     if user.tg_id is None:
@@ -113,12 +118,15 @@ async def registrate_user(
         'surname': surname,
         'name': name,
         'patronymic': patronymic,
-        'date_birth': date_birth,
+        'date_birth': datetime.strptime(date_birth, '%Y-%m-%d'),
     }
 
     await user_crud.create(user_create_data, session)
 
-    response = RedirectResponse('/success_registration')
+    response = RedirectResponse(
+        '/success_registration',
+        status_code=status.HTTP_302_FOUND,
+    )
 
     return response
 

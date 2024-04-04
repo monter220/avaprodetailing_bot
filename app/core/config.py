@@ -23,7 +23,7 @@ class Settings(BaseSettings):
     bot_request_timeout: int = 30
     bot_parse_mode: str = 'html'
     telegram_bot_token: str = '123456789'
-    telegram_webapp_url: str = 'https://ya.ru'
+    web_app_url: str
     host_ip: str = '0.0.0.0'
     host_url: str = 'https://example.com'
     app_port: int = 443  # Из энва ест в виде стринга, переконвертирую в мейне
