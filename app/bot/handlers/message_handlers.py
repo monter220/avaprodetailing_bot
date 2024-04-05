@@ -20,12 +20,12 @@ async def start(message: types.Message):
 
     keyboard.button(
             text='Открыть веб-страницу',
-            web_app=types.WebAppInfo(settings.telegram_webapp_url),
+            web_app=types.WebAppInfo(url=settings.web_app_url),
     )
 
     await message.answer(
         text=ANY_MESSAGE_ANSWER.format(
-            user_full_name=html.quote(message.from_user.full_name)   
+            user_full_name=html.quote(message.from_user.full_name)
         ),
         reply_markup=keyboard.as_markup()
     )

@@ -17,7 +17,7 @@ async def create_role():
                 for id in role_dict.keys():
                     await role_crud.create(
                         RoleCreate(
-                            id=id,name=role_dict[id]
+                            id=id, name=role_dict[id]
                         ), session)
 
 
@@ -29,5 +29,5 @@ async def create_paytype():
                 for id in paytype_dict.keys():
                     await paytype_crud.create(
                         PayTypeCreate(
-                            id=id,name=paytype_dict[id]
+                            id=id, name=paytype_dict[id]
                         ), session)

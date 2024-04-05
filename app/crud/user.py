@@ -9,7 +9,7 @@ from app.models import User
 
 class CRUDUser(CRUDBase):
 
-    async def phone_number_exist(
+    async def get_user_by_phone_number(
             self,
             phone: str,
             session: AsyncSession,
@@ -33,7 +33,7 @@ class CRUDUser(CRUDBase):
         )
         return db_user_tg.scalars().first()
 
-    async def tg_login_check(
+    async def get_user_by_telegram_id(
             self,
             tg_id: int,
             session: AsyncSession,
