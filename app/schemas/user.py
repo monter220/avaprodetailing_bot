@@ -27,17 +27,17 @@ class UserCreate(BaseModel):
         check = value.replace(' ', '').replace('-', '')
         if check.isalpha():
             return value
-        raise ValueError(settings.fio_alphabet_error)
+        raise ValueError(settings.alphabet_error)
 
-    @validator('date_birth')
-    def check_age(cls, value):
-        if (
-                timedelta(days=settings.max_age) >=
-                date.today()-value >=
-                timedelta(days=settings.max_age)
-        ):
-            return value
-        raise ValueError(settings.age_error)
+    # @validator('date_birth')
+    # def check_age(cls, value):
+    #     if (
+    #             timedelta(days=settings.max_age) >=
+    #             date.today()-value >=
+    #             timedelta(days=settings.max_age)
+    #     ):
+    #         return value
+    #     raise ValueError(settings.age_error)
 
     @validator('phone')
     def check_phone(cls, value):

@@ -37,11 +37,22 @@ class CRUDUser(CRUDBase):
             self,
             tg_id: int,
             session: AsyncSession,
-    ) -> Optional[int]:
+    ) -> Optional[User]:
         db_user_id = await session.execute(
             select(User).where(
                 User.tg_id == tg_id
             )
+        )
+        return db_user_id.scalars().first()
+
+    async def user_exist(
+            self,
+            user_id: int,
+            session: AsyncSession,
+    ) -> Optional[int]:
+        db_user_id = await session.execute(
+            select(User.id).where(
+                User.id == user_id and User.is_ban == 0)
         )
         return db_user_id.scalars().first()
 
