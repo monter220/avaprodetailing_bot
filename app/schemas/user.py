@@ -15,7 +15,7 @@ from app.core.config import settings
 
 
 class UserCreate(BaseModel):
-    tg_id: Optional[PositiveInt]
+    tg_id: Optional[PositiveInt] = Field(None)
     surname: str = Field(min_length=settings.max_fio_len)
     name: str = Field(min_length=settings.max_fio_len)
     patronymic: Optional[str] = Field(None, min_length=settings.max_fio_len)
@@ -29,20 +29,20 @@ class UserCreate(BaseModel):
             return value
         raise ValueError(settings.alphabet_error)
 
-    # @validator('date_birth')
-    # def check_age(cls, value):
-    #     if (
-    #             timedelta(days=settings.max_age) >=
-    #             date.today()-value >=
-    #             timedelta(days=settings.max_age)
-    #     ):
-    #         return value
-    #     raise ValueError(settings.age_error)
+    @validator('date_birth')
+    def check_age(cls, value):
+        if (
+                timedelta(days=settings.max_age) >=
+                date.today()-value >=
+                timedelta(days=settings.min_age)
+        ):
+            return value
+        raise ValueError(settings.age_error)
 
     @validator('phone')
     def check_phone(cls, value):
         if value[0] == '8' or value[0] == '7':
-            v = '+7' + value[1::]
+            value = '+7' + value[1::]
         try:
             return phonenumbers.format_number(
                 phonenumbers.parse(value),
