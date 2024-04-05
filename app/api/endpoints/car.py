@@ -1,8 +1,7 @@
 import os
 import uuid
 
-from fastapi import status, Form, APIRouter, Depends, HTTPException, File, UploadFile, Body
-from fastapi.exceptions import HTTPException
+from fastapi import APIRouter, Depends, File, UploadFile, Body
 from sqlalchemy.ext.asyncio import AsyncSession
 from aiofiles import open
 
