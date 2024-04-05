@@ -16,3 +16,24 @@ async def check_duplicate(
                 status_code=422,
                 detail='Пользователь уже существует!',
             )
+
+
+async def check_user_exist(
+        user_id: str,
+        session: AsyncSession,
+) -> None:
+    if not await user_crud.user_exist(user_id, session):
+        raise HTTPException(
+            status_code=406,
+            detail='Пользователь не существует или заблокирован',
+        )
+
+
+def check_file_format(
+        file_format: str,
+) -> None:
+    if file_format not in ['image/jpeg', 'image/png']:
+        raise HTTPException(
+            status_code=406,
+            detail='Only .jpeg or .png  files allowed'
+        )

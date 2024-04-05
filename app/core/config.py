@@ -1,3 +1,4 @@
+import os
 from aiogram import Dispatcher
 from pydantic_settings import BaseSettings
 
@@ -11,12 +12,14 @@ class Settings(BaseSettings):
 
     min_fio_len: int = 2
     max_fio_len: int = 100
-    fio_alphabet_error: str = 'Поле содержит недопустимые символ'
+    alphabet_error: str = 'Поле содержит недопустимые символ'
     min_age: int = 5844
     max_age: int = 40178
     age_error: str = 'Ваш возраст не соответствует допустимому'
     max_phone_len: int = 15
     phone_error: str = 'invalid phone number format'
+    basedir: str = os.getcwd()
+    folder: str = 'static'
 
     dp: Dispatcher = Dispatcher()
     bot_drop_pending_updates: bool = 1
