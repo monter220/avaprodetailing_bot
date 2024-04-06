@@ -21,6 +21,11 @@ class Settings(BaseSettings):
     basedir: str = os.getcwd()
     folder: str = 'static'
 
+    min_name_len: int = 1
+    max_name_len: int = 50
+    min_address_len: int = 1
+    max_address_len: int = 250
+
     dp: Dispatcher = Dispatcher()
     bot_drop_pending_updates: bool = 1
     bot_request_timeout: int = 30
