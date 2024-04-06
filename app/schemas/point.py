@@ -1,26 +1,18 @@
 from typing import Optional
 
-from pydantic import BaseModel, Field, Extra, field_validator
+from pydantic import Field, field_validator
 
 from app.core.config import settings
+from app.schemas.base_name_descr import BaseNameDescrSchema
 from app.translate.ru import NAME_ERROR, ADDRESS_ERROR
 
 
-class PointBase(BaseModel):
-    name: Optional[str] = Field(
-        None,
-        min_length=settings.min_name_len,
-        max_length=settings.max_name_len
-    )
-    description: Optional[str] = None
+class PointBase(BaseNameDescrSchema):
     address: Optional[str] = Field(
         None,
         min_length=settings.min_address_len,
         max_length=settings.max_address_len
     )
-
-    class Config:
-        extra = Extra.forbid
 
 
 class PointCreate(PointBase):
