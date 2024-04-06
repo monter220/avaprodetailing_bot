@@ -23,10 +23,11 @@ class Settings(BaseSettings):
     bot_request_timeout: int = 30
     bot_parse_mode: str = 'html'
     telegram_bot_token: str = '123456789'
-    web_app_url: str
+    web_app_url: str = 'https://ya.ru'
     host_ip: str = '0.0.0.0'
     host_url: str = 'https://example.com'
     app_port: int = 443
+    testing: int = 1
 
     # 30 дней в секундах
     cookies_ttl: int = (30 * 24 * 60 * 60)

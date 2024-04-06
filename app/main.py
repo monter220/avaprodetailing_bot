@@ -53,7 +53,9 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title=settings.app_title,
               lifespan=lifespan)
 
-app.add_middleware(TelegramIDCheckingMiddleware)
+if not settings.testing:
+    app.add_middleware(TelegramIDCheckingMiddleware)
+
 app.mount('/static', StaticFiles(directory='app/templates/static'),
           name='static')  # Подключение статических файлов.
 
