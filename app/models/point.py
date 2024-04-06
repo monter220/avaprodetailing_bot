@@ -15,6 +15,6 @@ class Point(NameDescr):
         unique=True
     )
     # Все адимистраторы автомойки
-    admins = relationship('User', cascade='save-update', )
+    admins = relationship('User', )
     # Все услуги, оказываемые на автомойке
     services = relationship('Service', cascade='delete', )
