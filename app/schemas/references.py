@@ -1,6 +1,11 @@
-from pydantic import (BaseModel)
+from pydantic import BaseModel, PositiveInt
 
 
 class RoleCreate(BaseModel):
-    id: int
+    id: PositiveInt
+    name: str
+
+
+class PayTypeCreate(BaseModel):
+    id: PositiveInt
     name: str

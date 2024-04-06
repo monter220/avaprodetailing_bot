@@ -1,3 +1,4 @@
+import os
 from aiogram import Dispatcher
 from pydantic_settings import BaseSettings
 
@@ -7,15 +8,18 @@ class Settings(BaseSettings):
     database_url: str
     role_list: str = '{1:"client",2:"administrator",3:"superuser"}'
     default_role: int = 1
+    paytype_list: str = '{1:"наличный расчет",2:"безналичный расчет"}'
 
     min_fio_len: int = 2
     max_fio_len: int = 100
-    fio_alphabet_error: str = 'Поле содержит недопустимые символ'
+    alphabet_error: str = 'Поле содержит недопустимые символ'
     min_age: int = 5844
     max_age: int = 40178
     age_error: str = 'Ваш возраст не соответствует допустимому'
     max_phone_len: int = 15
     phone_error: str = 'invalid phone number format'
+    basedir: str = os.getcwd()
+    folder: str = 'static'
 
     min_name_len: int = 1
     max_name_len: int = 50

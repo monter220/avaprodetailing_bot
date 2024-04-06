@@ -21,6 +21,7 @@ async def check_duplicate(
             )
 
 
+
 async def check_fields_duplicate(fields: dict, session: AsyncSession) -> None:
     """
     Функция проверки данных на уникальность.
@@ -47,3 +48,25 @@ async def check_point_exist(point_id: int, session: AsyncSession) -> Point:
     if point is None:
         raise HTTPException(status_code=404, detail=POINT_NOT_EXIST)
     return point
+
+  
+async def check_user_exist(
+        user_id: str,
+        session: AsyncSession,
+) -> None:
+    if not await user_crud.user_exist(user_id, session):
+        raise HTTPException(
+            status_code=406,
+            detail='Пользователь не существует или заблокирован',
+        )
+
+
+def check_file_format(
+        file_format: str,
+) -> None:
+    if file_format not in ['image/jpeg', 'image/png']:
+        raise HTTPException(
+            status_code=406,
+            detail='Only .jpeg or .png  files allowed'
+        )
+
