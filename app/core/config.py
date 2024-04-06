@@ -18,6 +18,7 @@ class Settings(BaseSettings):
     age_error: str = 'Ваш возраст не соответствует допустимому'
     max_phone_len: int = 15
     phone_error: str = 'invalid phone number format'
+    default_bonus: int = 100
     basedir: str = os.getcwd()
     folder: str = 'static'
 
