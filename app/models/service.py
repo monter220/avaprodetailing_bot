@@ -1,5 +1,4 @@
-from pydantic import PositiveFloat
-from sqlalchemy import Column, Float, CheckConstraint, Integer, ForeignKey
+from sqlalchemy import Column, Integer, ForeignKey
 from sqlalchemy.orm import relationship
 
 from app.models.base import NameDescr
@@ -17,9 +16,9 @@ class Service(NameDescr):
     """
     Модель услуги
     """
-    cost = Column(Float, comment='Минимальная сумма услуги')
-    default_bonus_p = Column(
-        Float,
+    cost = Column(Integer, comment='Минимальная сумма услуги')
+    default_bonus = Column(
+        Integer,
         comment='Минимальный бонус по услуге'
     )
     category_id = Column(

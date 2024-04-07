@@ -2,6 +2,7 @@ from typing import Union
 
 from sqlalchemy import Boolean, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from app.crud.base import CRUDBase
 from app.models import Point
@@ -31,6 +32,16 @@ class CRUDPoint(CRUDBase):
             select(True).where(exists_criteria)
         )
         return db_field_exists.first()
+
+    @staticmethod
+    async def get_all_by_id(point_id: int, session: AsyncSession):
+        point = await session.execute(
+            select(Point)
+            .where(Point.id == point_id)
+            .options(selectinload(Point.admins))
+            .options(selectinload(Point.services))
+        )
+        return point.unique().scalars().all()
 
 
 point_crud = CRUDPoint(Point)

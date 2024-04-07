@@ -26,6 +26,7 @@ class Settings(BaseSettings):
     max_name_len: int = 50
     min_address_len: int = 1
     max_address_len: int = 250
+    max_bonus_value: int = 100
 
     dp: Dispatcher = Dispatcher()
     bot_drop_pending_updates: bool = 1

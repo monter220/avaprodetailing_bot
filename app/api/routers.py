@@ -24,6 +24,6 @@ main_router.include_router(
 )
 main_router.include_router(
     service_router,
-    prefix='/category',
+    prefix='/services',
     tags=['Услуги']
 )

@@ -5,7 +5,8 @@ from app.api.validators import check_fields_duplicate, check_exist
 from app.core.db import get_async_session
 from app.crud.category import category_crud
 from app.models import Category
-from app.schemas.category import CategoryDB, CategoryCreate, CategoryUpdate
+from app.schemas.category import CategoryDB, CategoryCreate, CategoryUpdate, \
+    CategoryServicesDB
 
 router = APIRouter()
 
@@ -36,6 +37,18 @@ async def create_new_category(
 
 
 @router.get(
+    '/full',
+    response_model=list[CategoryServicesDB],
+    response_model_exclude_none=True,
+)
+async def get_all_categories(
+    session: AsyncSession = Depends(get_async_session),
+):
+    """Возвращает список всех категорий и услуг."""
+    return await category_crud.get_all_categories_and_services(session)
+
+
+@router.get(
     '/',
     response_model=list[CategoryDB],
     response_model_exclude_none=True,
@@ -43,7 +56,7 @@ async def create_new_category(
 async def get_all_categories(
     session: AsyncSession = Depends(get_async_session),
 ):
-    """Возвращает список всех категорий услуг."""
+    """Возвращает список всех категорий."""
     return await category_crud.get_multi(session)
 
 
@@ -93,5 +106,5 @@ async def delete_category(
     category_db = await check_exist(category_crud, category_id, session)
 
     # Удаляем категорию.
-    point_db = await category_crud.remove(category_db, session)
-    return point_db
+    category = await category_crud.remove(category_db, session)
+    return category

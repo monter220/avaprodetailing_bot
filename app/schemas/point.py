@@ -1,10 +1,13 @@
 from typing import Optional
 
 from pydantic import Field, field_validator
+from pydantic_core.core_schema import ValidationInfo
 
 from app.core.config import settings
 from app.schemas.base_name_descr import BaseNameDescrSchema
-from app.translate.ru import NAME_ERROR, ADDRESS_ERROR
+from app.schemas.service import ServiceDB
+from app.schemas.user import UserDB
+from app.translate.ru import FIELD_ERROR
 
 
 class PointBase(BaseNameDescrSchema):
@@ -29,21 +32,23 @@ class PointCreate(PointBase):
 
 
 class PointUpdate(PointBase):
-    @field_validator('name')
-    def name_cannot_be_null(cls, value):
+    @field_validator('name', 'address', mode='before')
+    def field_cannot_be_null(cls, value: str, info: ValidationInfo):
         if value is None:
-            raise ValueError(NAME_ERROR)
-        return value
-
-    @field_validator('address')
-    def address_cannot_be_null(cls, value):
-        if value is None:
-            raise ValueError(ADDRESS_ERROR)
+            raise ValueError(FIELD_ERROR.format(info.field_name))
         return value
 
 
 class PointDB(PointBase):
     id: int
+
+    class Config:
+        orm_mode = True
+
+
+class PointFullDB(PointBase):
+    admins: list[UserDB]
+    services: list[ServiceDB]
 
     class Config:
         orm_mode = True

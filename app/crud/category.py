@@ -2,6 +2,7 @@ from typing import Union
 
 from sqlalchemy import Boolean, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from app.crud.base import CRUDBase
 from app.models import Category
@@ -11,7 +12,7 @@ class CRUDCategory(CRUDBase):
 
     @staticmethod
     async def check_unique_field(
-        field_name: str,
+        _: str,
         field_value: str,
         session: AsyncSession,
     ) -> Union[None, Boolean]:
@@ -25,6 +26,14 @@ class CRUDCategory(CRUDBase):
             select(True).where(exists_criteria)
         )
         return db_field_exists.first()
+
+    @staticmethod
+    async def get_all_categories_and_services(session: AsyncSession):
+        category = await session.execute(
+            select(Category)
+            .options(selectinload(Category.services))
+        )
+        return category.unique().scalars().all()
 
 
 category_crud = CRUDCategory(Category)
