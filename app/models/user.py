@@ -28,5 +28,6 @@ class User(Base):
     role = Column(
         Integer, ForeignKey('role.id'), default=settings.default_role)
     is_ban = Column(Boolean, default=0)
-    reservations = relationship('Car', cascade='delete')
     point_id = Column(Integer, ForeignKey('point.id'), nullable=True)
+    bonus = Column(Integer, default=settings.default_bonus, nullable=False)
+    car_del = relationship('Car', cascade='delete')
