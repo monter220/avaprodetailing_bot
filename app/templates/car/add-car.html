@@ -18,7 +18,14 @@
       </div>
       <button type="submit" class="btn btn-custom-red mt-4 mb-4">Добавить
       </button>
-      <button href="#" class="btn btn-custom-black">Отмена</button>
+      <button type="button" class="btn btn-custom-black" onclick="goBack()">Отмена</button>
     </form>
   </div>
+
+  <script>
+    function goBack() {
+      window.history.back();
+    }
+  </script>
+
 {% endblock content %}

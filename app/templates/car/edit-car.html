@@ -26,8 +26,8 @@
     </button>
     <a
       onclick="return confirm('Вы действительно хотите удалить этот автомобиль?');"
-      href="/profile" class="btn btn-custom-black">Удалить</a>
-    <a href="/profile" class="btn btn-custom-black">Отмена</a>
+      href="/user/profile/{{ user.id }}" class="btn btn-custom-black">Удалить</a>
+    <a href="/user/profile/{{ user.id }}" class="btn btn-custom-black">Отмена</a>
   </form>
 </div>
 {% endblock content %}

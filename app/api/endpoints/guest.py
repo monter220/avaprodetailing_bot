@@ -12,7 +12,9 @@ from app.core.config import settings
 from app.crud.user import user_crud
 from app.models.user import User
 
-router = APIRouter()
+router = APIRouter(
+    tags=['guest']
+)
 
 templates = Jinja2Templates(
     directory='app/templates'
@@ -50,22 +52,22 @@ async def render_phone_template(
     """
 
     user: Optional[User] = await user_crud.get_user_by_telegram_id(
-        int(user_telegram_id),
-        session
+        user_telegram_id=int(user_telegram_id),
+        session=session
     )
 
     if user is not None and user.phone is not None:
 
-        if user.role.name == 'superuser':  # Шаблонов и роутеров нет
+        if user.role == 3:  # Шаблонов и роутеров нет, superuser
             response = RedirectResponse('/superuser')
             return response
 
-        elif user.role.name == 'administrator':  # Шаблонов и роутеров нет
+        elif user.role == 2:  # Шаблонов и роутеров нет, administrator
             response = RedirectResponse('/administrator')
             return response
 
-        elif user.role.name == 'user':  # Шаблонов и роутеров нет
-            response = RedirectResponse('/user')
+        elif user.role == 1:  # user
+            response = RedirectResponse(f'/user/profile/{user.id}')
             return response
 
         else:
@@ -95,7 +97,10 @@ async def process_user_phone(
     errors = []
 
     try:
-        user = await user_crud.get_user_by_phone_number(phone_number, session)
+        user = await user_crud.get_user_by_phone_number(
+            phone=phone_number,
+            session=session)
+
     except Exception as e:
         errors.append(str(e))
 

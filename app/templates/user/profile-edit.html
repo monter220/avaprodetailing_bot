@@ -4,7 +4,7 @@
   <div class="container-flex">
     <h1>Изменить профиль</h1>
 
-    <form action="profile.html" method="get">
+    <form action="#" method="post">
       <div class="form-group">
         <input type="text" class="form-control" id="surname" name="surname"
               placeholder="ФАМИЛИЯ" value="{{ user.surname }}" required>
@@ -18,7 +18,7 @@
       </div>
       <button type="submit" class="btn btn-custom-red mt-4 mb-4">Сохранить
       </button>
-      <button href="#" class="btn btn-custom-black">Отмена</button>
+      <button href="/user/profile/{{ user.id }}" class="btn btn-custom-black">Отмена</button>
     </form>
   </div>
 {% endblock content %}

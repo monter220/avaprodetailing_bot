@@ -17,12 +17,12 @@
     </div>
     <div class="col">
       <p class="text-end">
-        <a href="profile-edit.html"
+        <a href="/user/profile/{{ user.id }}/edit"
            class="btn btn-custom-red">изменить профиль</a>
       </p>
     </div>
   </div>
-  <a href="payment-history.html" class="row gray-container">
+  <a href="/user/profile/{{ user.id }}/payments" class="row gray-container">
     <div class="col text-start">
       <p class="top-text">{{ user.bonus }}</p>
       <p class="low-text">бонусов</p>
@@ -58,6 +58,36 @@
       {% endfor %}
     {% else %}
         <h2>Вы ещё не добавили ни одной машины</h2>
+    {% endif %}
+  </div>
+  <div id="add-car-button">
+    <p class="text-end">
+      <a href="/car/add"
+         class="d-flex justify-content-center align-items-center col-1 btn btn-custom-black"><i
+        class="bi bi-plus-circle-fill"></i> Добавить</a>
+    </p>
+  </div>
+  <div>
+    <h2>Наши точки</h2>
+    {% if points %}
+      {% for point in points %}
+        <a href="/point/{{ point.id }}" class="row gray-container">
+          <div class="col text-left">
+            <div class="icon-circle">
+              <i class="bi bi-geo-alt-fill"></i>
+            </div>
+          </div>
+          <div class="col-8 text-left">
+            <p class="top-text">{{ point.name }}</p>
+            <p class="low-text">{{ point.address }}</p>
+          </div>
+          <div class="col-1 text-end">
+            <i class="bi bi-chevron-right"></i>
+          </div>
+        </a>
+      {% endfor %}
+    {% else %}
+      <h2>У нас нет точек :(</h2>
     {% endif %}
   </div>
 </div>

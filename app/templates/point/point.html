@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="container-flex">
-  <h1>ТОЧКА ОКАЗАНИЯ УСЛУГ</h1>
+  <h1>{{ point.name }}</h1>
   <div id="point-address">{{ point.address }}</div>
   <div class="text-center">
     <a href="tel:{{ point_phone_number }}"
@@ -10,49 +10,28 @@
       class="bi bi-telephone-outbound-fill"></i> {{ point_phone_number }}</a>
   </div>
 
+  {% if point_service_categories %}
+    {% for category in point_service_categories.keys() %}
+      <div>
+        <h2>{{ category }}</h2>
+        <table class="table table-dark table-striped">
+          <tbody>
+            {% for service in point_service_categories[category] %}
+              <tr>
+                <td class="align-middle">{{ service.name }}<br><small>{{ service.description }}</small></td>
+                <td class="text-end align-middle">{{ service.cost }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% endfor %}
+  {% else %}
+    <h2>К данной точке ещё не прикреплено ни одной услуги!</h2>
+  {% endif %}
+ 
   <div>
-    <h2>категория услуг 1</h2>
-    <table class="table table-dark table-striped">
-      <tbody>
-      <tr>
-        <td class="align-middle">Название 1<br><small>Длинное описание 1</small></td>
-        <td class="text-end align-middle">500 ₽</td>
-      </tr>
-      <tr>
-        <td class="align-middle">Название 2<br><small>Длинное описание 2</small></td>
-        <td class="text-end align-middle">1 000 ₽</td>
-      </tr>
-      <tr>
-        <td class="align-middle">Название 3<br><small>Длинное описание 3</small></td>
-        <td class="text-end align-middle">20 000 ₽</td>
-      </tr>
-      </tbody>
-    </table>
-  </div>
-
-   <div>
-    <h2>категория услуг 2</h2>
-    <table class="table table-dark table-striped">
-      <tbody>
-      <tr>
-        <td class="align-middle">Название 1<br><small>Длинное описание 1</small></td>
-        <td class="text-end align-middle">500 ₽</td>
-      </tr>
-      <tr>
-        <td class="align-middle">Название 2<br><small>Длинное описание 2</small></td>
-        <td class="text-end align-middle">1 000 ₽</td>
-      </tr>
-      <tr>
-        <td class="align-middle">Название 3<br><small>Длинное описание 3</small></td>
-        <td class="text-end align-middle">20 000 ₽</td>
-      </tr>
-      </tbody>
-    </table>
-  </div>
-
-
-  <div>
-    <a href="profile.html" class="btn btn-custom-black">Назад</a>
+    <a href="/user/profile/{{ user.id }}" class="btn btn-custom-black">Назад</a>
   </div>
 </div>
 {% endblock content %}
