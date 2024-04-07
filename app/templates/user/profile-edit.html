@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="container-flex">
+    <h1>Изменить профиль</h1>
+
+    <form action="profile.html" method="get">
+      <div class="form-group">
+        <input type="text" class="form-control" id="surname" name="surname"
+              placeholder="ФАМИЛИЯ" value="{{ user.surname }}" required>
+        <input type="text" class="form-control" id="name" name="name"
+              placeholder="ИМЯ" value="{{ user.name }}" required>
+        <input type="text" class="form-control" id="patronymic" name="patronymic"
+              placeholder="ОТЧЕСТВО" value="{{ user.patronymic }}" required>
+        <input placeholder="ДАТА РОЖДЕНИЯ" type="date" class="form-control"
+              id="date_birth" name="date_birth" value="{{ user.date_birth }}"
+              required>
+      </div>
+      <button type="submit" class="btn btn-custom-red mt-4 mb-4">Сохранить
+      </button>
+      <button href="#" class="btn btn-custom-black">Отмена</button>
+    </form>
+  </div>
+{% endblock content %}

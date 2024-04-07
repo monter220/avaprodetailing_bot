@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-flex">
+  <h1>Изменить автомобиль</h1>
+  <div id="car-card">
+    <div class="icon-circle">
+      <img src="{{ car.image }}" alt="{{ car.brand }} {{ car.model }}"/>
+    </div>
+  </div>
+
+
+  <form action="#" method="post" enctype="multipart/form-data">
+    <div class="form-group">
+      <label for="file-upload" class="custom-file-upload">ИЗМЕНИТЬ ФОТО</label>
+      <input id="file-upload" name="image" type="file"/>
+      <input type="text" class="form-control" id="brand" name="brand"
+             placeholder="МАРКА" required value="{{ car.brand }}">
+      <input type="text" class="form-control" id="model" name="model"
+             placeholder="МОДЕЛЬ" value="{{ car.model }}" required>
+      <input type="text" class="form-control" id="license_plate_number"
+             name="license_plate_number"
+             placeholder="НОМЕРНОЙ ЗНАК" value="{{ car.license_plate_number }}" required>
+    </div>
+    <button type="submit" class="btn btn-custom-red mt-4 mb-4">Сохранить
+    </button>
+    <a
+      onclick="return confirm('Вы действительно хотите удалить этот автомобиль?');"
+      href="/profile" class="btn btn-custom-black">Удалить</a>
+    <a href="/profile" class="btn btn-custom-black">Отмена</a>
+  </form>
+</div>
+{% endblock content %}

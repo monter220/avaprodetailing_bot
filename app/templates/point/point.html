@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-flex">
+  <h1>ТОЧКА ОКАЗАНИЯ УСЛУГ</h1>
+  <div id="point-address">{{ point.address }}</div>
+  <div class="text-center">
+    <a href="tel:{{ point_phone_number }}"
+       class="d-flex justify-content-center align-items-center col-1 btn btn-custom-blue"><i
+      class="bi bi-telephone-outbound-fill"></i> {{ point_phone_number }}</a>
+  </div>
+
+  <div>
+    <h2>категория услуг 1</h2>
+    <table class="table table-dark table-striped">
+      <tbody>
+      <tr>
+        <td class="align-middle">Название 1<br><small>Длинное описание 1</small></td>
+        <td class="text-end align-middle">500 ₽</td>
+      </tr>
+      <tr>
+        <td class="align-middle">Название 2<br><small>Длинное описание 2</small></td>
+        <td class="text-end align-middle">1 000 ₽</td>
+      </tr>
+      <tr>
+        <td class="align-middle">Название 3<br><small>Длинное описание 3</small></td>
+        <td class="text-end align-middle">20 000 ₽</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+   <div>
+    <h2>категория услуг 2</h2>
+    <table class="table table-dark table-striped">
+      <tbody>
+      <tr>
+        <td class="align-middle">Название 1<br><small>Длинное описание 1</small></td>
+        <td class="text-end align-middle">500 ₽</td>
+      </tr>
+      <tr>
+        <td class="align-middle">Название 2<br><small>Длинное описание 2</small></td>
+        <td class="text-end align-middle">1 000 ₽</td>
+      </tr>
+      <tr>
+        <td class="align-middle">Название 3<br><small>Длинное описание 3</small></td>
+        <td class="text-end align-middle">20 000 ₽</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+
+  <div>
+    <a href="profile.html" class="btn btn-custom-black">Назад</a>
+  </div>
+</div>
+{% endblock content %}
