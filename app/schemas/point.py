@@ -5,6 +5,8 @@ from pydantic_core.core_schema import ValidationInfo
 
 from app.core.config import settings
 from app.schemas.base_name_descr import BaseNameDescrSchema
+from app.schemas.service import ServiceDB
+from app.schemas.user import UserDB
 from app.translate.ru import FIELD_ERROR
 
 
@@ -39,6 +41,14 @@ class PointUpdate(PointBase):
 
 class PointDB(PointBase):
     id: int
+
+    class Config:
+        orm_mode = True
+
+
+class PointFullDB(PointBase):
+    admins: list[UserDB]
+    services: list[ServiceDB]
 
     class Config:
         orm_mode = True

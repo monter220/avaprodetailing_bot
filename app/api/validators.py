@@ -1,10 +1,8 @@
 from fastapi import HTTPException
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 
-from app.crud import user_crud, service_crud, point_crud
-from app.models import Point
+from app.crud import user_crud, service_crud
 from app.translate.ru import (
     ERR_MSG_FIELD_NOT_UNIQUE,
     OBJ_NOT_EXIST, SERVICE_NOT_UNIQUE,

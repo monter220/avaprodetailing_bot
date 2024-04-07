@@ -12,7 +12,7 @@ class CRUDCategory(CRUDBase):
 
     @staticmethod
     async def check_unique_field(
-        field_name: str,
+        _: str,
         field_value: str,
         session: AsyncSession,
     ) -> Union[None, Boolean]:
@@ -28,7 +28,7 @@ class CRUDCategory(CRUDBase):
         return db_field_exists.first()
 
     @staticmethod
-    async def get_category_services(session: AsyncSession):
+    async def get_all_categories_and_services(session: AsyncSession):
         category = await session.execute(
             select(Category)
             .options(selectinload(Category.services))

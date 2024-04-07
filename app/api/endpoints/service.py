@@ -57,6 +57,63 @@ async def get_all_services(
     return await service_crud.get_multi(session)
 
 
+@router.get(
+    '/{category_id}',
+    response_model=list[ServiceDB],
+    response_model_exclude_none=True,
+)
+async def get_services_by_category(
+    category_id: int,
+    session: AsyncSession = Depends(get_async_session),
+):
+    """Возвращает список всех услуг с определенной категорией."""
+
+    # Проверка на существование категории услуг.
+    await check_exist(category_crud, category_id, session)
+    return await service_crud.get_services_by_category(category_id, session)
+
+
+@router.get(
+    '/{point_id}',
+    response_model=list[ServiceDB],
+    response_model_exclude_none=True,
+)
+async def get_services_by_point(
+    point_id: int,
+    session: AsyncSession = Depends(get_async_session),
+):
+    """Возвращает список всех услуг с определенной автомойки."""
+
+    # Проверка на существование автомойки.
+    await check_exist(point_crud, point_id, session)
+    return await service_crud.get_services_by_point(point_id, session)
+
+
+@router.get(
+    '/{point_id}/{category_id}',
+    response_model=list[ServiceDB],
+    response_model_exclude_none=True,
+)
+async def get_services_by_point_category(
+    point_id: int,
+    category_id: int,
+    session: AsyncSession = Depends(get_async_session),
+):
+    """Возвращает список всех услуг с определенной автомойки и категории."""
+
+    # Проверка на существование автомойки.
+    await check_exist(point_crud, point_id, session)
+
+    # Проверка на существование категории услуг.
+    await check_exist(category_crud, category_id, session)
+
+    return await service_crud.get_services_by_point_category(
+        point_id,
+        category_id,
+        session
+    )
+
+
 @router.patch(
     '/{service_id}',
     response_model=ServiceDB,

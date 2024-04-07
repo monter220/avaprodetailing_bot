@@ -2,6 +2,7 @@ from pydantic import Field, field_validator
 
 from app.core.config import settings
 from app.schemas.base_name_descr import BaseNameDescrSchema
+from app.schemas.service import ServiceDB
 from app.translate.ru import FIELD_ERROR
 
 
@@ -26,3 +27,7 @@ class CategoryDB(BaseNameDescrSchema):
 
     class Config:
         orm_mode = True
+
+
+class CategoryServicesDB(CategoryDB):
+    services: list[ServiceDB]

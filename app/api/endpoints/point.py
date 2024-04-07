@@ -5,7 +5,7 @@ from app.api.validators import check_fields_duplicate, check_exist
 from app.core.db import get_async_session
 from app.crud import point_crud
 from app.models import Point
-from app.schemas.point import PointDB, PointCreate, PointUpdate
+from app.schemas.point import PointDB, PointCreate, PointUpdate, PointFullDB
 
 router = APIRouter()
 
@@ -99,3 +99,20 @@ async def delete_point(
     # Удаляем поля автомойки
     point = await point_crud.remove(point_db, session)
     return point
+
+
+@router.get(
+    '/{point_id}',
+    response_model=list[PointFullDB],
+    response_model_exclude_none=True,
+)
+async def get_all_data_by_point(
+    point_id,
+    session: AsyncSession = Depends(get_async_session),
+):
+    """Возвращает все данные по автомойке."""
+
+    # Проверка на существование автомойки в базе
+    await check_exist(point_crud, point_id, session)
+
+    return await point_crud.get_all_by_id(point_id, session)
