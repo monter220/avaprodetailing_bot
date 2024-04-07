@@ -37,6 +37,7 @@ class Settings(BaseSettings):
     host_ip: str = '0.0.0.0'
     host_url: str = 'https://example.com'
     app_port: int = 443
+    testing: int = 1
 
     class Config:
         env_file = '.env'
