@@ -4,7 +4,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.crud.base import CRUDBase
-from app.models import User, Events
+from app.models import User
 
 
 class CRUDUser(CRUDBase):
@@ -56,29 +56,18 @@ class CRUDUser(CRUDBase):
         )
         return db_user_id.scalars().first()
 
-    async def create_t(
+    async def catch_user_id(
             self,
-            obj_in,
+            tg_id: int,
             session: AsyncSession,
-            model: str,
-            user: Optional[User] = None,
-    ):
-        obj_in_data = obj_in.dict()
-        db_obj = self.model(**obj_in_data)
-        if model:
-            event = dict.fromkeys(['author', 'model', 'data', 'type_id'])
-            if user:
-                event['user'] = user.id
-            event['model'] = model
-            event['type_id'] = 1
-            event_data: dict[str, dict[str, str]] = dict.fromkeys(['old', 'new'])
-            event_data['new'] = obj_in_data
-            event['data'] = f'{event_data}'
-            session.add(Events(**event))
-        session.add(db_obj)
-        await session.commit()
-        await session.refresh(db_obj)
-        return db_obj
+    ) -> Optional[int]:
+        db_user_id = await session.execute(
+            select(User.id).where(
+                User.tg_id == tg_id
+            )
+        )
+        return db_user_id.scalars().first()
+
 
 
 user_crud = CRUDUser(User)

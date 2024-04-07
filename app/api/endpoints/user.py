@@ -20,6 +20,6 @@ async def create_new_user(
         session: AsyncSession = Depends(get_async_session),
 ):
     await check_duplicate(new_user.phone, session)
-    new = await user_crud.create_t(
+    new = await user_crud.create(
         obj_in=new_user, session=session, model='User')
     return new
