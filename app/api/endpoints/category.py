@@ -93,5 +93,5 @@ async def delete_category(
     category_db = await check_exist(category_crud, category_id, session)
 
     # Удаляем категорию.
-    point_db = await category_crud.remove(category_db, session)
-    return point_db
+    category = await category_crud.remove(category_db, session)
+    return category

@@ -1,11 +1,13 @@
 from fastapi import HTTPException
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 
-from app.crud import user_crud
+from app.crud import user_crud, service_crud, point_crud
+from app.models import Point
 from app.translate.ru import (
     ERR_MSG_FIELD_NOT_UNIQUE,
-    OBJ_NOT_EXIST,
+    OBJ_NOT_EXIST, SERVICE_NOT_UNIQUE,
 )
 
 
@@ -21,6 +23,24 @@ async def check_duplicate(
                 status_code=422,
                 detail='Пользователь уже существует!',
             )
+
+
+async def check_service_duplicate_on_point(
+    name: str,
+    point_id: int,
+    session: AsyncSession
+) -> None:
+    """
+    Функция проверки услуги на автомойке.
+    Функция принимает на вход имя услуги и id автомойки.
+    Вызывает функцию проверки этих полей в БД.
+    В случае совпадения значений, выбрасывает исключение об ошибке.
+    """
+    if await service_crud.check_unique_field(name, point_id, session):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=SERVICE_NOT_UNIQUE.format(name, point_id),
+        )
 
 
 async def check_fields_duplicate(

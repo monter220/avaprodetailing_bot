@@ -2,7 +2,7 @@ from pydantic import Field, field_validator
 
 from app.core.config import settings
 from app.schemas.base_name_descr import BaseNameDescrSchema
-from app.translate.ru import NAME_ERROR
+from app.translate.ru import FIELD_ERROR
 
 
 class CategoryCreate(BaseNameDescrSchema):
@@ -17,7 +17,7 @@ class CategoryUpdate(BaseNameDescrSchema):
     @field_validator('name')
     def name_cannot_be_null(cls, value):
         if value is None:
-            raise ValueError(NAME_ERROR)
+            raise ValueError(FIELD_ERROR)
         return value
 
 

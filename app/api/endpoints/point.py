@@ -97,5 +97,5 @@ async def delete_point(
     point_db = await check_exist(point_crud, point_id, session)
 
     # Удаляем поля автомойки
-    point_db = await point_crud.remove(point_db, session)
-    return point_db
+    point = await point_crud.remove(point_db, session)
+    return point
