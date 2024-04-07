@@ -47,6 +47,7 @@ class ServiceUpdate(ServiceBase):
             raise ValueError(FIELD_ERROR.format(info.field_name))
         return value
 
+
 class ServiceDB(ServiceBase):
     id: int
 

@@ -6,7 +6,7 @@ from app.api.validators import (
     check_service_duplicate_on_point
 )
 from app.core.db import get_async_session
-from app.crud import service_crud
+from app.crud import service_crud, point_crud, category_crud
 from app.models import Service
 from app.schemas.service import ServiceDB, ServiceCreate, ServiceUpdate
 
@@ -27,6 +27,12 @@ async def create_new_service(
     Создание услуги.
     Только для суперюзеров.
     """
+
+    # Проверка на существование автомойки.
+    await check_exist(point_crud, new_service_json.point_id, session)
+
+    # Проверка на существование категории услуг.
+    await check_exist(category_crud, new_service_json.category_id, session)
 
     # Проверка на уникальность услуги на автомойке
     await check_service_duplicate_on_point(
@@ -69,6 +75,12 @@ async def update_service(
 
     # Проверка на существование услуги в базе.
     service_db = await check_exist(service_crud, service_id, session)
+
+    # Проверка на существование автомойки.
+    await check_exist(point_crud, service_json.point_id, session)
+
+    # Проверка на существование категории услуг.
+    await check_exist(category_crud, service_json.category_id, session)
 
     # Проверка на уникальность переданных данных
     if service_json.name is not None:

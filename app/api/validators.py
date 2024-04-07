@@ -73,7 +73,10 @@ async def check_exist(model_crud, obj_id: int, session: AsyncSession):
     """
     obj = await model_crud.get(obj_id, session)
     if obj is None:
-        raise HTTPException(status_code=404, detail=OBJ_NOT_EXIST)
+        raise HTTPException(
+            status_code=404,
+            detail=OBJ_NOT_EXIST.format(obj_id, model_crud.model.__name__)
+        )
     return obj
 
 
