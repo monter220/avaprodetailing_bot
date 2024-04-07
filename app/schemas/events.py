@@ -1,3 +1,5 @@
+from typing import Optional
+
 from datetime import datetime
 
 from pydantic import (
@@ -5,11 +7,12 @@ from pydantic import (
     PositiveInt,
     Extra,
     NonNegativeInt,
+    Field,
 )
 
 
 class EventsCreate(BaseModel):
-    author: NonNegativeInt
+    author: Optional[NonNegativeInt] = Field(None)
     model: str
     data: str
     type_id: NonNegativeInt
