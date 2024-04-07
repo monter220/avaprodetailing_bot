@@ -4,7 +4,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.crud.base import CRUDBase
-from app.models import Role, PayType
+from app.models import Role, PayType, EventTypes
 
 
 class CRUDReferences(CRUDBase):
@@ -21,3 +21,4 @@ class CRUDReferences(CRUDBase):
 
 role_crud = CRUDReferences(Role)
 paytype_crud = CRUDReferences(PayType)
+evettypes_crud = CRUDReferences(EventTypes)
