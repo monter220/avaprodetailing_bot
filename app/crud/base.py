@@ -1,6 +1,10 @@
+from typing import Optional
+
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.core.managment.utils import insert_into_events
 
 
 class CRUDBase:
@@ -31,9 +35,13 @@ class CRUDBase:
             self,
             obj_in,
             session: AsyncSession,
+            model: Optional[str] = None,
+            user: Optional[int] = None,
     ):
         obj_in_data = obj_in.dict()
         db_obj = self.model(**obj_in_data)
+        if model:
+            await insert_into_events(obj_in_data, model, 1, session, user.id)
         session.add(db_obj)
         await session.commit()
         await session.refresh(db_obj)

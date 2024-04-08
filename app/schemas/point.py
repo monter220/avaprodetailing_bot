@@ -4,9 +4,9 @@ from pydantic import Field, field_validator
 from pydantic_core.core_schema import ValidationInfo
 
 from app.core.config import settings
-from app.schemas.base_name_descr import BaseNameDescrSchema
-from app.schemas.service import ServiceDB
-from app.schemas.user import UserDB
+from .base_name_descr import BaseNameDescrSchema
+from .service import ServiceCategoryDB
+from .user import UserDB
 from app.translate.ru import FIELD_ERROR
 
 
@@ -39,16 +39,19 @@ class PointUpdate(PointBase):
         return value
 
 
-class PointDB(PointBase):
+class ShortPointDB(PointBase):
+    class Config:
+        orm_mode = True
+
+
+class IDShortPointDB(ShortPointDB):
     id: int
 
-    class Config:
-        orm_mode = True
 
-
-class PointFullDB(PointBase):
+class PointDB(ShortPointDB):
     admins: list[UserDB]
-    services: list[ServiceDB]
+    services: list[ServiceCategoryDB]
 
-    class Config:
-        orm_mode = True
+
+class FullPointDB(IDShortPointDB, PointDB):
+    pass

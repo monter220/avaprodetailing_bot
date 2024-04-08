@@ -9,6 +9,7 @@ class Settings(BaseSettings):
     role_list: str = '{1:"client",2:"administrator",3:"superuser"}'
     default_role: int = 1
     paytype_list: str = '{1:"наличный расчет",2:"безналичный расчет"}'
+    eventtypes_list: str = '{1:"создан",2:"изменен",3:"удален"}'
 
     min_fio_len: int = 2
     max_fio_len: int = 100
@@ -38,7 +39,7 @@ class Settings(BaseSettings):
     host_url: str = 'https://example.com'
     app_port: int = 443
     cookies_ttl: int = (30 * 24 * 60 * 60) #30 дней
-    testing: int = 0
+    testing: int = 1
 
     class Config:
         env_file = '.env'
