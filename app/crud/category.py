@@ -28,12 +28,21 @@ class CRUDCategory(CRUDBase):
         return db_field_exists.first()
 
     @staticmethod
-    async def get_all_categories_and_services(session: AsyncSession):
+    async def all_categories(session: AsyncSession):
         category = await session.execute(
             select(Category)
             .options(selectinload(Category.services))
         )
         return category.unique().scalars().all()
+
+    @staticmethod
+    async def category_by_id(category_id, session: AsyncSession):
+        category = await session.execute(
+            select(Category)
+            .filter_by(id=category_id)
+            .options(selectinload(Category.services))
+        )
+        return category.unique().scalars().first()
 
 
 category_crud = CRUDCategory(Category)

@@ -8,12 +8,15 @@ from app.schemas.base_name_descr import BaseNameDescrSchema
 from app.translate.ru import FIELD_ERROR
 
 
-class ServiceBase(BaseNameDescrSchema):
+class ShortServiceBase(BaseNameDescrSchema):
     cost: Optional[PositiveInt] = None
     default_bonus: Optional[PositiveInt] = Field(
         None,
         max_value=settings.max_bonus_value
     )
+
+
+class ServiceBase(ShortServiceBase):
     category_id: Optional[PositiveInt] = None
     point_id: Optional[PositiveInt] = None
 
@@ -48,8 +51,28 @@ class ServiceUpdate(ServiceBase):
         return value
 
 
-class ServiceDB(ServiceBase):
-    id: int
-
+class BaseServiceDB(ShortServiceBase):
     class Config:
         orm_mode = True
+
+
+class ShortServiceDB(BaseServiceDB):
+    id: int
+
+
+class ServicePointDB(ShortServiceDB):
+    point_id: PositiveInt
+
+
+class ServiceCategoryDB(ShortServiceDB):
+    category_id: PositiveInt
+
+
+class ServiceDB(BaseServiceDB):
+    point_id: PositiveInt
+    category_id: PositiveInt
+
+
+class FullServiceDB(ShortServiceDB, ServiceDB):
+    pass
+

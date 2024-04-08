@@ -5,8 +5,12 @@ from app.api.validators import check_fields_duplicate, check_exist
 from app.core.db import get_async_session
 from app.crud.category import category_crud
 from app.models import Category
-from app.schemas.category import CategoryDB, CategoryCreate, CategoryUpdate, \
-    CategoryServicesDB
+from app.schemas.category import (
+    CategoryDB,
+    CategoryCreate,
+    CategoryUpdate,
+    ShortCategoryServicesDB, CategoryServicesDB
+)
 
 router = APIRouter()
 
@@ -36,30 +40,6 @@ async def create_new_category(
     return new_category_db
 
 
-@router.get(
-    '/full',
-    response_model=list[CategoryServicesDB],
-    response_model_exclude_none=True,
-)
-async def get_all_categories(
-    session: AsyncSession = Depends(get_async_session),
-):
-    """Возвращает список всех категорий и услуг."""
-    return await category_crud.get_all_categories_and_services(session)
-
-
-@router.get(
-    '/',
-    response_model=list[CategoryDB],
-    response_model_exclude_none=True,
-)
-async def get_all_categories(
-    session: AsyncSession = Depends(get_async_session),
-):
-    """Возвращает список всех категорий."""
-    return await category_crud.get_multi(session)
-
-
 @router.patch(
     '/{category_id}',
     response_model=CategoryDB,
@@ -69,7 +49,7 @@ async def update_category(
     category_id: int,
     category_json: CategoryUpdate,
     session: AsyncSession = Depends(get_async_session),
-):
+) -> Category:
     """
     Только для суперюзеров.
 
@@ -96,7 +76,7 @@ async def update_category(
 async def delete_category(
     category_id: int,
     session: AsyncSession = Depends(get_async_session),
-):
+) -> Category:
     """
     Только для суперюзеров.
 
@@ -108,3 +88,32 @@ async def delete_category(
     # Удаляем категорию.
     category = await category_crud.remove(category_db, session)
     return category
+
+
+@router.get(
+    '/{category_id}',
+    response_model=ShortCategoryServicesDB,
+    response_model_exclude_none=True,
+)
+async def get_category_by_id(
+    category_id,
+    session: AsyncSession = Depends(get_async_session),
+) -> Category:
+    """Возвращает категорию по id."""
+
+    # Проверка на существование категории в базе
+    await check_exist(category_crud, category_id, session)
+
+    return await category_crud.category_by_id(category_id, session)
+
+
+@router.get(
+    '/',
+    response_model=list[CategoryServicesDB],
+    response_model_exclude_none=True,
+)
+async def get_all_categories(
+    session: AsyncSession = Depends(get_async_session),
+) -> list[Category]:
+    """Возвращает список всех категорий и услуг."""
+    return await category_crud.all_categories(session)

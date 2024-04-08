@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.crud.base import CRUDBase
-from app.models import Point
+from app.models import Point, Category
 
 
 class CRUDPoint(CRUDBase):
@@ -34,10 +34,19 @@ class CRUDPoint(CRUDBase):
         return db_field_exists.first()
 
     @staticmethod
-    async def get_all_by_id(point_id: int, session: AsyncSession):
+    async def point_by_id(point_id: int, session: AsyncSession):
         point = await session.execute(
             select(Point)
-            .where(Point.id == point_id)
+            .filter_by(id=point_id)
+            .options(selectinload(Point.admins))
+            .options(selectinload(Point.services))
+        )
+        return point.unique().scalars().first()
+
+    @staticmethod
+    async def all_points(session: AsyncSession):
+        point = await session.execute(
+            select(Point)
             .options(selectinload(Point.admins))
             .options(selectinload(Point.services))
         )

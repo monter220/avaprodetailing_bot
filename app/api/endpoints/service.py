@@ -8,14 +8,22 @@ from app.api.validators import (
 from app.core.db import get_async_session
 from app.crud import service_crud, point_crud, category_crud
 from app.models import Service
-from app.schemas.service import ServiceDB, ServiceCreate, ServiceUpdate
+from app.schemas.service import (
+    FullServiceDB,
+    ServiceCreate,
+    ServiceUpdate,
+    ServiceDB,
+    ServicePointDB,
+    ServiceCategoryDB,
+    ShortServiceDB
+)
 
 router = APIRouter()
 
 
 @router.post(
     '/',
-    response_model=ServiceDB,
+    response_model=FullServiceDB,
     response_model_exclude_none=True,
     # dependencies=[Depends(current_superuser)],
 )
@@ -45,78 +53,9 @@ async def create_new_service(
     return new_service_db
 
 
-@router.get(
-    '/',
-    response_model=list[ServiceDB],
-    response_model_exclude_none=True,
-)
-async def get_all_services(
-    session: AsyncSession = Depends(get_async_session),
-):
-    """Возвращает список всех услуг."""
-    return await service_crud.get_multi(session)
-
-
-@router.get(
-    '/{category_id}',
-    response_model=list[ServiceDB],
-    response_model_exclude_none=True,
-)
-async def get_services_by_category(
-    category_id: int,
-    session: AsyncSession = Depends(get_async_session),
-):
-    """Возвращает список всех услуг с определенной категорией."""
-
-    # Проверка на существование категории услуг.
-    await check_exist(category_crud, category_id, session)
-    return await service_crud.get_services_by_category(category_id, session)
-
-
-@router.get(
-    '/{point_id}',
-    response_model=list[ServiceDB],
-    response_model_exclude_none=True,
-)
-async def get_services_by_point(
-    point_id: int,
-    session: AsyncSession = Depends(get_async_session),
-):
-    """Возвращает список всех услуг с определенной автомойки."""
-
-    # Проверка на существование автомойки.
-    await check_exist(point_crud, point_id, session)
-    return await service_crud.get_services_by_point(point_id, session)
-
-
-@router.get(
-    '/{point_id}/{category_id}',
-    response_model=list[ServiceDB],
-    response_model_exclude_none=True,
-)
-async def get_services_by_point_category(
-    point_id: int,
-    category_id: int,
-    session: AsyncSession = Depends(get_async_session),
-):
-    """Возвращает список всех услуг с определенной автомойки и категории."""
-
-    # Проверка на существование автомойки.
-    await check_exist(point_crud, point_id, session)
-
-    # Проверка на существование категории услуг.
-    await check_exist(category_crud, category_id, session)
-
-    return await service_crud.get_services_by_point_category(
-        point_id,
-        category_id,
-        session
-    )
-
-
 @router.patch(
     '/{service_id}',
-    response_model=ServiceDB,
+    response_model=FullServiceDB,
     # dependencies=[Depends(current_superuser)],
 )
 async def update_service(
@@ -153,7 +92,7 @@ async def update_service(
 
 @router.delete(
     '/{service_id}',
-    response_model=ServiceDB,
+    response_model=FullServiceDB,
     # dependencies=[Depends(current_superuser)],
 )
 async def delete_service(
@@ -171,3 +110,90 @@ async def delete_service(
     # Удаляем услугу.
     service = await service_crud.remove(service_db, session)
     return service
+
+
+@router.get(
+    '/',
+    response_model=list[FullServiceDB],
+    response_model_exclude_none=True,
+)
+async def get_all_services(
+    session: AsyncSession = Depends(get_async_session),
+) -> list[Service]:
+    """Возвращает список всех услуг."""
+    return await service_crud.get_multi(session)
+
+
+@router.get(
+    '/{service_id}',
+    response_model=ServiceDB,
+    response_model_exclude_none=True,
+)
+async def get_service_by_id(
+    service_id,
+    session: AsyncSession = Depends(get_async_session),
+) -> Service:
+    """Возвращает услугу по id."""
+
+    # Проверка на существование услуги.
+    await check_exist(service_crud, service_id, session)
+
+    return await service_crud.service_by_id(service_id, session)
+
+
+@router.get(
+    '/category/{category_id}',
+    response_model=list[ServicePointDB],
+    response_model_exclude_none=True,
+)
+async def get_services_by_category(
+    category_id: int,
+    session: AsyncSession = Depends(get_async_session),
+) -> list[Service]:
+    """Возвращает список всех услуг с определенной категорией."""
+
+    # Проверка на существование категории услуг.
+    await check_exist(category_crud, category_id, session)
+
+    return await service_crud.services_by_category(category_id, session)
+
+
+@router.get(
+    '/point/{point_id}',
+    response_model=list[ServiceCategoryDB],
+    response_model_exclude_none=True,
+)
+async def get_services_by_point(
+    point_id: int,
+    session: AsyncSession = Depends(get_async_session),
+) -> list[Service]:
+    """Возвращает список всех услуг с определенной автомойки."""
+
+    # Проверка на существование автомойки.
+    await check_exist(point_crud, point_id, session)
+    return await service_crud.services_by_point(point_id, session)
+
+
+@router.get(
+    '/point/{point_id}/category/{category_id}',
+    response_model=list[ShortServiceDB],
+    response_model_exclude_none=True,
+)
+async def get_services_by_point_category(
+    point_id: int,
+    category_id: int,
+    session: AsyncSession = Depends(get_async_session),
+) -> list[Service]:
+    """Возвращает список всех услуг с определенной автомойки и категории."""
+
+    # Проверка на существование автомойки.
+    await check_exist(point_crud, point_id, session)
+
+    # Проверка на существование категории услуг.
+    await check_exist(category_crud, category_id, session)
+
+    return await service_crud.services_by_point_category(
+        point_id,
+        category_id,
+        session
+    )

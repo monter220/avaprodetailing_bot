@@ -5,14 +5,20 @@ from app.api.validators import check_fields_duplicate, check_exist
 from app.core.db import get_async_session
 from app.crud import point_crud
 from app.models import Point
-from app.schemas.point import PointDB, PointCreate, PointUpdate, PointFullDB
+from app.schemas.point import (
+    PointDB,
+    PointCreate,
+    PointUpdate,
+    IDShortPointDB,
+    FullPointDB
+)
 
 router = APIRouter()
 
 
 @router.post(
     '/',
-    response_model=PointDB,
+    response_model=IDShortPointDB,
     response_model_exclude_none=True,
     # dependencies=[Depends(current_superuser)],
 )
@@ -36,28 +42,16 @@ async def create_new_point(
     return new_point_db
 
 
-@router.get(
-    '/',
-    response_model=list[PointDB],
-    response_model_exclude_none=True,
-)
-async def get_all_points(
-    session: AsyncSession = Depends(get_async_session),
-):
-    """Возвращает список всех автомоек."""
-    return await point_crud.get_multi(session)
-
-
 @router.patch(
     '/{point_id}',
-    response_model=PointDB,
+    response_model=IDShortPointDB,
     # dependencies=[Depends(current_superuser)],
 )
 async def update_point(
     point_id: int,
     point_json: PointUpdate,
     session: AsyncSession = Depends(get_async_session),
-):
+) -> Point:
     """
     Только для суперюзеров.
 
@@ -81,13 +75,13 @@ async def update_point(
 
 @router.delete(
     '/{point_id}',
-    response_model=PointDB,
+    response_model=IDShortPointDB,
     # dependencies=[Depends(current_superuser)],
 )
 async def delete_point(
     point_id: int,
     session: AsyncSession = Depends(get_async_session),
-):
+) -> Point:
     """
     Только для суперюзеров.
 
@@ -103,16 +97,28 @@ async def delete_point(
 
 @router.get(
     '/{point_id}',
-    response_model=list[PointFullDB],
+    response_model=PointDB,
     response_model_exclude_none=True,
 )
-async def get_all_data_by_point(
+async def get_point_by_id(
     point_id,
     session: AsyncSession = Depends(get_async_session),
-):
+) -> Point:
     """Возвращает все данные по автомойке."""
 
     # Проверка на существование автомойки в базе
     await check_exist(point_crud, point_id, session)
 
-    return await point_crud.get_all_by_id(point_id, session)
+    return await point_crud.point_by_id(point_id, session)
+
+
+@router.get(
+    '/',
+    response_model=list[FullPointDB],
+    response_model_exclude_none=True,
+)
+async def get_all_points(
+    session: AsyncSession = Depends(get_async_session),
+) -> list[Point]:
+    """Возвращает список всех автомоек."""
+    return await point_crud.all_points(session)
