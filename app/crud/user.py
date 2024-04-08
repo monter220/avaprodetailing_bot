@@ -9,29 +9,29 @@ from app.models import User
 
 class CRUDUser(CRUDBase):
 
-    async def phone_number_exist(
+    async def get_user_by_phone_number(
             self,
             phone: str,
             session: AsyncSession,
-    ) -> Optional[int]:
-        db_user_id = await session.execute(
-            select(User.id).where(
+    ) -> Optional[User]:
+        db_user = await session.execute(
+            select(User).where(
                 User.phone == phone
             )
         )
-        return db_user_id.scalars().first()
+        return db_user.scalars().first()
 
-    async def tg_exist(
+    async def get_user_by_telegram_id(
             self,
-            user_id: int,
+            user_telegram_id: int,
             session: AsyncSession,
-    ) -> Optional[int]:
-        db_user_tg = await session.execute(
-            select(User.tg_id).where(
-                User.id == user_id
+    ) -> Optional[User]:
+        db_user = await session.execute(
+            select(User).where(
+                User.tg_id == user_telegram_id
             )
         )
-        return db_user_tg.scalars().first()
+        return db_user.scalars().first()
 
     async def tg_login_check(
             self,
