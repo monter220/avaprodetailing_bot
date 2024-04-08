@@ -2,8 +2,8 @@ import contextlib
 
 from app.core.config import settings
 from app.core.db import get_async_session
-from app.schemas.references import RoleCreate, PayTypeCreate
-from app.crud import role_crud, paytype_crud
+from app.schemas.references import RoleCreate, PayTypeCreate, EventTypesCreate
+from app.crud import role_crud, paytype_crud, evettypes_crud
 
 
 get_async_session_context = contextlib.asynccontextmanager(get_async_session)
@@ -17,7 +17,7 @@ async def create_role():
                 for id in role_dict.keys():
                     await role_crud.create(
                         RoleCreate(
-                            id=id,name=role_dict[id]
+                            id=id, name=role_dict[id]
                         ), session)
 
 
@@ -29,5 +29,17 @@ async def create_paytype():
                 for id in paytype_dict.keys():
                     await paytype_crud.create(
                         PayTypeCreate(
-                            id=id,name=paytype_dict[id]
+                            id=id, name=paytype_dict[id]
+                        ), session)
+
+
+async def create_eventtypes():
+    if settings.eventtypes_list is not None:
+        eventtypes_dict = eval(settings.eventtypes_list)
+        async with get_async_session_context() as session:
+            if not await evettypes_crud.check_empty(session):
+                for id in eventtypes_dict.keys():
+                    await evettypes_crud.create(
+                        EventTypesCreate(
+                            id=id, name=eventtypes_dict[id]
                         ), session)

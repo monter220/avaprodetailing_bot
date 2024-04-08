@@ -112,5 +112,6 @@ async def get_payments_template(
 #         session: AsyncSession = Depends(get_async_session),
 # ):
 #     await check_duplicate(new_user.phone, session)
-#     new = await user_crud.create(new_user, session)
+#     new = await user_crud.create(
+#         obj_in=new_user, session=session, model='User')
 #     return new

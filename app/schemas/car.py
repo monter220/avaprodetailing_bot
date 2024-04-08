@@ -2,7 +2,6 @@ import json
 
 from typing import Optional
 from gosnomer import normalize
-
 from pydantic import (
     BaseModel,
     Field,
@@ -12,6 +11,7 @@ from pydantic import (
     Extra,
     model_validator,
 )
+
 from app.core.config import settings
 
 
