@@ -56,13 +56,14 @@ async def add_car(
     car['model'] = form_data.get('model')
     car['license_plate_number'] = form_data.get('license_plate_number')
     file = form_data.get('image')
+    user = await user_crud.get_user_by_telegram_id(user_telegram_id, session)
     await check_user_exist(user_id, session)
     if file.filename is None:
         await car_crud.create_car(
                     obj_in=CarCreate(**car),
                     session=session,
                     model='Car',
-                    user=await user_crud.get_user_by_telegram_id(user_telegram_id, session),
+                    user=user,
                 )
     else:
         _, ext = os.path.splitext(file.filename)
@@ -75,16 +76,22 @@ async def add_car(
         file_name = f'{uuid.uuid4().hex}{ext}'
         async with open(os.path.join(imgdir, file_name), mode='wb') as f:
             await f.write(content)
-        path_to_img = os.path.abspath(os.path.join(imgdir, file_name))
+        short_path = f'{settings.host_folder}/{user_id}/{file_name}'
+        if settings.local_test:
+            path_to_img = f'http://127.0.0.1:8000/{short_path}'
+        else:
+            path_to_img = f'http://{settings.host_ip}:{settings.app_port}/{short_path}'
         car_db = await car_crud.create_car(
             path=path_to_img,
             obj_in=CarCreate(**car),
             session=session,
             model='Car',
-            user=await user_crud.get_user_by_telegram_id(user_telegram_id, session),
+            user=user,
         )
     return RedirectResponse(
-        f'/{car_db.id}',
+        # f'/{user_id}/car/{car_db.id}',
+        # user=user,
+        f'/user/profile/{user_id}',
         status_code=status.HTTP_302_FOUND,
     )
 

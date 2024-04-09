@@ -21,7 +21,8 @@ class Settings(BaseSettings):
     phone_error: str = 'invalid phone number format'
     default_bonus: int = 100
     basedir: str = os.getcwd()
-    folder: str = 'static'
+    folder: str = 'app/templates/static/media'
+    host_folder: str = 'static/media'
 
     min_name_len: int = 1
     max_name_len: int = 50
@@ -40,6 +41,7 @@ class Settings(BaseSettings):
     app_port: int = 443
     cookies_ttl: int = (30 * 24 * 60 * 60) #30 дней
     testing: int = 0
+    local_test: int = 1
 
     class Config:
         env_file = '.env'
