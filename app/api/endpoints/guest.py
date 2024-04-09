@@ -139,7 +139,7 @@ async def process_user_phone(
         return response
 
     elif user.role == 1:  # Шаблонов и роутеров нет
-        response = RedirectResponse('/client')
+        response = RedirectResponse(f'/user/profile/{user.id}')
         return response
 
 

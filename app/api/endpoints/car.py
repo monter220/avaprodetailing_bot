@@ -89,9 +89,9 @@ async def add_car(
             user=user,
         )
     return RedirectResponse(
-        # f'/{user_id}/car/{car_db.id}',
+        f'/{user_id}/car/{car_db.id}',
         # user=user,
-        f'/user/profile/{user_id}',
+        # f'/user/profile/{user_id}',
         status_code=status.HTTP_302_FOUND,
     )
 
@@ -99,6 +99,7 @@ async def add_car(
 @router.get('/{car_id}')
 async def get_edit_car_template(
     car_id: int,
+    user_id: int,
     request: Request,
     session: AsyncSession = Depends(get_async_session)
 ):
@@ -109,7 +110,7 @@ async def get_edit_car_template(
     )
     return templates.TemplateResponse(
         'car/edit-car.html',
-        {'request': request, 'car': car}
+        {'request': request, 'car': car, 'user_id': user_id}
     )
 
 

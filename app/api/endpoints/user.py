@@ -23,6 +23,29 @@ async def get_profile_template(
     session: AsyncSession = Depends(get_async_session)
 ):
     """Функция для получения шаблона профиля пользователя."""
+    print(11111111111111111111111111111)
+    user = await user_crud.get(obj_id=user_id, session=session)
+
+    # TODO: Этого метода в круде автомобиля нет - нужно добавить.
+    # cars = await car_crud.get_user_cars(session, user_id)
+
+    return templates.TemplateResponse(
+        "user/profile.html",
+        {
+            "request": request,
+            "user": user,
+            # "cars": cars
+        }
+    )
+
+
+@router.post("/profile/{user_id}")
+async def process_redirect_from_phone(
+    request: Request,
+    user_id: int,
+    session: AsyncSession = Depends(get_async_session),
+):
+    """Функция для обработки редиректа из /phone."""
 
     user = await user_crud.get(obj_id=user_id, session=session)
 
