@@ -13,10 +13,9 @@ async def check_duplicate(
     phone: str,
     session: AsyncSession,
 ) -> None:
-    user_id = await user_crud.phone_number_exist(phone, session)
-    if user_id:
-        tg_id = await user_crud.tg_exist(user_id, session)
-        if tg_id is not None:
+    user = await user_crud.get_user_by_phone_number(phone, session)
+    if user:
+        if user.tg_id:
             raise HTTPException(
                 status_code=422,
                 detail='Пользователь уже существует!',
@@ -79,7 +78,7 @@ async def check_exist(model_crud, obj_id: int, session: AsyncSession):
 
 
 async def check_user_exist(
-    user_id: str,
+    user_id: int,
     session: AsyncSession,
 ) -> None:
     if not await user_crud.user_exist(user_id, session):

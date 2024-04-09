@@ -3,7 +3,7 @@ from typing import Optional
 from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models import Events
+from app.models import Events, User
 
 
 async def insert_into_events(
@@ -11,12 +11,12 @@ async def insert_into_events(
         model: str,
         type: int,
         session: AsyncSession,
-        user: Optional[int] = None,
+        user: Optional[User] = None,
 ):
     event = dict.fromkeys(['author', 'model', 'data', 'type_id'])
     try:
         if user:
-            event['author'] = user
+            event['author'] = user.id
         event['model'] = model
         event['type_id'] = type
         event_data: dict[str, dict[str, str]] = dict.fromkeys(['old', 'new'])

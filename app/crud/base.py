@@ -41,7 +41,7 @@ class CRUDBase:
         obj_in_data = obj_in.dict()
         db_obj = self.model(**obj_in_data)
         if model:
-            await insert_into_events(obj_in_data, model, 1, session, user.id)
+            await insert_into_events(obj_in_data, model, 1, session, user)
         session.add(db_obj)
         await session.commit()
         await session.refresh(db_obj)

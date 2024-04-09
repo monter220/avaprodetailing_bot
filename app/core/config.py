@@ -39,7 +39,7 @@ class Settings(BaseSettings):
     host_url: str = 'https://example.com'
     app_port: int = 443
     cookies_ttl: int = (30 * 24 * 60 * 60) #30 дней
-    testing: int = 1
+    testing: int = 0
 
     class Config:
         env_file = '.env'
