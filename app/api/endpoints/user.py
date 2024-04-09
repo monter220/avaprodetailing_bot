@@ -23,7 +23,6 @@ async def get_profile_template(
     session: AsyncSession = Depends(get_async_session)
 ):
     """Функция для получения шаблона профиля пользователя."""
-    print(11111111111111111111111111111)
     user = await user_crud.get(obj_id=user_id, session=session)
 
     # TODO: Этого метода в круде автомобиля нет - нужно добавить.

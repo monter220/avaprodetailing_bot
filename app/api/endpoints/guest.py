@@ -182,7 +182,8 @@ async def registrate_user(
         'date_birth': datetime.strptime(date_birth, '%Y-%m-%d'),
     }
 
-    await user_crud.create(UserCreate(**user_create_data), session)
+    await user_crud.create(
+        obj_in=UserCreate(**user_create_data), session=session, model='User')
 
     response = RedirectResponse(
         '/success_registration',
