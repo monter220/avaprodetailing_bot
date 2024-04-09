@@ -58,8 +58,8 @@ async def add_car(
     file = form_data.get('image')
     user = await user_crud.get_user_by_telegram_id(user_telegram_id, session)
     await check_user_exist(user_id, session)
-    if file.filename is None:
-        await car_crud.create_car(
+    if not file.filename:
+        car_db = await car_crud.create_car(
                     obj_in=CarCreate(**car),
                     session=session,
                     model='Car',
@@ -89,9 +89,9 @@ async def add_car(
             user=user,
         )
     return RedirectResponse(
-        f'/{user_id}/car/{car_db.id}',
+        # f'/{user_id}/car/{car_db.id}',
         # user=user,
-        # f'/user/profile/{user_id}',
+        f'/user/profile/{user_id}',
         status_code=status.HTTP_302_FOUND,
     )
 
