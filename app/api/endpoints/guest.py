@@ -11,6 +11,7 @@ from app.core.db import get_async_session
 from app.core.config import settings
 from app.crud.user import user_crud
 from app.models.user import User
+from app.schemas.user import UserCreate
 
 router = APIRouter(
     tags=['guest']
@@ -181,7 +182,7 @@ async def registrate_user(
         'date_birth': datetime.strptime(date_birth, '%Y-%m-%d'),
     }
 
-    await user_crud.create(user_create_data, session)
+    await user_crud.create(UserCreate(**user_create_data), session)
 
     response = RedirectResponse(
         '/success_registration',
