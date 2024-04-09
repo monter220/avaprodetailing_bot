@@ -15,6 +15,6 @@ class Point(NameDescr):
         unique=True
     )
     # Все адимистраторы автомойки
-    admins = relationship('User', )
-    # Все услуги, оказываемые на автомойке
-    services = relationship('Service', cascade='delete', )
+    admins = relationship('User', backref='point')
+    # Все категории услуг на автомойке
+    categories = relationship('Category', cascade='delete', backref='point')

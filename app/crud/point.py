@@ -39,7 +39,8 @@ class CRUDPoint(CRUDBase):
             select(Point)
             .filter_by(id=point_id)
             .options(selectinload(Point.admins))
-            .options(selectinload(Point.services))
+            .options(selectinload(Point.categories)
+                     .options(selectinload(Category.services)))
         )
         return point.unique().scalars().first()
 
@@ -48,7 +49,8 @@ class CRUDPoint(CRUDBase):
         point = await session.execute(
             select(Point)
             .options(selectinload(Point.admins))
-            .options(selectinload(Point.services))
+            .options(selectinload(Point.categories)
+                     .options(selectinload(Category.services)))
         )
         return point.unique().scalars().all()
 

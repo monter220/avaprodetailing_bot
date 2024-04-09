@@ -4,10 +4,10 @@ from pydantic import Field, field_validator
 from pydantic_core.core_schema import ValidationInfo
 
 from app.core.config import settings
-from .base_name_descr import BaseNameDescrSchema
-from .service import ServiceCategoryDB
-from .user import UserDB
 from app.translate.ru import FIELD_ERROR
+from .base_name_descr import BaseNameDescrSchema
+from .category import CategoryDB
+from .user import UserDB
 
 
 class PointBase(BaseNameDescrSchema):
@@ -39,19 +39,14 @@ class PointUpdate(PointBase):
         return value
 
 
-class ShortPointDB(PointBase):
+class PointBaseDB(PointBase):
+    id: int
+
     class Config:
         orm_mode = True
 
 
-class IDShortPointDB(ShortPointDB):
+class PointDB(PointBaseDB):
     id: int
-
-
-class PointDB(ShortPointDB):
     admins: list[UserDB]
-    services: list[ServiceCategoryDB]
-
-
-class FullPointDB(IDShortPointDB, PointDB):
-    pass
+    categories: list[CategoryDB]
