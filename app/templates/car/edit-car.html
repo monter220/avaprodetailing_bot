@@ -5,7 +5,11 @@
   <h1>Изменить автомобиль</h1>
   <div id="car-card">
     <div class="icon-circle">
-      <img src="{{ car.image }}" alt="{{ car.brand }} {{ car.model }}"/>
+      {% if car.image %}
+      <img src="{{ car.image }}"/>
+      {% else %}
+      <img alt="{{ car.brand }} {{ car.model }}"/>
+      {% endif %}
     </div>
   </div>
 
