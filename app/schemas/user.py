@@ -16,9 +16,9 @@ from app.core.config import settings
 
 class UserCreate(BaseModel):
     tg_id: Optional[PositiveInt] = Field(None)
-    surname: str = Field(min_length=settings.max_fio_len)
-    name: str = Field(min_length=settings.max_fio_len)
-    patronymic: Optional[str] = Field(None, min_length=settings.max_fio_len)
+    surname: str = Field(max_length=settings.max_fio_len)
+    name: str = Field(max_length=settings.max_fio_len)
+    patronymic: Optional[str] = Field(None, max_length=settings.max_fio_len)
     date_birth: date
     phone: str = Field(max_length=settings.max_phone_len)
 

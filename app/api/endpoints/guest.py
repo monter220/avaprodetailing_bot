@@ -11,6 +11,7 @@ from app.core.db import get_async_session
 from app.core.config import settings
 from app.crud.user import user_crud
 from app.models.user import User
+from app.schemas.user import UserCreate
 
 router = APIRouter(
     tags=['guest']
@@ -129,16 +130,16 @@ async def process_user_phone(
         update_data = {'tg_id': user_telegram_id}
         user = await user_crud.update(user, update_data, session)
 
-    if user.role.name == 'superuser':  # Шаблонов и роутеров нет
+    if user.role == 3:  # Шаблонов и роутеров нет
         response = RedirectResponse('/superuser')
         return response
 
-    elif user.role.name == 'administrator':  # Шаблонов и роутеров нет
+    elif user.role == 2:  # Шаблонов и роутеров нет
         response = RedirectResponse('/administrator')
         return response
 
-    elif user.role.name == 'client':  # Шаблонов и роутеров нет
-        response = RedirectResponse('/client')
+    elif user.role == 1:  # Шаблонов и роутеров нет
+        response = RedirectResponse(f'/user/profile/{user.id}')
         return response
 
 
@@ -181,7 +182,7 @@ async def registrate_user(
         'date_birth': datetime.strptime(date_birth, '%Y-%m-%d'),
     }
 
-    await user_crud.create(user_create_data, session)
+    await user_crud.create(UserCreate(**user_create_data), session)
 
     response = RedirectResponse(
         '/success_registration',
