@@ -130,15 +130,15 @@ async def process_user_phone(
         update_data = {'tg_id': user_telegram_id}
         user = await user_crud.update(user, update_data, session)
 
-    if user.role.name == 'superuser':  # Шаблонов и роутеров нет
+    if user.role == 3:  # Шаблонов и роутеров нет
         response = RedirectResponse('/superuser')
         return response
 
-    elif user.role.name == 'administrator':  # Шаблонов и роутеров нет
+    elif user.role == 2:  # Шаблонов и роутеров нет
         response = RedirectResponse('/administrator')
         return response
 
-    elif user.role.name == 'client':  # Шаблонов и роутеров нет
+    elif user.role == 1:  # Шаблонов и роутеров нет
         response = RedirectResponse('/client')
         return response
 
