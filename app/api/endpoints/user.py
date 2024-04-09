@@ -26,14 +26,14 @@ async def get_profile_template(
     user = await user_crud.get(obj_id=user_id, session=session)
 
     # TODO: Этого метода в круде автомобиля нет - нужно добавить.
-    # cars = await car_crud.get_user_cars(session, user_id)
+    cars = await car_crud.get_user_cars(session=session, user_id=user_id)
 
     return templates.TemplateResponse(
         "user/profile.html",
         {
             "request": request,
             "user": user,
-            # "cars": cars
+            "cars": cars
         }
     )
 
@@ -49,14 +49,14 @@ async def process_redirect_from_phone(
     user = await user_crud.get(obj_id=user_id, session=session)
 
     # TODO: Этого метода в круде автомобиля нет - нужно добавить.
-    # cars = await car_crud.get_user_cars(session, user_id)
+    cars = await car_crud.get_user_cars(session=session, user_id=user_id)
 
     return templates.TemplateResponse(
         "user/profile.html",
         {
             "request": request,
             "user": user,
-            # "cars": cars
+            "cars": cars
         }
     )
 
