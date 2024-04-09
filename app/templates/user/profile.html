@@ -41,7 +41,7 @@
     <h2>Мои автомобили</h2>
     {% if cars %}
       {% for car in cars %}
-        <a href="/edit-car/{{ user.id }}/" class="row gray-container">
+        <a href="/{{ user.id }}/car/{{ car.id }}" class="row gray-container">
           <div class="col text-left">
             <div class="icon-circle">
               <img src="{{ car.image }}" alt="{{ car.brand }} {{ car.model }}"/>
