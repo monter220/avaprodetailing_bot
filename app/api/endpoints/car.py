@@ -11,11 +11,10 @@ from aiofiles import open
 
 from app.core.config import settings
 from app.crud import car_crud, user_crud
-from app.api.validators import check_user_exist, check_file_format
-from app.schemas.car import CarCreate, CarDB
+from app.api.validators import check_user_exist, check_file_format, check_user_by_tg_exist
+from app.schemas.car import CarCreate, CarDB, CarUpdate
 from app.core.db import get_async_session
 from app.api.validators import check_exist
-from app.models import Car
 
 
 router = APIRouter(
@@ -58,7 +57,7 @@ async def add_car(
     car['model'] = form_data.get('model')
     car['license_plate_number'] = form_data.get('license_plate_number')
     file = form_data.get('image')
-    user = await user_crud.get_user_by_telegram_id(user_telegram_id, session)
+    user = await check_user_by_tg_exist(int(user_telegram_id), session)
     await check_user_exist(user_id, session)
     if not file.filename:
         await car_crud.create_car(
@@ -91,8 +90,6 @@ async def add_car(
             user=user,
         )
     return RedirectResponse(
-        # f'/{user_id}/car/{car_db.id}',
-        # user=user,
         f'/user/profile/{user_id}',
         status_code=status.HTTP_302_FOUND,
     )
@@ -125,7 +122,6 @@ async def edit_car(
     session: AsyncSession = Depends(get_async_session)
 ):
     """Обработка формы для редактирования машины."""
-    # TODO: Здесь должна происходить валидация данных формы
     form_data = await request.form()
     car = dict.fromkeys(['brand', 'model', 'license_plate_number', 'car_id', 'image'])
     car['car_id'] = car_id
@@ -133,7 +129,7 @@ async def edit_car(
     car['model'] = form_data.get('model')
     car['license_plate_number'] = form_data.get('license_plate_number')
     file = form_data.get('image')
-    user = await user_crud.get_user_by_telegram_id(user_telegram_id, session)
+    user = await check_user_by_tg_exist(int(user_telegram_id), session)
     await check_user_exist(user_id, session)
     if file.filename:
         _, ext = os.path.splitext(file.filename)
@@ -153,7 +149,7 @@ async def edit_car(
             path_to_img = f'http://{settings.host_ip}:{settings.app_port}/{short_path}'
         car['image'] = path_to_img
     await car_crud.update(
-        db_obj=await check_exist(Car, car_id, session),
+        db_obj=await check_exist(car_crud, car_id, session),
         obj_in=CarUpdate(**car),
         session=session,
         model='Car',

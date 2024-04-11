@@ -77,6 +77,16 @@ async def check_exist(model_crud, obj_id: int, session: AsyncSession):
     return obj
 
 
+async def check_user_by_tg_exist(tg_id: int, session: AsyncSession):
+    user = await user_crud.get_user_by_telegram_id(tg_id, session)
+    if user is None:
+        raise HTTPException(
+            status_code=406,
+            detail='Пользователь не существует или заблокирован',
+        )
+    return user
+
+
 async def check_user_exist(
     user_id: int,
     session: AsyncSession,

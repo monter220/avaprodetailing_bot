@@ -64,7 +64,8 @@ class CRUDBase:
         update_data = obj_in.dict(exclude_unset=True)
         for field in obj_data:
             if field in update_data:
-                setattr(db_obj, field, update_data[field])
+                if update_data[field]:
+                    setattr(db_obj, field, update_data[field])
         session.add(db_obj)
         if model:
             event_data['new'] = jsonable_encoder(db_obj)
