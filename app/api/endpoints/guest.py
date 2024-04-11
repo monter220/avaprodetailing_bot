@@ -9,9 +9,9 @@ from starlette import status
 
 from app.core.db import get_async_session
 from app.core.config import settings
-from app.crud.user import user_crud
-from app.models.user import User
-from app.schemas.user import UserCreate
+from app.crud import user_crud
+from app.models import User
+from app.schemas.user import UserCreate, UserUpdateTG
 
 router = APIRouter(
     tags=['guest']
@@ -101,6 +101,14 @@ async def process_user_phone(
         user = await user_crud.get_user_by_phone_number(
             phone=phone_number,
             session=session)
+        if not user.tg_id:
+            await user_crud.update(
+                db_obj=user,
+                obj_in=UserUpdateTG(tg_id=user_telegram_id),
+                user=user,
+                session=session,
+                model='User',
+            )
 
     except Exception as e:
         errors.append(str(e))

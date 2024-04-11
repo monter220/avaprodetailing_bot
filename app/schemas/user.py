@@ -9,13 +9,18 @@ from pydantic import (
     PositiveInt,
     validator,
     Extra,
+    NonNegativeInt,
 )
 
 from app.core.config import settings
 
 
+class UserUpdateTG(BaseModel):
+    tg_id: NonNegativeInt
+
+
 class UserCreate(BaseModel):
-    tg_id: Optional[PositiveInt] = Field(None)
+    tg_id: Optional[NonNegativeInt] = Field(None)
     surname: str = Field(max_length=settings.max_fio_len)
     name: str = Field(max_length=settings.max_fio_len)
     patronymic: Optional[str] = Field(None, max_length=settings.max_fio_len)
