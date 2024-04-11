@@ -4,10 +4,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.db import get_async_session
 from app.crud.point import point_crud
+from app.api.validators import check_exist, check_fields_duplicate
+from app.models import Point
+from app.schemas.point import PointDB, PointCreate, PointUpdate, PointBaseDB
+
 
 router = APIRouter(
     prefix='/point',
-    tags=['Points']
+    tags=['Автомойки']
 )
 
 templates = Jinja2Templates(directory='app/templates')
@@ -156,3 +160,24 @@ async def get_point(
 #     await check_exist(point_crud, point_id, session)
 #
 #     return await point_crud.get_all_by_id(point_id, session)
+# @router.get(
+#     '/{point_id}',
+#     response_model=PointDB,
+#     response_model_exclude_none=True,
+# )
+# async def get_point_by_id(
+#     point_id,
+#     request: Request,
+#     session: AsyncSession = Depends(get_async_session),
+# ):
+#     """Возвращает все данные по автомойке."""
+#
+#     # Проверка на существование автомойки в базе
+#     await check_exist(point_crud, point_id, session)
+#
+#     # Формируем json со всеми вложенными полями по автомойке
+#     point = await point_crud.point_by_id(point_id, session)
+#
+#     # Выбрать один из вариантов возврата данных!
+#
+#     return point

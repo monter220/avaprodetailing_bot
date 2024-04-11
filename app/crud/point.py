@@ -12,9 +12,9 @@ class CRUDPoint(CRUDBase):
 
     @staticmethod
     async def check_unique_field(
-        field_name: str,
-        field_value: str,
-        session: AsyncSession,
+            field_name: str,
+            field_value: str,
+            session: AsyncSession,
     ) -> Union[None, Boolean]:
         if field_name == 'name':
             exists_criteria = (
@@ -36,19 +36,24 @@ class CRUDPoint(CRUDBase):
     @staticmethod
     async def point_by_id(point_id: int, session: AsyncSession):
         point = await session.execute(
-            select(Point)
-            .filter_by(id=point_id)
-            .options(selectinload(Point.admins))
-            .options(selectinload(Point.services))
+            select(Point).filter_by(
+                id=point_id).options(
+                selectinload(Point.admins)).options(
+                selectinload(Point.categories).options(
+                    selectinload(Category.services))
+            )
         )
         return point.unique().scalars().first()
 
     @staticmethod
     async def all_points(session: AsyncSession):
         point = await session.execute(
-            select(Point)
-            .options(selectinload(Point.admins))
-            .options(selectinload(Point.services))
+            select(Point).options(
+                selectinload(Point.admins)
+            ).options(
+                selectinload(Point.categories).options(
+                    selectinload(Category.services))
+            )
         )
         return point.unique().scalars().all()
 

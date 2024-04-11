@@ -12,16 +12,16 @@ class CRUDCategory(CRUDBase):
 
     @staticmethod
     async def check_unique_field(
-        _: str,
-        field_value: str,
-        session: AsyncSession,
+            name: str,
+            point_id: str,
+            session: AsyncSession,
     ) -> Union[None, Boolean]:
         exists_criteria = (
             select(Category).where(
-                Category.name == field_value
+                (Category.name == name) &
+                (Category.point_id == point_id)
             ).exists()
         )
-
         db_field_exists = await session.scalars(
             select(True).where(exists_criteria)
         )
@@ -43,6 +43,15 @@ class CRUDCategory(CRUDBase):
             .options(selectinload(Category.services))
         )
         return category.unique().scalars().first()
+
+    @staticmethod
+    async def categories_by_point(point_id, session: AsyncSession):
+        category = await session.execute(
+            select(Category)
+            .filter_by(point_id=point_id)
+            .options(selectinload(Category.services))
+        )
+        return category.unique().scalars().all()
 
 
 category_crud = CRUDCategory(Category)
