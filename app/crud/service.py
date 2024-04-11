@@ -12,13 +12,13 @@ class CRUDService(CRUDBase):
     @staticmethod
     async def check_unique_field(
         name: str,
-        point_id: str,
+        category_id: str,
         session: AsyncSession,
     ) -> Union[None, Boolean]:
         exists_criteria = (
             select(Service).where(
                 (Service.name == name) &
-                (Service.point_id == point_id)
+                (Service.category_id == category_id)
             ).exists()
         )
         db_field_exists = await session.scalars(
@@ -45,32 +45,6 @@ class CRUDService(CRUDBase):
         services = await session.execute(
             select(Service)
             .filter_by(category_id=category_id)
-        )
-        return services.scalars().all()
-
-    @staticmethod
-    async def services_by_point(
-            point_id: int,
-            session: AsyncSession
-    ):
-        services = await session.execute(
-            select(Service)
-            .filter_by(point_id=point_id)
-        )
-        return services.scalars().all()
-
-    @staticmethod
-    async def services_by_point_category(
-            point_id: int,
-            category_id: int,
-            session: AsyncSession
-    ):
-        services = await session.execute(
-            select(Service)
-            .where(
-                (Service.point_id == point_id) &
-                (Service.category_id == category_id)
-            )
         )
         return services.scalars().all()
 

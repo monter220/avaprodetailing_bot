@@ -18,7 +18,6 @@ class ShortServiceBase(BaseNameDescrSchema):
 
 class ServiceBase(ShortServiceBase):
     category_id: Optional[PositiveInt] = None
-    point_id: Optional[PositiveInt] = None
 
 
 class ServiceCreate(ServiceBase):
@@ -33,7 +32,6 @@ class ServiceCreate(ServiceBase):
         max_value=settings.max_bonus_value
     )
     category_id: PositiveInt
-    point_id: PositiveInt
 
 
 class ServiceUpdate(ServiceBase):
@@ -42,7 +40,6 @@ class ServiceUpdate(ServiceBase):
         'cost',
         'default_bonus',
         'category_id',
-        'point_id',
         mode='before'
     )
     def field_cannot_be_null(cls, value: str, info: ValidationInfo):
@@ -51,28 +48,9 @@ class ServiceUpdate(ServiceBase):
         return value
 
 
-class BaseServiceDB(ShortServiceBase):
+class ServiceDB(ShortServiceBase):
+    id: PositiveInt
+    category_id: PositiveInt
+
     class Config:
         orm_mode = True
-
-
-class ShortServiceDB(BaseServiceDB):
-    id: int
-
-
-class ServicePointDB(ShortServiceDB):
-    point_id: PositiveInt
-
-
-class ServiceCategoryDB(ShortServiceDB):
-    category_id: PositiveInt
-
-
-class ServiceDB(BaseServiceDB):
-    point_id: PositiveInt
-    category_id: PositiveInt
-
-
-class FullServiceDB(ShortServiceDB, ServiceDB):
-    pass
-

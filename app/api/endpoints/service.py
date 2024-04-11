@@ -3,14 +3,18 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.validators import (
     check_exist,
-    check_service_duplicate_on_point
+    check_service_duplicate_in_category
 )
 from app.core.db import get_async_session
 from app.crud import service_crud, point_crud, category_crud
 from app.models import Service
-from app.schemas.service import ServiceDB, ServiceCreate, ServiceUpdate
+from app.schemas.service import ServiceCreate, ServiceUpdate, ServiceDB
 
-router = APIRouter()
+
+router = APIRouter(
+    prefix='/services',
+    tags=['Услуги']
+)
 
 
 @router.post(
@@ -28,18 +32,15 @@ async def create_new_service(
     Только для суперюзеров.
     """
 
-    # Проверка на существование автомойки.
-    await check_exist(point_crud, new_service_json.point_id, session)
+    name = new_service_json.name
+    category_id = new_service_json.category_id
 
-    # Проверка на существование категории услуг.
-    await check_exist(category_crud, new_service_json.category_id, session)
+    # Проверка на уникальность услуги в указанной категории
+    await check_service_duplicate_in_category(name, category_id, session)
 
-    # Проверка на уникальность услуги на автомойке
-    await check_service_duplicate_on_point(
-        new_service_json.name,
-        new_service_json.point_id,
-        session
-    )
+    # Проверка на существование категории с переданным category_id
+    await check_exist(category_crud, category_id, session)
+
     # Создание услуги
     new_service_db = await service_crud.create(new_service_json, session)
     return new_service_db
@@ -54,11 +55,12 @@ async def get_all_services(
     session: AsyncSession = Depends(get_async_session),
 ):
     """Возвращает список всех услуг."""
-    return await service_crud.get_multi(session)
+    services = await service_crud.get_multi(session)
+    return services
 
 
 @router.get(
-    '/{category_id}',
+    'category/{category_id}',
     response_model=list[ServiceDB],
     response_model_exclude_none=True,
 )
@@ -70,48 +72,7 @@ async def get_services_by_category(
 
     # Проверка на существование категории услуг.
     await check_exist(category_crud, category_id, session)
-    return await service_crud.get_services_by_category(category_id, session)
-
-
-@router.get(
-    '/{point_id}',
-    response_model=list[ServiceDB],
-    response_model_exclude_none=True,
-)
-async def get_services_by_point(
-    point_id: int,
-    session: AsyncSession = Depends(get_async_session),
-):
-    """Возвращает список всех услуг с определенной автомойки."""
-
-    # Проверка на существование автомойки.
-    await check_exist(point_crud, point_id, session)
-    return await service_crud.get_services_by_point(point_id, session)
-
-
-@router.get(
-    '/{point_id}/{category_id}',
-    response_model=list[ServiceDB],
-    response_model_exclude_none=True,
-)
-async def get_services_by_point_category(
-    point_id: int,
-    category_id: int,
-    session: AsyncSession = Depends(get_async_session),
-):
-    """Возвращает список всех услуг с определенной автомойки и категории."""
-
-    # Проверка на существование автомойки.
-    await check_exist(point_crud, point_id, session)
-
-    # Проверка на существование категории услуг.
-    await check_exist(category_crud, category_id, session)
-
-    return await service_crud.get_services_by_point_category(
-        point_id,
-        category_id,
-        session
-    )
+    return await service_crud.services_by_category(category_id, session)
 
 
 @router.patch(
@@ -133,22 +94,29 @@ async def update_service(
     # Проверка на существование услуги в базе.
     service_db = await check_exist(service_crud, service_id, session)
 
-    # Проверка на существование автомойки.
-    await check_exist(point_crud, service_json.point_id, session)
-
     # Проверка на существование категории услуг.
-    await check_exist(category_crud, service_json.category_id, session)
+    if service_json.category_id is not None:
+        await check_exist(category_crud, service_json.category_id, session)
 
     # Проверка на уникальность переданных данных
-    if service_json.name is not None:
-        await check_service_duplicate_on_point(
-            service_json.name,
-            service_json.point_id,
-            session
-        )
+    if service_json.name is not None and service_json.category_id is not None:
+        name = service_json.name
+        category_id = service_json.category_id
+        await check_service_duplicate_in_category(name, category_id, session)
+
+    if service_json.name is None and service_json.category_id is not None:
+        name = service_db.name
+        category_id = service_json.category_id
+        await check_service_duplicate_in_category(name, category_id, session)
+
+    if service_json.name is not None and service_json.point_id is None:
+        name = service_json.name
+        category_id = service_db.category_id
+        await check_service_duplicate_in_category(name, category_id, session)
 
     # Изменяем поля услуги
-    return await service_crud.update(service_db, service_json, session)
+        service_db = await service_crud.update(service_db, service_json, session)
+    return service_db
 
 
 @router.delete(

@@ -9,9 +9,11 @@ from starlette import status
 
 from app.core.db import get_async_session
 from app.core.config import settings
-from app.crud.user import user_crud
-from app.models.user import User
-from app.schemas.user import UserCreate
+from app.crud import user_crud
+from app.models import User
+from app.schemas.user import UserCreate, UserUpdateTG
+from app.api.validators import check_duplicate
+
 
 router = APIRouter(
     tags=['guest']
@@ -98,10 +100,7 @@ async def process_user_phone(
     errors = []
 
     try:
-        user = await user_crud.get_user_by_phone_number(
-            phone=phone_number,
-            session=session)
-
+        user = await check_duplicate(phone_number, session)
     except Exception as e:
         errors.append(str(e))
 
@@ -126,9 +125,13 @@ async def process_user_phone(
 
         return response
 
-    if user.tg_id is None:
-        update_data = {'tg_id': user_telegram_id}
-        user = await user_crud.update(user, update_data, session)
+    user = await user_crud.update(
+        db_obj=user,
+        obj_in=UserUpdateTG(tg_id=user_telegram_id),
+        user=user,
+        session=session,
+        model='User',
+    )
 
     if user.role == 3:  # Шаблонов и роутеров нет
         response = RedirectResponse('/superuser')
