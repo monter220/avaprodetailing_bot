@@ -5,6 +5,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.managment.utils import insert_into_events
+from app.models import User
 
 
 class CRUDBase:
@@ -36,12 +37,14 @@ class CRUDBase:
             obj_in,
             session: AsyncSession,
             model: Optional[str] = None,
-            user: Optional[int] = None,
+            user: Optional[User] = None,
     ):
         obj_in_data = obj_in.dict()
         db_obj = self.model(**obj_in_data)
         if model:
-            await insert_into_events(obj_in_data, model, 1, session, user)
+            event_data: dict[str, dict[str, str]] = dict.fromkeys(['old', 'new'])
+            event_data['new'] = obj_in_data
+            await insert_into_events(event_data, model, 1, session, user)
         session.add(db_obj)
         await session.commit()
         await session.refresh(db_obj)
@@ -51,15 +54,22 @@ class CRUDBase:
             self,
             db_obj,
             obj_in,
+            user: User,
             session: AsyncSession,
+            model: Optional[str] = None,
     ):
         obj_data = jsonable_encoder(db_obj)
+        event_data: dict[str, dict[str, str]] = dict.fromkeys(['old', 'new'])
+        event_data['old'] = obj_data
         update_data = obj_in.dict(exclude_unset=True)
-
         for field in obj_data:
             if field in update_data:
-                setattr(db_obj, field, update_data[field])
+                if update_data[field]:
+                    setattr(db_obj, field, update_data[field])
         session.add(db_obj)
+        if model:
+            event_data['new'] = jsonable_encoder(db_obj)
+            await insert_into_events(event_data, model, 2, session, user)
         await session.commit()
         await session.refresh(db_obj)
         return db_obj
