@@ -7,7 +7,7 @@ from app.models import Events, User
 
 
 async def insert_into_events(
-        obj_in_data,
+        event_data: dict[str, dict[str, str]],
         model: str,
         type: int,
         session: AsyncSession,
@@ -19,8 +19,8 @@ async def insert_into_events(
             event['author'] = user.id
         event['model'] = model
         event['type_id'] = type
-        event_data: dict[str, dict[str, str]] = dict.fromkeys(['old', 'new'])
-        event_data['new'] = obj_in_data
+        # event_data: dict[str, dict[str, str]] = dict.fromkeys(['old', 'new'])
+        # event_data['new'] = obj_in_data
         event['data'] = f'{event_data}'
         session.add(Events(**event))
     except:
