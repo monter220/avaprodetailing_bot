@@ -18,6 +18,33 @@ from app.core.config import settings
 class UserUpdateTG(BaseModel):
     tg_id: NonNegativeInt
 
+    class Config:
+        extra = Extra.forbid
+
+
+class UserUpdate(BaseModel):
+    surname: Optional[str] = Field(None, max_length=settings.max_fio_len)
+    name: Optional[str] = Field(None, max_length=settings.max_fio_len)
+    patronymic: Optional[str] = Field(None, max_length=settings.max_fio_len)
+    date_birth: Optional[date] = Field(None)
+
+    @validator('surname', 'name', 'patronymic')
+    def check_alphabet_only(cls, value):
+        check = value.replace(' ', '').replace('-', '')
+        if check.isalpha():
+            return value
+        raise ValueError(settings.alphabet_error)
+
+    @validator('date_birth')
+    def check_age(cls, value):
+        if (
+                timedelta(days=settings.max_age) >=
+                date.today() - value >=
+                timedelta(days=settings.min_age)
+        ):
+            return value
+        raise ValueError(settings.age_error)
+
 
 class UserCreate(BaseModel):
     tg_id: Optional[NonNegativeInt] = Field(None)

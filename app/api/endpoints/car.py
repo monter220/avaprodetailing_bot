@@ -15,6 +15,7 @@ from app.api.validators import check_user_exist, check_file_format, check_user_b
 from app.schemas.car import CarCreate, CarDB, CarUpdate
 from app.core.db import get_async_session
 from app.api.validators import check_exist
+from app.api.endpoints.guest import get_tg_id_cookie
 
 
 router = APIRouter(
@@ -25,11 +26,6 @@ router = APIRouter(
 templates = Jinja2Templates(
     directory='app/templates'
 )
-
-
-async def get_tg_id_cookie(request: Request):
-    """Функция для получения куки tg_id.  """
-    return request.cookies.get('tg_id')
 
 
 @router.get('/add')
@@ -47,7 +43,7 @@ async def add_car(
         request: Request,
         user_id: int,
         user_telegram_id: str = Depends(get_tg_id_cookie),
-        session: AsyncSession = Depends(get_async_session)
+        session: AsyncSession = Depends(get_async_session),
 ):
     """Обработка формы создания машины. """
     form_data = await request.form()

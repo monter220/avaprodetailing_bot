@@ -1,8 +1,10 @@
+from typing import Optional
 from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 
 from app.crud import user_crud, service_crud
+from app.models import User
 from app.translate.ru import (
     ERR_MSG_FIELD_NOT_UNIQUE,
     OBJ_NOT_EXIST, SERVICE_NOT_UNIQUE,
@@ -12,7 +14,7 @@ from app.translate.ru import (
 async def check_duplicate(
     phone: str,
     session: AsyncSession,
-) -> None:
+) -> Optional[User]:
     user = await user_crud.get_user_by_phone_number(phone, session)
     if user:
         if user.tg_id:
@@ -20,6 +22,7 @@ async def check_duplicate(
                 status_code=422,
                 detail='Пользователь уже существует!',
             )
+        return user
 
 
 async def check_service_duplicate_on_point(
