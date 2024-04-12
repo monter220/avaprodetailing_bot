@@ -3,7 +3,7 @@ from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 
-from app.crud import user_crud, service_crud, category_crud
+from app.crud import user_crud, service_crud, category_crud, car_crud
 from app.models import User
 from app.translate.ru import (
     ERR_MSG_FIELD_NOT_UNIQUE,
@@ -126,4 +126,16 @@ def check_file_format(
         raise HTTPException(
             status_code=406,
             detail='Only .jpeg or .png  files allowed'
+        )
+
+
+async def check_that_are_few_cars(
+        user_id: int,
+        session: AsyncSession,
+) -> None:
+    cars = await car_crud.get_user_cars(session=session, user_id=user_id)
+    if len(cars) == 1:
+        raise HTTPException(
+            status_code=406,
+            detail='У вас всего одна машина',
         )

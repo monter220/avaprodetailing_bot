@@ -77,8 +77,14 @@ class CRUDBase:
     async def remove(
             self,
             db_obj,
+            user: User,
             session: AsyncSession,
+            model: Optional[str] = None,
     ):
+        obj_data = jsonable_encoder(db_obj)
+        event_data: dict[str, dict[str, str]] = dict.fromkeys(['old', 'new'])
+        event_data['old'] = obj_data
+        await insert_into_events(event_data, model, 3, session, user)
         await session.delete(db_obj)
         await session.commit()
         return db_obj
