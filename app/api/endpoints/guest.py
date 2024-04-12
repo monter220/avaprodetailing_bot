@@ -161,7 +161,7 @@ def render_registration_template(request: Request):
 async def registrate_user(
     request: Request,
     session: AsyncSession = Depends(get_async_session),
-    user_telegram_id: str = Depends(get_tg_id_cookie)
+    user_telegram_id: str = Depends(get_tg_id_cookie),
 ):
     """Функция для регистрации пользователя."""
 

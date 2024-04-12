@@ -11,10 +11,15 @@ from aiofiles import open
 
 from app.core.config import settings
 from app.crud import car_crud, user_crud
-from app.api.validators import check_user_exist, check_file_format, check_user_by_tg_exist
 from app.schemas.car import CarCreate, CarDB, CarUpdate
 from app.core.db import get_async_session
-from app.api.validators import check_exist
+from app.api.validators import (
+    check_exist,
+    check_that_are_few_cars,
+    check_user_exist,
+    check_file_format,
+    check_user_by_tg_exist,
+)
 from app.api.endpoints.guest import get_tg_id_cookie
 
 
@@ -36,8 +41,6 @@ async def get_add_car_template(request: Request):
 
 @router.post(
     '/add',
-    response_model=CarDB,
-    response_model_exclude_none=True,
 )
 async def add_car(
         request: Request,
@@ -157,7 +160,40 @@ async def edit_car(
     )
 
 
+@router.get('/{car_id}/delete')
+async def get_edit_car_template(
+        request: Request,
+        car_id: int,
+        user_id: int,
+        user_telegram_id: str = Depends(get_tg_id_cookie),
+        session: AsyncSession = Depends(get_async_session),
+):
+    """Функция для получения формы редактирования машины. """
+    errors = []
 
+    try:
+        car = await check_exist(car_crud, car_id, session)
+        await check_that_are_few_cars(user_id, session)
+        await car_crud.remove(
+            db_obj=car,
+            user=await check_user_by_tg_exist(int(user_telegram_id), session),
+            session=session,
+            model='Car',
+        )
+    except Exception as e:
+        errors.append(str(e))
 
+        return templates.TemplateResponse(
+            'car/edit-car.html',
+            {
+                'request': request,
+                'car': car,
+                'user_id': user_id,
+                'errors': errors,
+            }
+        )
 
-
+    return RedirectResponse(
+        f'/user/profile/{user_id}',
+        status_code=status.HTTP_302_FOUND,
+    )
