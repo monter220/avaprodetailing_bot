@@ -1,6 +1,7 @@
 from typing import Optional
 
 from fastapi.encoders import jsonable_encoder
+from gosnomer import normalize
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -33,26 +34,15 @@ class CRUDCar(CRUDBase):
         await session.refresh(db_obj)
         return db_obj
 
-    # async def update_car(
-    #         self,
-    #         db_obj,
-    #         obj_in,
-    #         user: User,
-    #         session: AsyncSession,
-    #         path: Optional[str] = None,
-    #         model: Optional[str] = None,
-    # ):
-    #     obj_data = jsonable_encoder(db_obj)
-    #     update_data = obj_in.dict(exclude_unset=True)
-    #     event_data: dict[str, dict[str, str]] = dict.fromkeys(['old', 'new'])
-    #
-    #     for field in obj_data:
-    #         if field in update_data:
-    #             setattr(db_obj, field, update_data[field])
-    #     session.add(db_obj)
-    #     await session.commit()
-    #     await session.refresh(db_obj)
-    #     return db_obj
+    async def unique_car(
+            self,
+            license_plate_number: str,
+            session: AsyncSession,
+    ):
+        db_car = await session.execute(select(Car).where(
+            Car.license_plate_number == normalize(license_plate_number)
+        ))
+        return db_car.scalars().first()
 
     async def get_user_cars(
             self,
