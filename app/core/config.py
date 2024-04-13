@@ -29,6 +29,7 @@ class Settings(BaseSettings):
     min_address_len: int = 1
     max_address_len: int = 250
     max_bonus_value: int = 100
+    bonus_retention_period: int = 365
 
     dp: Dispatcher = Dispatcher()
     bot_drop_pending_updates: bool = 1

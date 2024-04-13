@@ -10,7 +10,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import relationship
 
-from app.core.db import Base
+from app.core.db import Base, get_async_session
 from app.core.config import settings
 
 
@@ -31,3 +31,20 @@ class User(Base):
     point_id = Column(Integer, ForeignKey('point.id'), nullable=True)
     bonus = Column(Integer, default=settings.default_bonus, nullable=False)
     car_del = relationship('Car', cascade='delete')
+    owner_bonus_events = relationship(
+        'Bonus_event',
+        cascade='delete',
+        backref='owner',
+        foreign_keys='Bonus_event.user_id'
+        )
+    author_bonus_events = relationship(
+        'Bonus_event',
+        backref='author',
+        foreign_keys='Bonus_event.author_id'
+    )
+
+    def __delete__(self):
+        async_session = get_async_session()
+        for bonus_event in self.author_bonus_events:
+            bonus_event.author_id = None
+        async_session.commit()

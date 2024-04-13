@@ -7,6 +7,7 @@ from app.api.endpoints import (
     # category_router,
     # service_router,
     guest_router,
+    order_router,
 )
 
 
@@ -15,3 +16,4 @@ main_router.include_router(user_router)
 main_router.include_router(car_router)
 main_router.include_router(point_router)
 main_router.include_router(guest_router)
+main_router.include_router(order_router)
