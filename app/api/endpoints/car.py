@@ -19,6 +19,7 @@ from app.api.validators import (
     check_user_exist,
     check_file_format,
     check_user_by_tg_exist,
+    check_admin_or_myprofile_car,
 )
 from app.api.endpoints.guest import get_tg_id_cookie
 
@@ -34,8 +35,18 @@ templates = Jinja2Templates(
 
 
 @router.get('/add')
-async def get_add_car_template(request: Request):
+async def get_add_car_template(
+        request: Request,
+        user_id: int,
+        user_telegram_id: str = Depends(get_tg_id_cookie),
+        session: AsyncSession = Depends(get_async_session),
+):
     """Форма добавления машины"""
+    await check_admin_or_myprofile_car(
+        user_id=user_id,
+        user_telegram_id=int(user_telegram_id),
+        session=session,
+    )
     return templates.TemplateResponse('car/add-car.html', {'request': request})
 
 
@@ -99,12 +110,19 @@ async def get_edit_car_template(
     car_id: int,
     user_id: int,
     request: Request,
+    user_telegram_id: str = Depends(get_tg_id_cookie),
     session: AsyncSession = Depends(get_async_session)
 ):
     """Функция для получения формы редактирования машины. """
     car = await car_crud.get(
         obj_id=car_id,
         session=session
+    )
+    await check_admin_or_myprofile_car(
+        user_id=user_id,
+        user_telegram_id=int(user_telegram_id),
+        session=session,
+        car=car,
     )
     return templates.TemplateResponse(
         'car/edit-car.html',
@@ -173,6 +191,12 @@ async def get_edit_car_template(
 
     try:
         car = await check_exist(car_crud, car_id, session)
+        await check_admin_or_myprofile_car(
+            user_id=user_id,
+            user_telegram_id=int(user_telegram_id),
+            session=session,
+            car=car,
+        )
         await check_that_are_few_cars(user_id, session)
         await car_crud.remove(
             db_obj=car,

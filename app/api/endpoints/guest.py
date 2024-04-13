@@ -12,7 +12,7 @@ from app.core.config import settings
 from app.crud import user_crud
 from app.models import User
 from app.schemas.user import UserCreate, UserUpdateTG
-from app.api.validators import check_duplicate
+from app.api.validators import check_duplicate, check_user_by_tg_exist
 
 
 router = APIRouter(
@@ -197,19 +197,25 @@ async def registrate_user(
 
 
 @router.get('/success_registration')
-def render_success_registration_template(request: Request):
+async def render_success_registration_template(
+    request: Request,
+    session: AsyncSession = Depends(get_async_session),
+    user_telegram_id: str = Depends(get_tg_id_cookie),
+):
     """Функция для рендеринга страницы из шаблона. """
+    user = await check_user_by_tg_exist(int(user_telegram_id), session)
 
     return templates.TemplateResponse(
         'guest/success_registration.html',
         {'request': request,
+         'user_id': user.id,
          'title': 'Вы успешно зарегистрировались!'}
     )
 
 
-@router.post('/success_registration')
-def redirect_to_add_auto(request: Request):
-    # Здесь должен быть редирект на добавление авто
-    # если пользователь нажал да, либо редирект на профиль, если нет,
-    # этих веток пока нет.
-    pass
+# @router.post('/success_registration')
+# def redirect_to_add_auto(request: Request):
+#     # Здесь должен быть редирект на добавление авто
+#     # если пользователь нажал да, либо редирект на профиль, если нет,
+#     # этих веток пока нет.
+#     pass
