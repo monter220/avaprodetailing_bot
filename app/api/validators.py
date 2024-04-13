@@ -169,3 +169,14 @@ async def check_admin_or_myprofile_car(
             status_code=406,
             detail='нельзя трогать чужое',
         )
+
+
+async def check_car_unique(
+        license_plate_number: str,
+        session: AsyncSession,
+) -> None:
+    if await car_crud.unique_car(license_plate_number, session):
+        raise HTTPException(
+            status_code=404,
+            detail='Такое номер уже есть в базе!',
+        )

@@ -1,6 +1,7 @@
 import os
 import uuid
 
+from gosnomer import normalize
 from fastapi import APIRouter, Depends, UploadFile, Request
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
@@ -20,6 +21,7 @@ from app.api.validators import (
     check_file_format,
     check_user_by_tg_exist,
     check_admin_or_myprofile_car,
+    check_car_unique,
 )
 from app.api.endpoints.guest import get_tg_id_cookie
 
@@ -66,6 +68,10 @@ async def add_car(
     car['brand'] = form_data.get('brand')
     car['model'] = form_data.get('model')
     car['license_plate_number'] = form_data.get('license_plate_number')
+    await check_car_unique(
+        license_plate_number=car['license_plate_number'],
+        session=session
+    )
     file = form_data.get('image')
     user = await check_user_by_tg_exist(int(user_telegram_id), session)
     await check_user_exist(user_id, session)
@@ -139,12 +145,19 @@ async def edit_car(
     session: AsyncSession = Depends(get_async_session)
 ):
     """Обработка формы для редактирования машины."""
+    db_car = await check_exist(car_crud, car_id, session)
     form_data = await request.form()
     car = dict.fromkeys(['brand', 'model', 'license_plate_number', 'car_id', 'image'])
     car['car_id'] = car_id
     car['brand'] = form_data.get('brand')
     car['model'] = form_data.get('model')
     car['license_plate_number'] = form_data.get('license_plate_number')
+    if not db_car.license_plate_number == normalize(
+            car['license_plate_number']):
+        await check_car_unique(
+            license_plate_number=car['license_plate_number'],
+            session=session
+        )
     file = form_data.get('image')
     user = await check_user_by_tg_exist(int(user_telegram_id), session)
     await check_user_exist(user_id, session)
@@ -166,7 +179,7 @@ async def edit_car(
             path_to_img = f'http://{settings.host_ip}:{settings.app_port}/{short_path}'
         car['image'] = path_to_img
     await car_crud.update(
-        db_obj=await check_exist(car_crud, car_id, session),
+        db_obj=db_car,
         obj_in=CarUpdate(**car),
         session=session,
         model='Car',
