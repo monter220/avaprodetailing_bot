@@ -7,7 +7,7 @@ from starlette import status
 
 from app.core.db import get_async_session
 from app.crud import user_crud, car_crud
-from app.api.validators import check_user_exist, check_user_by_tg_exist
+from app.api.validators import check_user_exist, check_user_by_tg_exist, check_admin_or_myprofile_car
 from app.schemas.user import UserUpdate
 from app.api.endpoints.guest import get_tg_id_cookie
 
@@ -24,9 +24,15 @@ templates = Jinja2Templates(directory="app/templates")
 async def get_profile_template(
     request: Request,
     user_id: int,
+    user_telegram_id: str = Depends(get_tg_id_cookie),
     session: AsyncSession = Depends(get_async_session)
 ):
     """Функция для получения шаблона профиля пользователя."""
+    await check_admin_or_myprofile_car(
+        user_id=user_id,
+        user_telegram_id=int(user_telegram_id),
+        session=session,
+    )
     user = await user_crud.get(obj_id=user_id, session=session)
     cars = await car_crud.get_user_cars(session=session, user_id=user_id)
 
@@ -65,9 +71,15 @@ async def process_redirect_from_phone(
 async def get_edit_profile_template(
         request: Request,
         user_id: int,
+        user_telegram_id: str = Depends(get_tg_id_cookie),
         session: AsyncSession = Depends(get_async_session),
 ):
     """Функция для получения формы редактирования профиля пользователя."""
+    await check_admin_or_myprofile_car(
+        user_id=user_id,
+        user_telegram_id=int(user_telegram_id),
+        session=session,
+    )
     await check_user_exist(user_id, session)
     user = await user_crud.get(user_id, session)
     return templates.TemplateResponse(
@@ -125,30 +137,3 @@ async def get_payments_template(
     # список объектов платежей для данного пользователя.
 
     pass
-
-# "перенести в guest"
-# from fastapi import APIRouter, Depends, status, HTTPException
-# from sqlalchemy.ext.asyncio import AsyncSession
-#
-# from app.core.db import get_async_session
-# from app.crud.user import user_crud
-# from app.schemas.user import UserCreate, UserDB
-# from app.api.validators import check_duplicate
-#
-#
-# router = APIRouter()
-#
-#
-# @router.post(
-#     '/user',
-#     response_model=UserDB,
-#     response_model_exclude_none=True,
-# )
-# async def create_new_user(
-#         new_user: UserCreate,
-#         session: AsyncSession = Depends(get_async_session),
-# ):
-#     await check_duplicate(new_user.phone, session)
-#     new = await user_crud.create(
-#         obj_in=new_user, session=session, model='User')
-#     return new

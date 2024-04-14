@@ -3,8 +3,8 @@ from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 
-from app.crud import user_crud, service_crud, category_crud
-from app.models import User
+from app.crud import user_crud, service_crud, category_crud, car_crud
+from app.models import User, Car
 from app.translate.ru import (
     ERR_MSG_FIELD_NOT_UNIQUE,
     OBJ_NOT_EXIST,
@@ -34,10 +34,12 @@ async def check_category_duplicate_on_point(
 ) -> None:
     """
     Функция проверки категории на автомойке.
-    Функция принимает на вход имя категории и id автомойки.    Вызывает функцию проверки этих полей в БД.
+    Функция принимает на вход имя категории и id автомойки.
+    Вызывает функцию проверки этих полей в БД.
     В случае совпадения значений, выбрасывает исключение об ошибке.
     """
-    if await category_crud.check_unique_field(name, point_id, session):        raise HTTPException(
+    if await category_crud.check_unique_field(name, point_id, session):
+        raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=CATEGORY_NOT_UNIQUE.format(name, point_id),
         )
@@ -126,4 +128,55 @@ def check_file_format(
         raise HTTPException(
             status_code=406,
             detail='Only .jpeg or .png  files allowed'
+        )
+
+
+async def check_that_are_few_cars(
+        user_id: int,
+        session: AsyncSession,
+) -> None:
+    cars = await car_crud.get_user_cars(session=session, user_id=user_id)
+    if len(cars) == 1:
+        raise HTTPException(
+            status_code=406,
+            detail='У вас всего одна машина',
+        )
+
+
+async def check_admin_or_myprofile_car(
+        user_id: int,
+        user_telegram_id: int,
+        session: AsyncSession,
+        car: Optional[Car] = None,
+) -> None:
+    """
+    Функция проверки прав на редактирование.
+    Функция принимает на вход имя id пользователя, id авто,
+    tg_id пользователя, который пытается внести правки
+    В случае если у меняющего не соответствует роль
+    или не совпадает id пользователя с изменяемыми данными,
+    выбрасывает исключение об ошибке.
+    """
+    if car:
+        if car.user_id != user_id:
+            raise HTTPException(
+                status_code=406,
+                detail='Это не твоя машина',
+            )
+    author = await check_user_by_tg_exist(user_telegram_id, session)
+    if not (user_id == author.id or author.role in (2, 3)):
+        raise HTTPException(
+            status_code=406,
+            detail='нельзя трогать чужое',
+        )
+
+
+async def check_car_unique(
+        license_plate_number: str,
+        session: AsyncSession,
+) -> None:
+    if await car_crud.unique_car(license_plate_number, session):
+        raise HTTPException(
+            status_code=404,
+            detail='Такое номер уже есть в базе!',
         )
