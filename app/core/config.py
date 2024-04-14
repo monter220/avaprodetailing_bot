@@ -1,5 +1,6 @@
 import os
-from aiogram import Dispatcher
+from aiogram import Dispatcher, Bot
+from aiogram.client.default import DefaultBotProperties
 from pydantic_settings import BaseSettings
 
 
@@ -11,6 +12,9 @@ class Settings(BaseSettings):
     paytype_list: str = '{1:"наличный расчет",2:"безналичный расчет"}'
     eventtypes_list: str = '{1:"создан",2:"изменен",3:"удален"}'
 
+    pay_type_cash: int = 1
+    pay_type_online: int = 2
+
     min_fio_len: int = 2
     max_fio_len: int = 100
     alphabet_error: str = 'Поле содержит недопустимые символ'
@@ -20,6 +24,7 @@ class Settings(BaseSettings):
     max_phone_len: int = 15
     phone_error: str = 'invalid phone number format'
     default_bonus: int = 100
+    bonus_expiration_period: int = 365
     basedir: str = os.getcwd()
     folder: str = 'app/templates/static/media'
     host_folder: str = 'static/media'
@@ -28,7 +33,7 @@ class Settings(BaseSettings):
     max_name_len: int = 50
     min_address_len: int = 1
     max_address_len: int = 250
-    max_bonus_value: int = 100
+    max_bonus_value: int = 99
 
     dp: Dispatcher = Dispatcher()
     bot_drop_pending_updates: bool = 1
@@ -39,12 +44,22 @@ class Settings(BaseSettings):
     host_ip: str = '0.0.0.0'
     host_url: str = 'https://example.com'
     app_port: int = 443
-    cookies_ttl: int = (30 * 24 * 60 * 60) #30 дней
+    cookies_ttl: int = (30 * 24 * 60 * 60)  # 30 дней
     testing: int = 0
     local_test: int = 1
+
+    telegram_provider_token: str = '381764678:TEST: 82806'
+    telegram_currency: str = 'RUB'
 
     class Config:
         env_file = '.env'
 
 
 settings = Settings()
+bot: Bot = Bot(
+    token=settings.telegram_bot_token,
+    default=DefaultBotProperties(
+        parse_mode=settings.bot_parse_mode,
+    )
+)
+web_hook_path: str = f'{settings.host_url}/webhook'

@@ -9,11 +9,10 @@ from starlette import status
 
 from app.core.db import get_async_session
 from app.core.config import settings
-from app.crud import user_crud
+from app.crud import user_crud, bonus_crud
 from app.models import User
 from app.schemas.user import UserCreate, UserUpdateTG
 from app.api.validators import check_duplicate, check_user_by_tg_exist
-
 
 router = APIRouter(
     tags=['guest']
@@ -185,8 +184,16 @@ async def registrate_user(
         'date_birth': datetime.strptime(date_birth, '%Y-%m-%d'),
     }
 
-    await user_crud.create(
+    user = await user_crud.create(
         obj_in=UserCreate(**user_create_data), session=session, model='User')
+
+    bonus = {
+        'amount': settings.default_bonus,
+        'user_id': user.id,
+        'admin_id': 1,  # ID системного суперпользователя
+        'is_active': True,
+    }
+    await bonus_crud.create_from_dict(bonus, session)
 
     response = RedirectResponse(
         '/success_registration',
