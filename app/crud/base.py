@@ -14,9 +14,9 @@ class CRUDBase:
         self.model = model
 
     async def get(
-            self,
-            obj_id: int,
-            session: AsyncSession,
+        self,
+        obj_id: int,
+        session: AsyncSession,
     ):
         db_obj = await session.execute(
             select(self.model).where(
@@ -26,23 +26,24 @@ class CRUDBase:
         return db_obj.scalars().first()
 
     async def get_multi(
-            self,
-            session: AsyncSession
+        self,
+        session: AsyncSession
     ):
         db_objs = await session.execute(select(self.model))
         return db_objs.scalars().all()
 
     async def create(
-            self,
-            obj_in,
-            session: AsyncSession,
-            model: Optional[str] = None,
-            user: Optional[User] = None,
+        self,
+        obj_in,
+        session: AsyncSession,
+        model: Optional[str] = None,
+        user: Optional[User] = None,
     ):
         obj_in_data = obj_in.dict()
         db_obj = self.model(**obj_in_data)
         if model:
-            event_data: dict[str, dict[str, str]] = dict.fromkeys(['old', 'new'])
+            event_data: dict[str, dict[str, str]] = dict.fromkeys(
+                ['old', 'new'])
             event_data['new'] = obj_in_data
             await insert_into_events(event_data, model, 1, session, user)
         session.add(db_obj)
@@ -50,13 +51,32 @@ class CRUDBase:
         await session.refresh(db_obj)
         return db_obj
 
+    async def create_from_dict(self, obj_in: dict, session: AsyncSession):
+        """Создание объекта из словаря."""
+        db_obj = self.model(**obj_in)
+        session.add(db_obj)
+        await session.commit()
+        await session.refresh(db_obj)
+        return db_obj
+
+    async def create_multi_from_dict(
+        self,
+        obj_in: list[dict],
+        session: AsyncSession,
+    ):
+        """Создание нескольких объектов из словаря."""
+        db_objs = [self.model(**obj) for obj in obj_in]
+        session.add_all(db_objs)
+        await session.commit()
+        return True
+
     async def update(
-            self,
-            db_obj,
-            obj_in,
-            user: User,
-            session: AsyncSession,
-            model: Optional[str] = None,
+        self,
+        db_obj,
+        obj_in,
+        user: User,
+        session: AsyncSession,
+        model: Optional[str] = None,
     ):
         obj_data = jsonable_encoder(db_obj)
         event_data: dict[str, dict[str, str]] = dict.fromkeys(['old', 'new'])
@@ -75,9 +95,9 @@ class CRUDBase:
         return db_obj
 
     async def remove(
-            self,
-            db_obj,
-            session: AsyncSession,
+        self,
+        db_obj,
+        session: AsyncSession,
     ):
         await session.delete(db_obj)
         await session.commit()

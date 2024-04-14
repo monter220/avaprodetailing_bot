@@ -20,7 +20,7 @@ async def start(message: types.Message):
 
     keyboard.button(
             text='Открыть веб-страницу',
-            web_app=types.WebAppInfo(settings.telegram_webapp_url),
+            web_app=types.WebAppInfo(url=settings.web_app_url),
     )
 
     await message.answer(

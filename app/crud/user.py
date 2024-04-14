@@ -10,9 +10,9 @@ from app.models import User
 class CRUDUser(CRUDBase):
 
     async def get_user_by_phone_number(
-            self,
-            phone: str,
-            session: AsyncSession,
+        self,
+        phone: str,
+        session: AsyncSession,
     ) -> Optional[User]:
         db_user = await session.execute(
             select(User).where(
@@ -22,9 +22,9 @@ class CRUDUser(CRUDBase):
         return db_user.scalars().first()
 
     async def get_user_by_telegram_id(
-            self,
-            user_telegram_id: int,
-            session: AsyncSession,
+        self,
+        user_telegram_id: int,
+        session: AsyncSession,
     ) -> Optional[User]:
         db_user = await session.execute(
             select(User).where(
@@ -34,9 +34,9 @@ class CRUDUser(CRUDBase):
         return db_user.scalars().first()
 
     async def tg_login_check(
-            self,
-            tg_id: int,
-            session: AsyncSession,
+        self,
+        tg_id: int,
+        session: AsyncSession,
     ) -> Optional[User]:
         db_user_id = await session.execute(
             select(User).where(
@@ -46,15 +46,28 @@ class CRUDUser(CRUDBase):
         return db_user_id.scalars().first()
 
     async def user_exist(
-            self,
-            user_id: int,
-            session: AsyncSession,
+        self,
+        user_id: int,
+        session: AsyncSession,
     ) -> Optional[int]:
         db_user_id = await session.execute(
             select(User.id).where(
                 User.id == user_id and User.is_ban == 0)
         )
         return db_user_id.scalars().first()
+
+    @staticmethod
+    async def update_bonus_amount(
+        user_id: int,
+        bonus_amount: int,
+        session: AsyncSession,
+    ) -> int | None:
+        """Обновление бонусов у пользователя при начислении или списании."""
+        user = await session.get(User, user_id)
+        user.bonus += bonus_amount
+        await session.commit()
+        await session.refresh(user)
+        return user
 
 
 user_crud = CRUDUser(User)

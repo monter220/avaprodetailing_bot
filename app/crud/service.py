@@ -4,7 +4,7 @@ from sqlalchemy import Boolean, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .base import CRUDBase
-from app.models import Service
+from app.models import Service, Category, Point
 
 
 class CRUDService(CRUDBase):
@@ -28,8 +28,8 @@ class CRUDService(CRUDBase):
 
     @staticmethod
     async def service_by_id(
-            service_id: int,
-            session: AsyncSession
+        service_id: int,
+        session: AsyncSession
     ):
         services = await session.execute(
             select(Service)
@@ -39,13 +39,26 @@ class CRUDService(CRUDBase):
 
     @staticmethod
     async def services_by_category(
-            category_id: int,
-            session: AsyncSession
+        category_id: int,
+        session: AsyncSession
     ):
         services = await session.execute(
             select(Service)
             .filter_by(category_id=category_id)
         )
+        return services.scalars().all()
+
+    @staticmethod
+    async def get_services_by_point_id(
+        session: AsyncSession,
+        point_id: int,
+    ):
+        """Получение списка услуг на заданной точке."""
+        services = await session.execute(
+            select(Service).join(Service.category)
+            .filter(Category.point_id == point_id)
+        )
+
         return services.scalars().all()
 
 
