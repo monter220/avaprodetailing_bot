@@ -6,6 +6,10 @@
 
     <form action="/registration" method="post">
       <div class="form-group">
+        {% if from_admin or from_superadmin %}
+          <input type="tel" class="form-control" id="phone"
+            placeholder="+7 XXX XXX XX XX" name="phone" required>
+        {% endif %}
         <input type="text" class="form-control" id="surname" name="surname"
                placeholder="ФАМИЛИЯ" required>
         <input type="text" class="form-control" id="name" name="name"

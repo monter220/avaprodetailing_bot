@@ -11,6 +11,7 @@ from aiofiles import open
 
 from app.core.config import settings
 from app.crud import car_crud, user_crud
+from app.api.endpoints.utils import get_tg_id_cookie
 from app.api.validators import check_user_exist, check_file_format, check_user_by_tg_exist
 from app.schemas.car import CarCreate, CarDB, CarUpdate
 from app.core.db import get_async_session
@@ -18,7 +19,7 @@ from app.api.validators import check_exist
 
 
 router = APIRouter(
-    prefix='/{user_id}/car',
+    prefix='/{user_id}/cars',
     tags=['car']
 )
 
@@ -27,15 +28,14 @@ templates = Jinja2Templates(
 )
 
 
-async def get_tg_id_cookie(request: Request):
-    """Функция для получения куки tg_id.  """
-    return request.cookies.get('tg_id')
-
-
 @router.get('/add')
 async def get_add_car_template(request: Request):
     """Форма добавления машины"""
-    return templates.TemplateResponse('car/add-car.html', {'request': request})
+
+    return templates.TemplateResponse(
+        '/user/car/add-car.html',
+        {'request': request}
+    )
 
 
 @router.post(
@@ -108,7 +108,7 @@ async def get_edit_car_template(
         session=session
     )
     return templates.TemplateResponse(
-        'car/edit-car.html',
+        'user/car/edit-car.html',
         {'request': request, 'car': car, 'user_id': user_id}
     )
 
@@ -161,7 +161,13 @@ async def edit_car(
     )
 
 
+@router.get('/{car_id}/delete')
+async def delete_car(
+    request: Request,
+    car_id: int
+):
+    """Функция для удаления машины."""
 
+    # TODO: Обработать запрос на удаление машины.
 
-
-
+    pass

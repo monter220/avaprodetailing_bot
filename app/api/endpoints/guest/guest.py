@@ -10,6 +10,7 @@ from starlette import status
 from app.core.db import get_async_session
 from app.core.config import settings
 from app.crud.user import user_crud
+from app.api.endpoints.utils import get_current_user, get_tg_id_cookie
 from app.models.user import User
 from app.schemas.user import UserCreate
 
@@ -20,11 +21,6 @@ router = APIRouter(
 templates = Jinja2Templates(
     directory='app/templates'
 )
-
-
-async def get_tg_id_cookie(request: Request):
-    """Функция для получения куки tg_id.  """
-    return request.cookies.get('tg_id')
 
 
 @router.get('/')
@@ -41,8 +37,7 @@ async def render_sign_in_template(request: Request):
 @router.get('/phone')
 async def render_phone_template(
     request: Request,
-    user_telegram_id: str = Depends(get_tg_id_cookie),
-    session: AsyncSession = Depends(get_async_session)
+    current_user: Optional[User] = Depends(get_current_user),
 ):
     """
     Функция для рендеринга страницы из шаблона.
@@ -52,43 +47,24 @@ async def render_phone_template(
     Если нет - открывает страницу для ввода номера.
     """
 
-    user: Optional[User] = await user_crud.get_user_by_telegram_id(
-        user_telegram_id=int(user_telegram_id),
-        session=session
-    )
-
-    if user is not None and user.phone is not None:
-
-        if user.role == 3:  # Шаблонов и роутеров нет, superuser
-            response = RedirectResponse('/superuser')
-            return response
-
-        elif user.role == 2:  # Шаблонов и роутеров нет, administrator
-            response = RedirectResponse('/administrator')
-            return response
-
-        elif user.role == 1:  # user
-            response = RedirectResponse(f'/user/profile/{user.id}')
-            return response
-
-        else:
-            return templates.TemplateResponse(
-                'guest/phone.html',
-                {'request': request,
-                 'title': 'Введите номер телефона'}
-            )
-    return templates.TemplateResponse(
-        'guest/phone.html',
-        {'request': request,
-         'title': 'Введите номер телефона'}
-    )
+    if current_user and current_user.tg_id is not None:
+        return RedirectResponse(
+            '/users/me',
+            status_code=status.HTTP_302_FOUND
+        )
+    else:
+        return templates.TemplateResponse(
+            'guest/phone.html',
+            {'request': request,
+             'title': 'Введите номер телефона'}
+        )
 
 
 @router.post('/phone')
 async def process_user_phone(
     request: Request,
     session: AsyncSession = Depends(get_async_session),
-    user_telegram_id: str = Depends(get_tg_id_cookie)
+    user_telegram_id: int = Depends(get_tg_id_cookie),
 ):
     """Функция для редиректа пользователя, согласно его роли."""
 
@@ -130,16 +106,16 @@ async def process_user_phone(
         update_data = {'tg_id': user_telegram_id}
         user = await user_crud.update(user, update_data, session)
 
-    if user.role == 3:  # Шаблонов и роутеров нет
-        response = RedirectResponse('/superuser')
+    if user.role == 3:
+        response = RedirectResponse('/users/me')
         return response
 
-    elif user.role == 2:  # Шаблонов и роутеров нет
-        response = RedirectResponse('/administrator')
+    elif user.role == 2:
+        response = RedirectResponse('/users/me')
         return response
 
-    elif user.role == 1:  # Шаблонов и роутеров нет
-        response = RedirectResponse(f'/user/profile/{user.id}')
+    elif user.role == 1:
+        response = RedirectResponse('/users/me')
         return response
 
 

@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="container-flex">
+    <h1>Добавить точку</h1>
+
+    <form action="#" method="post">
+      <div class="form-group">
+        <input type="text" class="form-control" id="name" name="name"
+              placeholder="НАЗВАНИЕ ТОЧКИ" required>
+        <input type="text" class="form-control" id="address" name="address"
+              placeholder="АДРЕС" required>
+      </div>
+      <button type="submit" class="btn btn-custom-red mt-4 mb-4">Сохранить
+      </button>
+      <a href="/users/me" class="btn btn-custom-black">Отмена</a>
+    </form>
+  </div>
+{% endblock content %}

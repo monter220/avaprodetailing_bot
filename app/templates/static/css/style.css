@@ -83,6 +83,12 @@ input.form-control, input.form-control:focus, .custom-file-upload {
     height: 45px;
     color: #c1c1c1;
 }
+textarea.form-control, textarea.form-control:focus{
+    margin: 10px 0;
+    background-color: #333;
+    border: none;
+    color: #c1c1c1;
+}
 
 input, textarea {
     outline: none !important;
@@ -140,7 +146,7 @@ input[type=file]::file-selector-button {
     align-items: center;
 }
 
-.profile .btn-custom-red {
+.profile-btn {
     width: unset;
     padding-top: 3px;
     height: 30px;
@@ -205,10 +211,19 @@ input[type=file]::file-selector-button {
 
 #qr-code-button {
     margin: 10px 0;
+    text-align: center;
 }
 
 .profile h2 {
     margin-top: 20px;
+}
+
+form h2 {
+    margin-top: 30px;
+}
+
+.payment h1{
+    margin-bottom: 0;
 }
 
 .icon-circle {
@@ -256,4 +271,22 @@ input[type=file]::file-selector-button {
 
 #point-address {
     margin-top: -30px;
+}
+
+.my-point {
+    background-color: #555;
+}
+
+.search-client {
+    border: 2px solid #4f4f4f;
+    border-radius: 10px;
+    padding: 10px;
+}
+
+#custom-qr-scanner-link {
+    color: #666;
+}
+
+table a{
+    color: #fff;
 }
