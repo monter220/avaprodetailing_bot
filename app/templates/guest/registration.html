@@ -6,7 +6,7 @@
 
     <form action="/registration" method="post">
       <div class="form-group">
-        {% if from_admin or from_superadmin %}
+        {% if from_admin %}
           <input type="tel" class="form-control" id="phone"
             placeholder="+7 XXX XXX XX XX" name="phone" required>
         {% endif %}
@@ -23,7 +23,7 @@
       </div>
       <button type="submit" class="btn btn-custom-red mt-4 mb-4">Продолжить
       </button>
-      <button href="/users/me" class="btn btn-custom-black">Отмена</button>
+      <a href="/users/me" class="btn btn-custom-black">Отмена</a>
     </form>
 </div>
 {% endblock content %}

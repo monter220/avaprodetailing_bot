@@ -1,16 +1,26 @@
 from contextlib import asynccontextmanager
 
-from aiogram import types
+from aiogram import types, Bot
+from aiogram.client.bot import DefaultBotProperties
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 import uvicorn
 
 from app.api.routers import main_router
-from app.core.config import settings, web_hook_path, bot
+from app.core.config import settings
 from app.core.config_logger import logger
-from app.bot.handlers import command_router, payment_router
+from app.bot.handlers import command_router
 from app.core.init_db import create_role, create_paytype, create_eventtypes
 from app.middlewares import TelegramIDCheckingMiddleware
+
+
+bot: Bot = Bot(
+    token=settings.telegram_bot_token,
+    default=DefaultBotProperties(
+        parse_mode=settings.bot_parse_mode,
+    )
+)
+web_hook_path: str = f'{settings.host_url}/webhook'
 
 
 @asynccontextmanager
@@ -23,13 +33,13 @@ async def lifespan(app: FastAPI):
     await create_eventtypes()
     await bot.set_webhook(
         url=web_hook_path,
-        drop_pending_updates=settings.bot_drop_pending_updates,
         # Дропает апдейты, которые пришли во время запуска бота.
+        drop_pending_updates=settings.bot_drop_pending_updates,
+        # Таймаут на обработку запроса - позволяет не загонять
+        # бота в цикл, при получении ошибки от API.
         request_timeout=settings.bot_request_timeout,
-        # Таймаут на обработку запроса - позволяет не загонять бота в цикл, при получении ошибки от API.
     )
     settings.dp.include_routers(
-        payment_router,
         command_router,
     )
 
@@ -48,13 +58,17 @@ app = FastAPI(title=settings.app_title,
 if not settings.testing:
     app.add_middleware(TelegramIDCheckingMiddleware)
 
-app.mount('/static', StaticFiles(directory='app/templates/static'),
-          name='static')  # Подключение статических файлов.
+# Подключение статических файлов.
+app.mount(
+    '/static',
+    StaticFiles(directory='app/templates/static'),
+    name='static'
+)
 
 app.include_router(main_router)
 
 
-@app.post(path='/webhook')
+@app.post(path=web_hook_path)
 async def bot_webhook(update: dict):
     """Функция для приёма сообщений из Telegram."""
 
@@ -64,4 +78,5 @@ async def bot_webhook(update: dict):
 
 
 if __name__ == '__main__':
+
     uvicorn.run(app, host=settings.host_ip, port=settings.app_port)

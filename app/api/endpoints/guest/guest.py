@@ -76,7 +76,10 @@ async def process_user_phone(
     errors = []
 
     try:
-        user = await check_duplicate(phone_number, session)
+        user = await user_crud.get_user_by_phone_number(
+            phone=phone_number,
+            session=session)
+
     except Exception as e:
         errors.append(str(e))
 
@@ -101,25 +104,11 @@ async def process_user_phone(
 
         return response
 
-    user = await user_crud.update(
-        db_obj=user,
-        obj_in=UserUpdateTG(tg_id=user_telegram_id),
-        user=user,
-        session=session,
-        model='User',
-    )
+    if user.tg_id is None:
+        update_data = {'tg_id': user_telegram_id}
+        user = await user_crud.update(user, update_data, session)
 
-    if user.role == 3:
-        response = RedirectResponse('/users/me')
-        return response
-
-    elif user.role == 2:
-        response = RedirectResponse('/users/me')
-        return response
-
-    elif user.role == 1:
-        response = RedirectResponse('/users/me')
-        return response
+    return RedirectResponse('/users/me')
 
 
 @router.get('/registration')
@@ -158,11 +147,11 @@ async def registrate_user(
 ):
     """Функция для регистрации пользователя."""
 
+    # Здесь обрабатывается только процесс регистрации
+    # обычного пользователя, поля is_admin или is_superuser нету
+
     form_data = await request.form()
-    if form_data.get('phone'):
-        phone = form_data.get('phone')
-    else:
-        phone = request.cookies.get('phone')
+    phone = request.cookies.get('phone')
 
     surname = form_data.get('surname')
     name = form_data.get('name')
@@ -177,34 +166,17 @@ async def registrate_user(
         'patronymic': patronymic,
         'date_birth': datetime.strptime(date_birth, '%Y-%m-%d'),
     }
-    author = await user_crud.get_user_by_telegram_id(
-        user_telegram_id=int(user_telegram_id),
-        session=session
+
+    await user_crud.create(
+        obj_in=UserCreate(**user_create_data), session=session, model='User')
+
+    response = RedirectResponse(
+        '/success_registration',
+        status_code=status.HTTP_302_FOUND,
     )
 
-    user = await user_crud.create(
-        obj_in=UserCreate(**user_create_data), session=session, model='User', user=author)
-
-    bonus = {
-        'amount': settings.default_bonus,
-        'user_id': user.id,
-        'admin_id': 1,  # ID системного суперпользователя
-        'is_active': True,
-    }
-    await bonus_crud.create_from_dict(bonus, session)
-
-    if author.id == user.id:
-        response = RedirectResponse(
-            url=f'/users/{user.id}',
-            status_code=status.HTTP_302_FOUND,
-        )
-    else:
-        response = RedirectResponse(
-            '/success_registration',
-            status_code=status.HTTP_302_FOUND,
-        )
-
     return response
+
 
 
 @router.get('/success_registration')

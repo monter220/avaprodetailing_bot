@@ -5,18 +5,13 @@ from fastapi.templating import Jinja2Templates
 from fastapi.responses import RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.db import get_async_session
-from app.crud import car_crud, user_crud
-from app.models import User
-from app.schemas.user import UserUpdate
-from app.api.endpoints.utils import get_current_user, get_tg_id_cookie
+from app.api.endpoints.utils import get_current_user
 from app.api.endpoints.user.car.car import router as car_router
 from app.api.endpoints.user.search.search import router as search_router
-from app.api.validators import (
-    check_user_exist,
-    check_user_by_tg_exist,
-    check_admin_or_myprofile_car,
-)
+from app.core.db import get_async_session
+from app.crud.car import car_crud
+from app.crud.user import user_crud
+from app.models import User
 
 
 router = APIRouter(
@@ -31,10 +26,9 @@ templates = Jinja2Templates(directory="app/templates")
 
 
 @router.get("/me")
-@router.post('/me')
 async def get_profile_template(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: Optional[User] = Depends(get_current_user),
     session: AsyncSession = Depends(get_async_session)
 ):
     """Функция для получения собственного профиля пользователя."""
@@ -56,39 +50,29 @@ async def get_profile_template(
 
 
 @router.get("/{user_id}")
-async def process_redirect_from_phone(
+async def get_user_profile_template(
     request: Request,
     user_id: int,
     session: AsyncSession = Depends(get_async_session),
-    current_user: User = Depends(get_current_user),
-    user_telegram_id: str = Depends(get_tg_id_cookie),
+    current_user: Optional[User] = Depends(get_current_user)
 ):
-    """Функция для обработки редиректа из /search."""
+    """Функция для получения страницы профиля пользователя. """
 
-    await check_admin_or_myprofile_car(
-        user_id=user_id,
-        user_telegram_id=int(user_telegram_id),
-        session=session,
-    )
-    found_user = await user_crud.get(obj_id=user_id, session=session)
-    cars = await car_crud.get_user_cars(session=session, user_id=user_id)
+    if current_user.id == user_id:
+        return RedirectResponse(url='/users/me')
 
-    if current_user.role in (2,3):
+    if current_user.is_admin or current_user.is_superadmin:
+        found_user = await user_crud.get(obj_id=user_id, session=session)
+        cars = await car_crud.get_user_cars(session=session, user_id=user_id)
+
         return templates.TemplateResponse(
-            "user/profile.html",
-            {
-                "request": request,
-                "user": found_user,
-                "page_title": 'Профиль пользователя',
-                "from_admin": True,
-                "from_search": True,
-                "cars": cars
-            }
-        )
-    else:
-        return RedirectResponse(
-            url='/users/me',
-            # status_code=status.HTTP_403_FORBIDDEN
+            'user/profile.html',
+            {'request': request,
+             'title': 'Профиль пользователя',
+             'from_search': True,
+             'user': found_user,
+             'current_user': current_user,
+             'cars': cars}
         )
 
 
@@ -97,17 +81,18 @@ async def get_edit_profile_template(
     request: Request,
     user_id: int,
     session: AsyncSession = Depends(get_async_session),
-    user_telegram_id: str = Depends(get_tg_id_cookie),
+    current_user: Optional[User] = Depends(get_current_user)
 ):
     """Функция для получения формы редактирования профиля пользователя."""
-    await check_user_exist(user_id, session)
+
     user = await user_crud.get(obj_id=user_id, session=session)
 
-    if (await check_admin_or_myprofile_car(
-            user_id=user_id,
-            user_telegram_id=int(user_telegram_id),
-            session=session,
-    )):
+    if (
+        current_user.id == user.id
+        or current_user.is_admin
+        or current_user.is_superadmin
+    ):
+
         return templates.TemplateResponse(
             "user/profile-edit.html",
             {
@@ -115,10 +100,11 @@ async def get_edit_profile_template(
                 "user": user
             }
         )
+
     else:
         return RedirectResponse(
             url='/users/me',
-            # status_code=status.HTTP_403_FORBIDDEN
+            status_code=status.HTTP_403_FORBIDDEN
         )
 
 
@@ -126,32 +112,13 @@ async def get_edit_profile_template(
 async def process_edit_profile(
     request: Request,
     user_id: int,
-    session: AsyncSession = Depends(get_async_session),
-    user_telegram_id: str = Depends(get_tg_id_cookie),
+    session: AsyncSession = Depends(get_async_session)
 ):
     """Функция для обработки формы редактирования профиля пользователя."""
 
-    await check_user_exist(user_id, session)
-    user = await user_crud.get(user_id, session)
-    author = await check_user_by_tg_exist(int(user_telegram_id), session)
-    form_data = await request.form()
-    new_user_data = dict.fromkeys(
-        ['surname', 'name', 'patronymic', 'date_birth'])
-    new_user_data['surname'] = form_data.get('surname')
-    new_user_data['name'] = form_data.get('name')
-    new_user_data['patronymic'] = form_data.get('patronymic')
-    new_user_data['date_birth'] = form_data.get('date_birth')
-    await user_crud.update(
-        db_obj=user,
-        obj_in=UserUpdate(**new_user_data),
-        user=author,
-        session=session,
-        model='User',
-    )
-    return RedirectResponse(
-        f'/user/profile/{user_id}',
-        status_code=status.HTTP_302_FOUND,
-    )
+    # TODO: Добавить обработку формы редактирования профиля пользователя.
+
+    pass
 
 
 @router.get("/{user_id}/payments-history")
