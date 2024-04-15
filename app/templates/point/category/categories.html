@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block content %}
+  <div class="container-flex">
+    <h1>Категории</h1>
+    {% if categories %}
+      {% for category in categories %}
+        <a href="/points/categories/{{ category.id }}" class="row gray-container">
+          <div class="col text-left">
+            <div class="icon-circle">
+              <i class="bi bi-gear-fill"></i>
+            </div>
+          </div>
+          <div class="col-8 text-left">
+            <p class="top-text">Категория 1</p>
+            <p class="low-text">Описание 1</p>
+          </div>
+          <div class="col-1 text-end">
+            <i class="bi bi-chevron-right"></i>
+          </div>
+        </a>
+      {% endfor %}
+    {% else %}
+      <h2>Категорий не обнаружено</h2>
+    {% endif %}
+      <div id="add-car-button">
+        <p class="text-end">
+          <a href="/points/categories/add"
+            class="d-flex justify-content-center align-items-center col-1 btn btn-custom-black"><i
+            class="bi bi-plus-circle-fill"></i> Добавить</a>
+        </p>
+      </div>
+    <div><a href="/users/me" class="btn btn-custom-black">Назад</a></div>
+  </div>
+{% endblock content %}

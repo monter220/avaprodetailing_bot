@@ -31,3 +31,11 @@ class User(Base):
     point_id = Column(Integer, ForeignKey('point.id'), nullable=True)
     bonus = Column(Integer, default=settings.default_bonus, nullable=False)
     car_del = relationship('Car', cascade='delete')
+
+    @property
+    def is_admin(self):
+        return self.role == 2
+
+    @property
+    def is_superadmin(self):
+        return self.role == 3

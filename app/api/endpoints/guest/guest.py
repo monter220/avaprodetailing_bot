@@ -12,7 +12,9 @@ from app.core.config import settings
 from app.crud import user_crud, bonus_crud
 from app.models import User
 from app.schemas.user import UserCreate, UserUpdateTG
+from app.api.endpoints.utils import get_current_user, get_tg_id_cookie
 from app.api.validators import check_duplicate, check_user_by_tg_exist
+
 
 router = APIRouter(
     tags=['guest']
@@ -21,11 +23,6 @@ router = APIRouter(
 templates = Jinja2Templates(
     directory='app/templates'
 )
-
-
-async def get_tg_id_cookie(request: Request):
-    """Функция для получения куки tg_id.  """
-    return request.cookies.get('tg_id')
 
 
 @router.get('/')
@@ -42,8 +39,7 @@ async def render_sign_in_template(request: Request):
 @router.get('/phone')
 async def render_phone_template(
     request: Request,
-    user_telegram_id: str = Depends(get_tg_id_cookie),
-    session: AsyncSession = Depends(get_async_session)
+    current_user: Optional[User] = Depends(get_current_user),
 ):
     """
     Функция для рендеринга страницы из шаблона.
@@ -53,43 +49,24 @@ async def render_phone_template(
     Если нет - открывает страницу для ввода номера.
     """
 
-    user: Optional[User] = await user_crud.get_user_by_telegram_id(
-        user_telegram_id=int(user_telegram_id),
-        session=session
-    )
-
-    if user is not None and user.phone is not None:
-
-        if user.role == 3:  # Шаблонов и роутеров нет, superuser
-            response = RedirectResponse('/superuser')
-            return response
-
-        elif user.role == 2:  # Шаблонов и роутеров нет, administrator
-            response = RedirectResponse('/administrator')
-            return response
-
-        elif user.role == 1:  # user
-            response = RedirectResponse(f'/user/profile/{user.id}')
-            return response
-
-        else:
-            return templates.TemplateResponse(
-                'guest/phone.html',
-                {'request': request,
-                 'title': 'Введите номер телефона'}
-            )
-    return templates.TemplateResponse(
-        'guest/phone.html',
-        {'request': request,
-         'title': 'Введите номер телефона'}
-    )
+    if current_user and current_user.tg_id is not None:
+        return RedirectResponse(
+            '/users/me',
+            status_code=status.HTTP_302_FOUND
+        )
+    else:
+        return templates.TemplateResponse(
+            'guest/phone.html',
+            {'request': request,
+             'title': 'Введите номер телефона'}
+        )
 
 
 @router.post('/phone')
 async def process_user_phone(
     request: Request,
     session: AsyncSession = Depends(get_async_session),
-    user_telegram_id: str = Depends(get_tg_id_cookie)
+    user_telegram_id: int = Depends(get_tg_id_cookie),
 ):
     """Функция для редиректа пользователя, согласно его роли."""
 
@@ -132,22 +109,39 @@ async def process_user_phone(
         model='User',
     )
 
-    if user.role == 3:  # Шаблонов и роутеров нет
-        response = RedirectResponse('/superuser')
+    if user.role == 3:
+        response = RedirectResponse('/users/me')
         return response
 
-    elif user.role == 2:  # Шаблонов и роутеров нет
-        response = RedirectResponse('/administrator')
+    elif user.role == 2:
+        response = RedirectResponse('/users/me')
         return response
 
-    elif user.role == 1:  # Шаблонов и роутеров нет
-        response = RedirectResponse(f'/user/profile/{user.id}')
+    elif user.role == 1:
+        response = RedirectResponse('/users/me')
         return response
 
 
 @router.get('/registration')
-def render_registration_template(request: Request):
+def render_registration_template(
+    request: Request,
+    current_user: Optional[User] = Depends(get_current_user),
+):
     """Функция для рендеринга страницы из шаблона. """
+
+    if current_user:
+        if current_user.is_admin or current_user.is_superadmin:
+            return templates.TemplateResponse(
+                'guest/registration.html',
+                {'request': request,
+                 'from_admin': True,
+                 'title': 'Регистрация'}
+            )
+        else:
+            return RedirectResponse(
+                url='users/me',
+                status_code=status.HTTP_302_FOUND
+            )
 
     return templates.TemplateResponse(
         'guest/registration.html',
@@ -160,15 +154,15 @@ def render_registration_template(request: Request):
 async def registrate_user(
     request: Request,
     session: AsyncSession = Depends(get_async_session),
-    user_telegram_id: str = Depends(get_tg_id_cookie),
+    user_telegram_id: str = Depends(get_tg_id_cookie)
 ):
     """Функция для регистрации пользователя."""
 
-    # Здесь обрабатывается только процесс регистрации
-    # обычного пользователя, поля is_admin или is_superuser нету
-
     form_data = await request.form()
-    phone = request.cookies.get('phone')
+    if form_data.get('phone'):
+        phone = form_data.get('phone')
+    else:
+        phone = request.cookies.get('phone')
 
     surname = form_data.get('surname')
     name = form_data.get('name')
@@ -183,9 +177,13 @@ async def registrate_user(
         'patronymic': patronymic,
         'date_birth': datetime.strptime(date_birth, '%Y-%m-%d'),
     }
+    author = await user_crud.get_user_by_telegram_id(
+        user_telegram_id=int(user_telegram_id),
+        session=session
+    )
 
     user = await user_crud.create(
-        obj_in=UserCreate(**user_create_data), session=session, model='User')
+        obj_in=UserCreate(**user_create_data), session=session, model='User', user=author)
 
     bonus = {
         'amount': settings.default_bonus,
@@ -195,10 +193,16 @@ async def registrate_user(
     }
     await bonus_crud.create_from_dict(bonus, session)
 
-    response = RedirectResponse(
-        '/success_registration',
-        status_code=status.HTTP_302_FOUND,
-    )
+    if author.id == user.id:
+        response = RedirectResponse(
+            url=f'/users/{user.id}',
+            status_code=status.HTTP_302_FOUND,
+        )
+    else:
+        response = RedirectResponse(
+            '/success_registration',
+            status_code=status.HTTP_302_FOUND,
+        )
 
     return response
 
@@ -218,11 +222,3 @@ async def render_success_registration_template(
          'user_id': user.id,
          'title': 'Вы успешно зарегистрировались!'}
     )
-
-
-# @router.post('/success_registration')
-# def redirect_to_add_auto(request: Request):
-#     # Здесь должен быть редирект на добавление авто
-#     # если пользователь нажал да, либо редирект на профиль, если нет,
-#     # этих веток пока нет.
-#     pass

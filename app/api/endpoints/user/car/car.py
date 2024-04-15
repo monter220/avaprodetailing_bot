@@ -12,6 +12,7 @@ from aiofiles import open
 
 from app.core.config import settings
 from app.crud import car_crud, user_crud
+from app.api.endpoints.utils import get_tg_id_cookie
 from app.schemas.car import CarCreate, CarDB, CarUpdate
 from app.core.db import get_async_session
 from app.api.validators import (
@@ -23,11 +24,10 @@ from app.api.validators import (
     check_admin_or_myprofile_car,
     check_car_unique,
 )
-from app.api.endpoints.guest import get_tg_id_cookie
 
 
 router = APIRouter(
-    prefix='/{user_id}/car',
+    prefix='/{user_id}/cars',
     tags=['car']
 )
 
@@ -49,17 +49,15 @@ async def get_add_car_template(
         user_telegram_id=int(user_telegram_id),
         session=session,
     )
-    return templates.TemplateResponse('car/add-car.html', {'request': request})
+    return templates.TemplateResponse('user/car/add-car.html', {'request': request})
 
 
-@router.post(
-    '/add',
-)
+@router.post('/add')
 async def add_car(
         request: Request,
         user_id: int,
         user_telegram_id: str = Depends(get_tg_id_cookie),
-        session: AsyncSession = Depends(get_async_session),
+        session: AsyncSession = Depends(get_async_session)
 ):
     """Обработка формы создания машины. """
     form_data = await request.form()
@@ -106,7 +104,7 @@ async def add_car(
             user=user,
         )
     return RedirectResponse(
-        f'/user/profile/{user_id}',
+        f'/users/{user_id}',
         status_code=status.HTTP_302_FOUND,
     )
 
@@ -131,7 +129,7 @@ async def get_edit_car_template(
         car=car,
     )
     return templates.TemplateResponse(
-        'car/edit-car.html',
+        'user/car/edit-car.html',
         {'request': request, 'car': car, 'user_id': user_id}
     )
 
@@ -179,14 +177,14 @@ async def edit_car(
             path_to_img = f'http://{settings.host_ip}:{settings.app_port}/{short_path}'
         car['image'] = path_to_img
     await car_crud.update(
-        db_obj=db_car,
+        db_obj=await check_exist(car_crud, car_id, session),
         obj_in=CarUpdate(**car),
         session=session,
         model='Car',
         user=user,
     )
     return RedirectResponse(
-        f'/user/profile/{user_id}',
+        f'/users/{user_id}',
         status_code=status.HTTP_302_FOUND,
     )
 
@@ -221,7 +219,7 @@ async def get_edit_car_template(
         errors.append(str(e))
 
         return templates.TemplateResponse(
-            'car/edit-car.html',
+            'user/car/edit-car.html',
             {
                 'request': request,
                 'car': car,
@@ -231,6 +229,6 @@ async def get_edit_car_template(
         )
 
     return RedirectResponse(
-        f'/user/profile/{user_id}',
+        f'/users/{user_id}',
         status_code=status.HTTP_302_FOUND,
     )

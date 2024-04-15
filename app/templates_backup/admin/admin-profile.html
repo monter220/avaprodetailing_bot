@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="container-flex profile">
+        <div class="row" id="profile-header">
+        <div class="col">
+            {% include '/includes/profile/user_info.html' %}
+        <div class="col">
+            <p class="text-end">
+                <a href="/admin/{{ user.id }}/edit"
+                class="btn btn-custom-red">изменить профиль</a>
+            </p>
+        </div>
+        {% include '/includes/profile/user_info.html' %}
+        {% include '/includes/admin/qr_scaner.html' %}
+        {% include '/includes/admin/search_user_by_phone.html' %}
+        {%  %}
+
+
+
+{% endblock content %}

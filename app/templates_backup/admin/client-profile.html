@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-flex profile">
+  <div class="row" id="profile-header">
+    <div class="col">
+      <p class="text-start">профиль</p>
+    </div>
+  <div class="col">
+    <p class="text-end">{{ user.phone }}</p>
+  </div>
+</div>
+<h1>{{ user.surname }} {{ user.name }} {{ user.patronymic }}</h1>
+<div class="row" id="profile-description">
+  <div class="col">
+    <p class="text-start" id="birthday">{{ user.date_birth }}</p>
+  </div>
+    <div class="col">
+      <p class="text-end">
+        <a href="/admin/{{ admin.id }}/profile/{{ user.id }}/edit"
+           class="btn btn-custom-red profile-btn">изменить профиль</a>
+      </p>
+    </div>
+  </div>
+
+  <div id="qr-code-button">
+    <a href="/admin/{{ admin.id }}/payment/{{user.id}}"
+       class="d-flex justify-content-center align-items-center col-1 btn btn-custom-yellow"><i class="bi bi-credit-card-2-back-fill"></i> ОПЛАТА УСЛУГ</a>
+  </div>
+
+  <a href="/admin/{{ admin.id }}/profile/{{ user.id }}/payments-history" class="row gray-container">
+    <div class="col text-start">
+      <p class="top-text">67 890</p>
+      <p class="low-text">бонусов</p>
+    </div>
+    <div class="col text-end">
+      <i class="bi bi-chevron-right"></i>
+    </div>
+  </a>
+
+  <div>
+    <h2>Автомобили</h2>
+    <a href="/admin/profile/{{ user.id }}/car/{{ car.id }}" class="row gray-container">
+      <div class="col text-left">
+        <div class="icon-circle">
+          <img src="../media/01.jpg" alt="ЛАДА 2105"/>
+        </div>
+      </div>
+      <div class="col-8 text-left">
+        <p class="top-text">ЛАДА 2105</p>
+        <p class="low-text">А777РА 99RUS</p>
+      </div>
+      <div class="col-1 text-end">
+        <i class="bi bi-chevron-right"></i>
+      </div>
+    </a>
+    <a href="../edit-car.html" class="row gray-container">
+      <div class="col text-left">
+        <div class="icon-circle">
+          <i class="bi bi-car-front-fill"></i>
+        </div>
+      </div>
+      <div class="col-8 text-left">
+        <p class="top-text">Mercedes-Benz Maybach S-Класс 580</p>
+        <p class="low-text">А888РА 97RUS</p>
+      </div>
+      <div class="col-1 text-end">
+        <i class="bi bi-chevron-right"></i>
+      </div>
+    </a>
+  </div>
+  <div id="add-car-button">
+    <p class="text-end">
+      <a href="../add-car.html"
+         class="d-flex justify-content-center align-items-center col-1 btn btn-custom-black"><i
+        class="bi bi-plus-circle-fill"></i> Добавить</a>
+    </p>
+  </div>
+
+  <div>
+  <a href="/admin/{{ admin.id }}" class="btn btn-custom-black">Назад</a>
+</div>
+</div>
+{% endblock content %}

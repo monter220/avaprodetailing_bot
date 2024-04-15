@@ -1,0 +1,15 @@
+<div class="row" id="profile-header">
+    <div class="col">
+        
+      <p class="text-start">{{ page_title }}</p>
+    </div>
+    <div class="col">
+      <p class="text-end">{{ user.phone }}</p>
+    </div>
+  </div>
+  <h1>{{ user.surname }} {{ user.name }} {{ user.patronymic }}</h1>
+  <div class="row" id="profile-description">
+    <div class="col">
+      <p class="text-start" id="birthday">{{ user.date_birth }}</p>
+    </div>
+  </div>

@@ -4,6 +4,20 @@
 <div class="container-flex">
   <h1>История платежей</h1>
 
+  {% if from_superadmin %}
+    <div class="mt-2 mb-4 search-client">
+      <form action="#" method="post">
+        <div class="form-group">
+        <label for="bonus">бонусы</label>
+        <input type="tel" class="form-control" id="bonus"
+              value="" placeholder="{{ user.bonus }}" name="bonus" required>
+      </div>
+        <button type="submit" class="btn btn-custom-red mt-2 mb-2">Изменить
+        </button>
+      </form>
+    </div>
+  {% endif %}
+
   <div>
     <table class="table table-dark table-striped">
       <thead>
@@ -14,22 +28,25 @@
         </tr>
       </thead>
       <tbody>
-        {% if payments %}
-          {% for payment in payments %}
+        {% if orders %}
+          {% for order in orders %}
           <tr>
-            <td class="align-middle">{{ payment.date }}</td>
-            <td class="text-end align-middle">{{ payment.amount }}</td>
-            <td class="text-end align-middle text-danger">{{ payment.bonus_changes }}</td>
+            <td class="align-middle">{{ order.date }}</td>
+            <td class="text-end align-middle">{{ order.cost }} ₽</td>
+            <td class="text-end align-middle text-danger">Я пока не работаю</td>
           </tr>
           {% endfor %}
         {% else %}
-          <td class="align-middle">Вам ещё не оказывались никакие услуги</td>          
+          <h2>Вы ещё не совершали заказов. Можеты быть, пришло время попробовать?</h2>
         {% endif %}
       </tbody>
     </table>
   </div>
-  <div>
-    <a href="/user/profile/{{ user.id }}" class="btn btn-custom-black">Назад</a>
+    {% if from_admin or from_superadmin %}
+      <a href="/users/{{ user.id }}" class="btn btn-custom-black">Назад</a>
+    {% else %}
+      <a href="/users/me" class="btn btn-custom-black">Назад</a>
+    {% endif %}
   </div>
 </div>
 {% endblock content %}

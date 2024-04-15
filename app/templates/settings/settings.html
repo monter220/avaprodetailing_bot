@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block content %}
+  <div class="container-flex">
+    <h1>Настройки</h1>
+
+    <form action="#" method="post">
+      <div class="form-group">
+        <label for="max_bonus_payment">Максимальный процент списания бонусов</label>
+        <input type="text" class="form-control" id="max_bonus_payment" name="max_bonus_payment"
+              placeholder="{{ current_max_bonus_payment }}" required value="">
+        <label for="default_bonus_payment">Процент начисления бонусов по умолчанию</label>
+        <input type="text" class="form-control" id="default_bonus_payment" name="default_bonus_payment"
+              placeholder="{{ current_default_bonus_payment }}" required value="">
+        <label for="registration_bonuses">Бонусы за регистрацию</label>
+        <input type="text" class="form-control" id="registration_bonuses" name="registration_bonuses"
+              placeholder="{{ current_registration_bonuses }}" required value="">
+        <label for="welcome_message">Приветственное сообщение</label>
+        <textarea class="form-control" id="welcome_message" name="welcome_message" rows="5" required>Добро пожаловать! Вам начислено {{ current_registration_bonuses }} бонусов. Будем рады видеть вас снова!</textarea>
+      </div>
+      <button type="submit" class="btn btn-custom-red mt-4 mb-4">Сохранить
+      </button>
+      <a href="/users/me" class="btn btn-custom-black">Отмена</a>
+    </form>
+  </div>
+{% endblock content %}
