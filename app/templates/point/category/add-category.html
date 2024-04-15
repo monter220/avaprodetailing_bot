@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="container-flex">
+    <h1>Добавить категорию</h1>
+
+    <form action="#" method="post">
+      <div class="form-group">
+        <input type="text" class="form-control" id="name" name="name"
+              placeholder="НАЗВАНИЕ КАТЕГОРИИ" required>
+        <textarea class="form-control" id="desc" name="desc" rows="3" required placeholder="Описание категории"></textarea>
+      </div>
+      <button type="submit" class="btn btn-custom-red mt-4 mb-4">Сохранить
+      </button>
+      <a href="/points/categories/" class="btn btn-custom-black">Отмена</a>
+    </form>
+  </div>
+{% endblock content %}

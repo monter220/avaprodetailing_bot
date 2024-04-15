@@ -4,7 +4,13 @@
 <div class="container-flex profile">
   <div class="row" id="profile-header">
     <div class="col">
-      <p class="text-start">профиль</p>
+      {% if user.role == 3 %}
+        <p class="text-start">Суперадминистратор</p>
+      {% elif user.role == 2 %}
+        <p class="text-start">Администратор</p>
+      {% else %}
+        <p class="text-start">Пользователь</p>
+      {% endif %}
     </div>
     <div class="col">
       <p class="text-end">{{ user.phone }}</p>
@@ -13,16 +19,28 @@
   <h1>{{ user.surname }} {{ user.name }} {{ user.patronymic }}</h1>
   <div class="row" id="profile-description">
     <div class="col">
-      <p class="text-start" id="birthday"></p>
+      <p class="text-start" id="birthday">{{ user.date_birth }}</p>
     </div>
     <div class="col">
       <p class="text-end">
-        <a href="/user/profile/{{ user.id }}/edit"
-           class="btn btn-custom-red">изменить профиль</a>
+        <a href="/users/{{ user.id }}/edit"
+           class="btn btn-custom-red profile-btn">изменить профиль</a>
       </p>
     </div>
   </div>
-  <a href="/user/profile/{{ user.id }}/payments" class="row gray-container">
+  {% if from_search %}
+    <div id="qr-code-button">
+      <a href="/users/{{ user.id }}/payments"
+        class="d-flex justify-content-center align-items-center col-1 btn btn-custom-yellow"><i class="bi bi-credit-card-2-back-fill"></i> ОПЛАТА УСЛУГ</a>
+    </div>
+    {% if from_superadmin %}
+      <div>
+        <a href="/users/{{ user.id }}/edit-admins"
+          class="d-flex justify-content-center align-items-center col-1 btn btn-custom-black">НАЗНАЧИТЬ АДМИНИСТРАТОРОМ</a>
+      </div>
+    {% endif %}
+  {% endif %}
+  <a href="/users/{{ user.id }}/payment-history" class="row gray-container">
     <div class="col text-start">
       <p class="top-text">{{ user.bonus }}</p>
       <p class="low-text">бонусов</p>
@@ -31,47 +49,145 @@
       <i class="bi bi-chevron-right"></i>
     </div>
   </a>
-  <div id="qr-code-button">
-    <button onclick="generateQR('{{ user.phone }}')" href="#"
-       class="d-flex justify-content-center align-items-center col-1 btn btn-custom-yellow"><i
-      class="bi bi-qr-code"></i> ПОКАЗАТЬ QR КОД</button>
-  </div>
-  <div onclick="hideQRCode()" id="qrcode"></div>
-  <div>
-    <h2>Мои автомобили</h2>
-    {% if cars %}
-      {% for car in cars %}
-        <a href="/{{ user.id }}/car/{{ car.id }}" class="row gray-container">
-          <div class="col text-left">
-            <div class="icon-circle">
-              <img src="{{ car.image }}" alt="{{ car.brand }} {{ car.model }}"/>
-            </div>
+
+  {% if user.role != 1 %}
+    <div id="qr-code-button">
+      <button onclick="getNativeScanner()" href="#"
+              class="d-flex justify-content-center align-items-center col-1 btn btn-custom-yellow mb-1">
+        <i class="bi bi-qr-code-scan"></i> СКАНИРОВАТЬ QR КОД
+      </button>
+      <div><a onclick="getCustomScanner()" id="custom-qr-scanner-link" href="#">QR Сканер Pro</a></div>
+    </div>
+    <div onclick="hideQRScanner()" id="qrcode"></div>
+
+    <div class="mt-2 mb-4 search-client">
+      <form action="/users/me/search/phone-number" method="post">
+        <div class="form-group">
+          <input type="tel" class="form-control" id="phone"
+                placeholder="ПОИСК ПО НОМЕРУ" name="phone" required>
+        </div>
+        <button type="submit" class="btn btn-custom-red mt-2 mb-2">Найти
+        </button>
+      </form>
+    </div>
+
+    <div>
+      <a href="/registration" class="row gray-container">
+        <div class="col text-left">
+          <div class="icon-circle">
+            <i class="bi bi-people-fill"></i>
           </div>
-          <div class="col-8 text-left">
-            <p class="top-text">{{ car.brand }} {{ car.model }}</p>
-            <p class="low-text">{{ car.licence_plate_number }}</p>
+        </div>
+        <div class="col-8 text-left">
+          <p class="top-text">Регистрация</p>
+        </div>
+        <div class="col-1 text-end">
+          <i class="bi bi-chevron-right"></i>
+        </div>
+      </a>
+    </div>
+
+    <div>
+      {% if user.role == 2 %}
+        <a href="/reports/{{ user.point_id }}" class="row gray-container">
+      {% else %}
+        <a href="/reports" class="row gray-container">
+      {% endif %}
+        <div class="col text-left">
+          <div class="icon-circle">
+            <i class="bi bi-file-earmark-bar-graph-fill"></i>
           </div>
-          <div class="col-1 text-end">
-            <i class="bi bi-chevron-right"></i>
+        </div>
+        <div class="col-8 text-left">
+          <p class="top-text">Отчеты</p>
+        </div>
+        <div class="col-1 text-end">
+          <i class="bi bi-chevron-right"></i>
+        </div>
+      </a>
+
+    {% if user.role == 3 %}
+      <a href="/sending-ads" class="row gray-container">
+        <div class="col text-left">
+          <div class="icon-circle">
+            <i class="bi bi-send-plus-fill"></i>
           </div>
-        </a>
-      {% endfor %}
-    {% else %}
-        <h2>Вы ещё не добавили ни одной машины</h2>
+        </div>
+        <div class="col-8 text-left">
+          <p class="top-text">Рассылка</p>
+        </div>
+        <div class="col-1 text-end">
+          <i class="bi bi-chevron-right"></i>
+        </div>
+      </a>
+
+      <a href="/settings" class="row gray-container">
+        <div class="col text-left">
+          <div class="icon-circle">
+            <i class="bi bi-gear-fill"></i>
+          </div>
+        </div>
+        <div class="col-8 text-left">
+          <p class="top-text">Настройки</p>
+        </div>
+        <div class="col-1 text-end">
+          <i class="bi bi-chevron-right"></i>
+        </div>
+      </a>
     {% endif %}
   </div>
-  <div id="add-car-button">
-    <p class="text-end">
-      <a href="/{{ user.id }}/car/add"
-         class="d-flex justify-content-center align-items-center col-1 btn btn-custom-black"><i
-        class="bi bi-plus-circle-fill"></i> Добавить</a>
-    </p>
-  </div>
+
+  {% else %}
+    <div id="qr-code-button">
+      <button onclick="generateQR('{{ user.phone }}')" href="#"
+        class="d-flex justify-content-center align-items-center col-1 btn btn-custom-yellow"><i
+        class="bi bi-qr-code"></i> ПОКАЗАТЬ QR КОД</button>
+    </div>
+    <div onclick="hideQRCode()" id="qrcode"></div>
+    <div>
+      <h2>Мои автомобили</h2>
+      {% if cars %}
+        {% for car in cars %}
+          <a href="/users/{{ user.id }}/cars/{{ car.id }}" class="row gray-container">
+            <div class="col text-left">
+              <div class="icon-circle">
+                <img src="{{ car.image }}" alt="{{ car.brand }} {{ car.model }}"/>
+              </div>
+            </div>
+            <div class="col-8 text-left">
+              <p class="top-text">{{ car.brand }} {{ car.model }}</p>
+              <p class="low-text">{{ car.licence_plate_number }}</p>
+            </div>
+            <div class="col-1 text-end">
+              <i class="bi bi-chevron-right"></i>
+            </div>
+          </a>
+        {% endfor %}
+      {% else %}
+        <h2>Вы ещё не добавили ни одной машины</h2>
+      {% endif %}
+    </div>
+    <div id="add-car-button">
+      <p class="text-end">
+        <a href="/users/{{ user.id }}/cars/add"
+          class="d-flex justify-content-center align-items-center col-1 btn btn-custom-black"><i
+          class="bi bi-plus-circle-fill"></i> Добавить</a>
+      </p>
+    </div>
+
+    {% if from_search and from_superadmin %}
+      <div>
+        <a href="/users/{{ user.id }}/ban"
+          class="d-flex justify-content-center align-items-center col-1 btn btn-custom-black">ЗАБЛОКИРОВАТЬ АККАУНТ</a>
+      </div>  
+    {% endif %}
+  {% endif %}
+
   <div>
     <h2>Наши точки</h2>
     {% if points %}
       {% for point in points %}
-        <a href="/point/{{ point.id }}" class="row gray-container">
+        <a href="/points/{{ point.id }}" class="row gray-container">
           <div class="col text-left">
             <div class="icon-circle">
               <i class="bi bi-geo-alt-fill"></i>
@@ -88,6 +204,15 @@
       {% endfor %}
     {% else %}
       <h2>У нас нет точек :(</h2>
+    {% endif %}
+    {% if user.role == 3 %}
+      <div id="add-car-button">
+        <p class="text-end">
+          <a href="/points/add"
+            class="d-flex justify-content-center align-items-center col-1 btn btn-custom-black"><i
+            class="bi bi-plus-circle-fill"></i> Добавить</a>
+        </p>
+      </div>
     {% endif %}
   </div>
 </div>

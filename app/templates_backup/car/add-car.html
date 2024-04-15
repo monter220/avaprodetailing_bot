@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="container-flex">
+    <h1>Добавить автомобиль</h1>
+  
+    <form action="#" method="post" enctype="multipart/form-data">
+      <div class="form-group">
+        <label for="file-upload" class="custom-file-upload">ЗАГРУЗИТЬ ФОТО</label>
+        <input id="file-upload" name="image" type="file"/>
+        <input type="text" class="form-control" id="brand" name="brand"
+               placeholder="МАРКА" required>
+        <input type="text" class="form-control" id="model" name="model"
+               placeholder="МОДЕЛЬ" required>
+        <input type="text" class="form-control" id="license_plate_number"
+               name="license_plate_number"
+               placeholder="НОМЕРНОЙ ЗНАК" required>
+      </div>
+      <button type="submit" class="btn btn-custom-red mt-4 mb-4">Добавить
+      </button>
+      <button type="button" class="btn btn-custom-black" onclick="goBack()">Отмена</button>
+    </form>
+  </div>
+
+  <script>
+    function goBack() {
+      window.history.back();
+    }
+  </script>
+
+{% endblock content %}
