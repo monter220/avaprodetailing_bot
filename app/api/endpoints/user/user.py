@@ -6,7 +6,7 @@ from fastapi.responses import RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.db import get_async_session
-from app.crud import car_crud, user_crud
+from app.crud import car_crud, user_crud, point_crud
 from app.models import User
 from app.schemas.user import UserUpdate
 from app.api.endpoints.utils import get_current_user, get_tg_id_cookie
@@ -43,6 +43,7 @@ async def get_profile_template(
         session=session,
         user_id=current_user.id
     )
+    points = await point_crud.all_points(session=session)
 
     return templates.TemplateResponse(
         "user/profile.html",
@@ -50,7 +51,8 @@ async def get_profile_template(
             "request": request,
             "page_title": 'Профиль пользователя',
             "user": current_user,
-            "cars": cars
+            "cars": cars,
+            'points': points
         }
     )
 
@@ -72,6 +74,7 @@ async def process_redirect_from_phone(
     )
     found_user = await user_crud.get(obj_id=user_id, session=session)
     cars = await car_crud.get_user_cars(session=session, user_id=user_id)
+    points = await point_crud.all_points(session=session)
 
     if current_user.role in (2,3):
         return templates.TemplateResponse(
@@ -82,7 +85,8 @@ async def process_redirect_from_phone(
                 "page_title": 'Профиль пользователя',
                 "from_admin": True,
                 "from_search": True,
-                "cars": cars
+                "cars": cars,
+                'points': points
             }
         )
     else:
@@ -107,7 +111,6 @@ async def get_edit_profile_template(
     )
     await check_user_exist(user_id, session)
     user = await user_crud.get(user_id, session)
-    print(11111111111111111111111111111111111111111111111)
     return templates.TemplateResponse(
         "user/profile-edit.html",
         {
@@ -125,7 +128,6 @@ async def process_edit_profile(
     user_telegram_id: str = Depends(get_tg_id_cookie),
 ):
     """Функция для обработки формы редактирования профиля пользователя."""
-    print(22222222222222222222222222222222222222222222222222222222)
     await check_user_exist(user_id, session)
     user = await user_crud.get(user_id, session)
     author = await check_user_by_tg_exist(int(user_telegram_id), session)
