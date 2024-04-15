@@ -31,6 +31,7 @@ templates = Jinja2Templates(directory="app/templates")
 
 
 @router.get("/me")
+@router.post('/me')
 async def get_profile_template(
     request: Request,
     current_user: User = Depends(get_current_user),

@@ -123,8 +123,25 @@ async def process_user_phone(
 
 
 @router.get('/registration')
-def render_registration_template(request: Request):
+def render_registration_template(
+    request: Request,
+    current_user: Optional[User] = Depends(get_current_user),
+):
     """Функция для рендеринга страницы из шаблона. """
+
+    if current_user:
+        if current_user.is_admin or current_user.is_superadmin:
+            return templates.TemplateResponse(
+                'guest/registration.html',
+                {'request': request,
+                 'from_admin': True,
+                 'title': 'Регистрация'}
+            )
+        else:
+            return RedirectResponse(
+                url='users/me',
+                status_code=status.HTTP_302_FOUND
+            )
 
     return templates.TemplateResponse(
         'guest/registration.html',
@@ -145,7 +162,10 @@ async def registrate_user(
     # обычного пользователя, поля is_admin или is_superuser нету
 
     form_data = await request.form()
-    phone = request.cookies.get('phone')
+    if form_data.get('phone'):
+        phone = form_data.get('phone')
+    else:
+        phone = request.cookies.get('phone')
 
     surname = form_data.get('surname')
     name = form_data.get('name')

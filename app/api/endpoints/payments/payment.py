@@ -6,7 +6,7 @@ from starlette import status
 from starlette.responses import RedirectResponse
 from starlette.templating import Jinja2Templates
 
-from app.api.endpoints.user.user import router as user_router
+# from app.api.endpoints.user.user import router as user_router
 from app.api.endpoints.user.car.car import router as car_router
 from app.api.endpoints.utils import get_tg_id_cookie
 from app.api.validators import check_user_exist
@@ -18,7 +18,7 @@ from app.services.telegram import send_invoice
 
 
 router = APIRouter(
-    prefix="/{user_id}/payments"
+    prefix="/users/{user_id}/payments"
 )
 
 templates = Jinja2Templates(
@@ -26,7 +26,7 @@ templates = Jinja2Templates(
 )
 
 
-@router.get('/payment')
+@router.get('/')
 async def get_payments_template(
     request: Request,
     user_id: int,
@@ -50,7 +50,8 @@ async def get_payments_template(
     cars = await car_crud.get_user_cars(user_id, session)
     if not cars:
         return RedirectResponse(
-            car_router.url_path_for('add_car', user_id=user_id)
+            url=f'/users/{user_id}/cars/add'
+            # car_router.url_path_for('add_car', user_id=user_id)
         )
 
     services = await service_crud.get_services_by_point_id(
@@ -161,5 +162,6 @@ async def process_payment(
         # TODO Сообщение, что сообщение об оплате отправлено
 
     return RedirectResponse(
-        user_router.url_path_for('get_profile_template', user_id=user_id)
+        url='/users/me'
+        # user_router.url_path_for('get_profile_template', user_id=user_id)
     )

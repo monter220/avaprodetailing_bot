@@ -27,11 +27,5 @@ async def get_current_user(
         user_telegram_id=int(user_telegram_id),
         session=session
     )
-    if user:
-        if user.role == 3:
-            user.is_superadmin = True
-
-        if user.role == 2:
-            user.is_admin = True
 
     return user
