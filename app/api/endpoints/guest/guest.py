@@ -158,9 +158,6 @@ async def registrate_user(
 ):
     """Функция для регистрации пользователя."""
 
-    # Здесь обрабатывается только процесс регистрации
-    # обычного пользователя, поля is_admin или is_superuser нету
-
     form_data = await request.form()
     if form_data.get('phone'):
         phone = form_data.get('phone')
@@ -180,9 +177,13 @@ async def registrate_user(
         'patronymic': patronymic,
         'date_birth': datetime.strptime(date_birth, '%Y-%m-%d'),
     }
+    author = await user_crud.get_user_by_telegram_id(
+        user_telegram_id=int(user_telegram_id),
+        session=session
+    )
 
     user = await user_crud.create(
-        obj_in=UserCreate(**user_create_data), session=session, model='User')
+        obj_in=UserCreate(**user_create_data), session=session, model='User', user=author)
 
     bonus = {
         'amount': settings.default_bonus,
@@ -192,10 +193,16 @@ async def registrate_user(
     }
     await bonus_crud.create_from_dict(bonus, session)
 
-    response = RedirectResponse(
-        '/success_registration',
-        status_code=status.HTTP_302_FOUND,
-    )
+    if author.id == user.id:
+        response = RedirectResponse(
+            url=f'/users/{user.id}',
+            status_code=status.HTTP_302_FOUND,
+        )
+    else:
+        response = RedirectResponse(
+            '/success_registration',
+            status_code=status.HTTP_302_FOUND,
+        )
 
     return response
 
