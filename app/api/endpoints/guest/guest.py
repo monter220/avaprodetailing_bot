@@ -193,7 +193,7 @@ async def registrate_user(
     }
     await bonus_crud.create_from_dict(bonus, session)
 
-    if author.id == user.id:
+    if author:
         response = RedirectResponse(
             url=f'/users/{user.id}',
             status_code=status.HTTP_302_FOUND,
