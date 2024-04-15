@@ -100,26 +100,21 @@ async def get_edit_profile_template(
     user_telegram_id: str = Depends(get_tg_id_cookie),
 ):
     """Функция для получения формы редактирования профиля пользователя."""
+    await check_admin_or_myprofile_car(
+        user_id=user_id,
+        user_telegram_id=int(user_telegram_id),
+        session=session,
+    )
     await check_user_exist(user_id, session)
-    user = await user_crud.get(obj_id=user_id, session=session)
-
-    if (await check_admin_or_myprofile_car(
-            user_id=user_id,
-            user_telegram_id=int(user_telegram_id),
-            session=session,
-    )):
-        return templates.TemplateResponse(
-            "user/profile-edit.html",
-            {
-                "request": request,
-                "user": user
-            }
-        )
-    else:
-        return RedirectResponse(
-            url='/users/me',
-            # status_code=status.HTTP_403_FORBIDDEN
-        )
+    user = await user_crud.get(user_id, session)
+    print(11111111111111111111111111111111111111111111111)
+    return templates.TemplateResponse(
+        "user/profile-edit.html",
+        {
+            "request": request,
+            "user": user
+        }
+    )
 
 
 @router.post("/{user_id}/edit")
@@ -130,7 +125,7 @@ async def process_edit_profile(
     user_telegram_id: str = Depends(get_tg_id_cookie),
 ):
     """Функция для обработки формы редактирования профиля пользователя."""
-
+    print(22222222222222222222222222222222222222222222222222222222)
     await check_user_exist(user_id, session)
     user = await user_crud.get(user_id, session)
     author = await check_user_by_tg_exist(int(user_telegram_id), session)
@@ -149,10 +144,9 @@ async def process_edit_profile(
         model='User',
     )
     return RedirectResponse(
-        f'/user/profile/{user_id}',
+        f'/users/{user_id}',
         status_code=status.HTTP_302_FOUND,
     )
-
 
 @router.get("/{user_id}/payments-history")
 async def get_payments_template(
