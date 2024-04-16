@@ -13,6 +13,7 @@ class Settings(BaseSettings):
     default_role: int = 1
     paytype_list: str = '{1:"наличный расчет",2:"безналичный расчет"}'
     eventtypes_list: str = '{1:"создан",2:"изменен",3:"удален"}'
+    superadmin: str = '{"id":1,"surname":"Великий","name":"Админ","patronymic":" ","date_birth":"1991-11-11","phone":"+79998887766","role":3}'
 
     pay_type_cash: int = 1
     pay_type_online: int = 2

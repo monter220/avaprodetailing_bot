@@ -1,9 +1,10 @@
 import contextlib
 
+from datetime import datetime
 from app.core.config import settings
 from app.core.db import get_async_session
 from app.schemas.references import RoleCreate, PayTypeCreate, EventTypesCreate
-from app.crud import role_crud, paytype_crud, evettypes_crud
+from app.crud import role_crud, paytype_crud, evettypes_crud, user_crud
 
 
 get_async_session_context = contextlib.asynccontextmanager(get_async_session)
@@ -43,3 +44,12 @@ async def create_eventtypes():
                         EventTypesCreate(
                             id=id, name=eventtypes_dict[id]
                         ), session)
+
+
+async def create_superadmin():
+    if settings.superadmin is not None:
+        superadmin_dict = eval(settings.superadmin)
+        async with get_async_session_context() as session:
+            if not await user_crud.get(1, session):
+                superadmin_dict['date_birth'] = datetime.strptime(superadmin_dict['date_birth'], '%Y-%m-%d')
+                await user_crud.create_from_dict(superadmin_dict, session)
