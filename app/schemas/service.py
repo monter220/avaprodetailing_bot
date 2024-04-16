@@ -1,7 +1,6 @@
 from typing import Optional
 
-from pydantic import Field, PositiveInt, field_validator
-from pydantic_core.core_schema import ValidationInfo
+from pydantic import Field, PositiveInt
 
 from app.core.config import settings
 from app.schemas.base_name_descr import BaseNameDescrSchema

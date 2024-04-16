@@ -1,10 +1,8 @@
 from typing import Optional
 
-from pydantic import Field, field_validator, PositiveInt
-from pydantic_core.core_schema import ValidationInfo
+from pydantic import Field, PositiveInt
 
 from app.core.config import settings
-from app.translate.ru import FIELD_ERROR
 from .base_name_descr import BaseNameDescrSchema
 from .service import ServiceDB
 
