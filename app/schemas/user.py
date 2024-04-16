@@ -43,7 +43,6 @@ class UserUpdate(BaseModel):
                 raise ValueError(settings.alphabet_error)
         return value
 
-
     @validator('date_birth')
     def check_age(cls, value):
         if (
