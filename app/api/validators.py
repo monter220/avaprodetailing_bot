@@ -1,5 +1,6 @@
 from typing import Optional
 from fastapi import HTTPException
+from fastapi.responses import RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 
@@ -179,4 +180,17 @@ async def check_car_unique(
         raise HTTPException(
             status_code=404,
             detail='Такое номер уже есть в базе!',
+        )
+
+
+def check_is_superadmin(current_user: User):
+    """
+    Функция для проверки является ли пользователь суперадмином.
+    Если нет - редиректит в его профиль.
+    """
+
+    if not current_user.is_superadmin:
+        return RedirectResponse(
+            url='/users/me',
+            status_code=status.HTTP_302_FOUND
         )

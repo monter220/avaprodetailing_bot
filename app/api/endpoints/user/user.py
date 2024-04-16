@@ -47,7 +47,7 @@ async def get_profile_template(
         "user/profile.html",
         {
             "request": request,
-            "page_title": 'Профиль пользователя',
+            "title": 'Профиль пользователя',
             "user": current_user,
             "cars": cars,
             'points': points
@@ -63,7 +63,7 @@ async def process_redirect_from_phone(
     current_user: User = Depends(get_current_user),
     user_telegram_id: str = Depends(get_tg_id_cookie),
 ):
-    """Функция для обработки редиректа из /search."""
+    """Функция для получения страницы профиля пользователя. """
 
     await check_admin_or_myprofile_car(
         user_id=user_id,
@@ -90,7 +90,7 @@ async def process_redirect_from_phone(
     else:
         return RedirectResponse(
             url='/users/me',
-            # status_code=status.HTTP_403_FORBIDDEN
+            status_code=status.HTTP_302_FOUND,
         )
 
 

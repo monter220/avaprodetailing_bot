@@ -1,5 +1,13 @@
-from fastapi import APIRouter, Request, status
+from typing import Optional
+
+from fastapi import APIRouter, Depends, Request
+from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
+from sqlalchemy.ext.asyncio import AsyncSession
+from starlette import status
+
+from app.core.db import get_async_session
+from app.crud.user import user_crud
 
 
 router = APIRouter(
@@ -11,17 +19,60 @@ templates = Jinja2Templates(
 )
 
 
-@router.post('/phone-number')
-async def get_payment_page(
+@router.get('/phone-number/{phone_number}')
+async def get_profile_page_from_qr(
     request: Request,
+    phone_number: str,
+    session: AsyncSession = Depends(get_async_session),
 ):
-    """Функция для поиска пользователя. """
+    """Функция обработывает get-запросы, полученные из сканера qr-кодов. """
 
-    # TODO: Добавить логику поиска пользователя.
-    # В зависимости от нахождения - должна редиректить
-    # на страницу пользователя или на страницу с ошибкой.
+    user = await user_crud.get_user_by_phone_number(
+        phone=phone_number,
+        session=session
+    )
 
-    pass
+    if not user:
+        return RedirectResponse(
+            url='/users/me/search/not-found',
+            status_code=status.HTTP_302_FOUND
+        )
+
+    return RedirectResponse(
+        url=f'/users/{user.id}',
+        status_code=status.HTTP_302_FOUND
+    )
+
+
+@router.post('/phone-number')
+async def get_profile_page(
+    request: Request,
+    phone: Optional[str] = None,
+    session: AsyncSession = Depends(get_async_session),
+):
+    """
+    Функция для поиска пользователя.
+    Если полбзователь найден - перенаправляет на страницу пользователя.
+    Если пользователь не найден - перенаправляет на страницу с ошибкой.
+    """
+    form_data = await request.form()
+    phone_number = form_data.get('phone')
+
+    found_user = await user_crud.get_user_by_phone_number(
+        session=session,
+        phone=phone_number,
+    )
+
+    if found_user:
+        return RedirectResponse(
+            url=f'/users/{found_user.id}',
+            status_code=status.HTTP_302_FOUND
+        )
+
+    return RedirectResponse(
+        url='/users/me/search/not-found',
+        status_code=status.HTTP_302_FOUND,
+    )
 
 
 @router.get('/not-found')
@@ -32,5 +83,5 @@ async def get_not_found_page(
 
     return templates.TemplateResponse(
         'user/search/user-not-found.html',
-        status_code=status.HTTP_404_NOT_FOUND,
+        {'request': request},
     )
