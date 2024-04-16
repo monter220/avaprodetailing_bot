@@ -6,8 +6,7 @@ from starlette import status
 from starlette.responses import RedirectResponse
 from starlette.templating import Jinja2Templates
 
-# from app.api.endpoints.user.user import router as user_router
-from app.api.endpoints.user.car.car import router as car_router
+from app.api.endpoints.user.user import router as user_router
 from app.api.endpoints.utils import get_tg_id_cookie
 from app.api.validators import check_user_exist
 from app.core.config import settings
@@ -41,10 +40,8 @@ async def get_payments_template(
 
     admin = await user_crud.get_user_by_telegram_id(user_telegram_id, session)
     if not admin.point_id:
-        # TODO Редирект должен быть на СВОЙ профиль, нет маршрута
         return RedirectResponse(
-            url='/users/me'
-            # user_router.url_path_for('get_profile_template', user_id=admin.id)
+            user_router.url_path_for('get_profile_template')
         )
 
     cars = await car_crud.get_user_cars(user_id, session)
