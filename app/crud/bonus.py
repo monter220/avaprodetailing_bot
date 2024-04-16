@@ -1,5 +1,6 @@
 from sqlalchemy import true, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload
 
 from app.crud.base import CRUDBase
 from app.models import Bonus
@@ -40,6 +41,20 @@ class CRUDBonus(CRUDBase):
                 self.model.amount > 0,
                 self.model.used < self.model.amount,
             )
+        )
+        return bonuses.scalars().all()
+
+    async def get_bonuses_by_user_id(
+        self,
+        user_id: int,
+        session: AsyncSession,
+    ) -> list[Bonus]:
+        """Получение бонусов пользователя."""
+        bonuses = await session.execute(
+            select(self.model).options(joinedload(self.model.order)).where(
+                self.model.user_id == user_id,
+                self.model.is_active,
+            ).order_by(self.model.id.desc())
         )
         return bonuses.scalars().all()
 

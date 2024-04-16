@@ -1,12 +1,10 @@
-from typing import Optional
-
-from fastapi import APIRouter, Depends, Request, status
+from fastapi import APIRouter, Depends, Request, status, Form
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.db import get_async_session
-from app.crud import car_crud, user_crud
+from app.crud import car_crud, user_crud, bonus_crud
 from app.models import User
 from app.schemas.user import UserUpdate
 from app.api.endpoints.utils import get_current_user, get_tg_id_cookie
@@ -17,7 +15,6 @@ from app.api.validators import (
     check_user_by_tg_exist,
     check_admin_or_myprofile_car,
 )
-
 
 router = APIRouter(
     prefix="/users",
@@ -73,7 +70,7 @@ async def process_redirect_from_phone(
     found_user = await user_crud.get(obj_id=user_id, session=session)
     cars = await car_crud.get_user_cars(session=session, user_id=user_id)
 
-    if current_user.role in (2,3):
+    if current_user.role in (2, 3):
         return templates.TemplateResponse(
             "user/profile.html",
             {
@@ -104,9 +101,9 @@ async def get_edit_profile_template(
     user = await user_crud.get(obj_id=user_id, session=session)
 
     if (await check_admin_or_myprofile_car(
-            user_id=user_id,
-            user_telegram_id=int(user_telegram_id),
-            session=session,
+        user_id=user_id,
+        user_telegram_id=int(user_telegram_id),
+        session=session,
     )):
         return templates.TemplateResponse(
             "user/profile-edit.html",
@@ -122,7 +119,7 @@ async def get_edit_profile_template(
         )
 
 
-@router.post("/{user_id}/edit")
+@router.post('/{user_id}/edit')
 async def process_edit_profile(
     request: Request,
     user_id: int,
@@ -154,17 +151,66 @@ async def process_edit_profile(
     )
 
 
-@router.get("/{user_id}/payments-history")
+@router.get('/{user_id}/payments-history')
 async def get_payments_template(
     request: Request,
     user_id: int,
-    session: AsyncSession = Depends(get_async_session)
+    session: AsyncSession = Depends(get_async_session),
+    current_user: User = Depends(get_current_user),
 ):
-    """Функция для отображения шаблона с платежами."""
+    """Функция для отображения шаблона с историей платежей и бонусов."""
+    bonuses = await bonus_crud.get_bonuses_by_user_id(user_id, session)
+    user = await user_crud.get(user_id, session)
+    # TODO Какая у нас проверка на роль суперадмина?
+    is_superadmin = current_user.role == 3
+    is_client_page = current_user.id != user_id
 
-    # TODO: Добавить обработку шаблона с платежами.
-    # На данный момент модели платежей нет.
-    # В шаблон в контексте должны передаваться payments,
-    # список объектов платежей для данного пользователя.
+    return templates.TemplateResponse(
+        'user/payment-history.html',
+        {
+            'request': request,
+            'page_title': 'История платежей',
+            'bonuses': bonuses,
+            'is_superadmin': is_superadmin,
+            'is_client_page': is_client_page,
+            'user': user,
+        }
+    )
 
-    pass
+
+@router.post('/{user_id}/payments-history')
+async def update_user_bonus(
+    user_id: int,
+    bonus_amount: int = Form(...),
+    session: AsyncSession = Depends(get_async_session),
+    current_user: User = Depends(get_current_user),
+):
+    """Корректировка бонусов пользователя."""
+    # TODO Какая у нас проверка на роль суперадмина?
+    is_superadmin = current_user.role == 3
+    if not is_superadmin:
+        return RedirectResponse(
+            url=router.url_path_for('get_profile_template'),
+            status_code=status.HTTP_302_FOUND,
+        )
+
+    user = await user_crud.get(user_id, session)
+    changed_amount = bonus_amount - user.bonus
+
+    await user_crud.update_bonus_amount(
+        user_id, changed_amount, session)
+    bonus = {
+        'amount': changed_amount,
+        'user_id': user_id,
+        'admin_id': current_user.id,
+        'is_active': True,
+    }
+    bonus = await bonus_crud.create_from_dict(bonus, session)
+    if changed_amount < 0:
+        await bonus_crud.burn_user_bonuses(
+            user_id, abs(bonus.amount), session)
+
+    return RedirectResponse(
+        url=router.url_path_for('get_payments_template', user_id=user_id),
+        status_code=status.HTTP_302_FOUND,
+    )
