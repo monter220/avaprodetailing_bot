@@ -37,6 +37,7 @@ async def get_categories_page(
     current_user: Optional[User] = Depends(get_current_user),
 ):
     """Функция для отображения страницы со списком категорий. """
+
     check_is_superadmin(current_user)
 
     categories = await category_crud.get_all_categories_by_point_id(
@@ -48,6 +49,7 @@ async def get_categories_page(
         'point/category/categories.html',
         {
             'request': request,
+            'point_id': point_id,
             'categories': categories,
         }
     )
@@ -56,6 +58,7 @@ async def get_categories_page(
 @router.get('/add')
 async def get_category_add_page(
     request: Request,
+    point_id: int,
     current_user: Optional[User] = Depends(get_current_user),
 ):
     """Функция для отображения страницы добавления категории услуг. """
@@ -64,7 +67,8 @@ async def get_category_add_page(
 
     return templates.TemplateResponse(
         'point/category/add-category.html',
-        {'request': request}
+        {'request': request,
+         'point_id': point_id}
     )
 
 
@@ -82,7 +86,7 @@ async def create_category(
 
     category_data = {
         'name': form_data['name'],
-        'description': form_data['descr'],
+        'description': form_data['desc'],
         'point_id': point_id
     }
 
@@ -101,6 +105,7 @@ async def create_category(
         return templates.TemplateResponse(
             'point/category/add-category.html',
             {'request': request,
+             'point_id': point_id,
              'errors': errors}
         )
 
@@ -119,6 +124,7 @@ async def create_category(
         return templates.TemplateResponse(
             'point/category/add-category.html',
             {'request': request,
+             'point_id': point_id,
              'errors': errors}
         )
 
@@ -159,6 +165,7 @@ async def get_category_edit_page(
         'point/category/edit-category.html',
         {
             'request': request,
+            'point_id': point_id,
             'category': category
         }
     )
@@ -179,7 +186,7 @@ async def update_category(
 
     category_update_data = {
         'name': from_data['name'],
-        'description': from_data['descr']
+        'description': from_data['desc']
     }
 
     errors = []
@@ -205,6 +212,7 @@ async def update_category(
             'point/category/edit-category.html',
             {'request': request,
              'category': category,
+             'point_id': point_id,
              'errors': errors}
         )
 
@@ -225,6 +233,7 @@ async def update_category(
             'point/category/edit-category.html',
             {'request': request,
              'category': category,
+             'point_id': point_id,
              'errors': errors}
         )
 
@@ -276,6 +285,7 @@ async def delete_category(
             'point/category/edit-category.html',
             {'request': request,
              'category': category,
+             'point_id': point_id,
              'errors': errors}
         )
 

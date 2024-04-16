@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.crud.base import CRUDBase
-from app.models import Point, Category
+from app.models import Point, Category, User
 
 
 class CRUDPoint(CRUDBase):

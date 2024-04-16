@@ -5,7 +5,6 @@ from pydantic_core.core_schema import ValidationInfo
 
 from app.core.config import settings
 from app.schemas.base_name_descr import BaseNameDescrSchema
-from app.translate.ru import FIELD_ERROR
 
 
 class ShortServiceBase(BaseNameDescrSchema):
@@ -35,17 +34,7 @@ class ServiceCreate(ServiceBase):
 
 
 class ServiceUpdate(ServiceBase):
-    @field_validator(
-        'name',
-        'cost',
-        'default_bonus',
-        'category_id',
-        mode='before'
-    )
-    def field_cannot_be_null(cls, value: str, info: ValidationInfo):
-        if value is None:
-            raise ValueError(FIELD_ERROR.format(info.field_name))
-        return value
+    pass
 
 
 class ServiceDB(ShortServiceBase):

@@ -14,6 +14,7 @@ from app.api.validators import (
     check_user_exist,
     check_user_by_tg_exist,
     check_admin_or_myprofile_car,
+    check_is_superadmin
 )
 
 
@@ -149,6 +150,7 @@ async def process_edit_profile(
         status_code=status.HTTP_302_FOUND,
     )
 
+
 @router.get('/{user_id}/payments-history')
 async def get_payments_template(
     request: Request,
@@ -210,4 +212,92 @@ async def update_user_bonus(
     return RedirectResponse(
         url=router.url_path_for('get_payments_template', user_id=user_id),
         status_code=status.HTTP_302_FOUND,
+    )
+
+
+@router.get('/{user_id}/admin-appoint')
+async def get_admin_appoint_page(
+    request: Request,
+    session: AsyncSession = Depends(get_async_session),
+    current_user: User = Depends(get_current_user)
+):
+    """Функция для получения страницы назначения администратора. """
+
+    check_is_superadmin(current_user)
+
+    points = await point_crud.get_multi(session=session)
+
+    return templates.TemplateResponse(
+        'user/edit-admin-point.html',
+        {'request': request,
+         'points': points}
+    )
+
+
+@router.post('/{user_id}/admin-appoint')
+async def appoint_admin(
+    request: Request,
+    user_id: int,
+    session: AsyncSession = Depends(get_async_session),
+    current_user: User = Depends(get_current_user)
+):
+    """Функция для назначения пользователя администратором. """
+
+    user = await user_crud.get(
+        obj_id=user_id,
+        session=session
+    )
+
+    if user is None:
+
+        return RedirectResponse(
+            url='/users/me',
+            status_code=status.HTTP_302_FOUND
+        )
+
+    form_data = await request.form()
+    errors = []
+
+    # Форма отправляет ноль, если выставлено увольнение администратора
+    if form_data.get('point') == '0':
+
+        user_update_data = {
+            # Поле, установленное как внешний ключ, не может быть
+            # равно нулю или быть None по неизвестной мне причине
+            # -1 значит, что пользователь отвязан от точки
+            'point_id': -1,
+            'role': 1
+        }
+    else:
+        user_update_data = {
+            'point_id': form_data.get('point'),
+            'role': 2
+        }
+
+    try:
+        print(user_update_data)
+
+        await user_crud.update(
+            db_obj=user,
+            obj_in=UserUpdate(**user_update_data),
+            user=current_user,
+            session=session,
+            model='User'
+        )
+        print(user.point_id)
+    except Exception as e:
+        errors.append(str(e))
+
+        points = await point_crud.get_multi(session=session)
+
+        return templates.TemplateResponse(
+            'user/edit-admin-point.html',
+            {'request': request,
+             'points': points,
+             'errors': errors}
+        )
+
+    return RedirectResponse(
+        url='/users/me',
+        status_code=status.HTTP_302_FOUND
     )

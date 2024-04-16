@@ -9,6 +9,13 @@
               placeholder="НАЗВАНИЕ КАТЕГОРИИ" required value="{{ category.name }}">
         <textarea class="form-control" id="desc" name="desc" rows="3" required placeholder="Описание категории">{{ category.description }}</textarea>
       </div>
+      <div id="add-car-button">
+        <p class="text-end">
+          <a href="/points/{{ point_id }}/categories/{{ category.id }}/services/add"
+            class="d-flex justify-content-center align-items-center col-1 btn btn-custom-black"><i
+            class="bi bi-plus-circle-fill"></i> Добавить услугу</a>
+        </p>
+      </div>
       <button type="submit" class="btn btn-custom-red mt-4 mb-4">Сохранить
       </button>
       <a

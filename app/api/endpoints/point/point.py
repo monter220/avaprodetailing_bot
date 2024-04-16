@@ -84,10 +84,7 @@ async def get_point(
         current_user: Optional[User] = Depends(get_current_user),
         session: AsyncSession = Depends(get_async_session)
 ):
-    point = await point_crud.get(
-        session=session,
-        obj_id=point_id
-    )
+
     points = await point_crud.point_by_id(point_id, session)
 
     if current_user.is_superadmin:
