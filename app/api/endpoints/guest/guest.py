@@ -163,19 +163,27 @@ async def registrate_user(
     name = form_data.get('name')
     patronymic = form_data.get('patronymic')
     date_birth = form_data.get('date_birth')
-
-    user_create_data = {
-        'tg_id': user_telegram_id,
-        'phone': phone,
-        'surname': surname,
-        'name': name,
-        'patronymic': patronymic,
-        'date_birth': datetime.strptime(date_birth, '%Y-%m-%d'),
-    }
     author = await user_crud.get_user_by_telegram_id(
         user_telegram_id=int(user_telegram_id),
         session=session,
     )
+    if author:
+        user_create_data = {
+            'phone': phone,
+            'surname': surname,
+            'name': name,
+            'patronymic': patronymic,
+            'date_birth': datetime.strptime(date_birth, '%Y-%m-%d'),
+        }
+    else:
+        user_create_data = {
+            'tg_id': user_telegram_id,
+            'phone': phone,
+            'surname': surname,
+            'name': name,
+            'patronymic': patronymic,
+            'date_birth': datetime.strptime(date_birth, '%Y-%m-%d'),
+        }
 
     user = await user_crud.create(
         obj_in=UserCreate(**user_create_data),
