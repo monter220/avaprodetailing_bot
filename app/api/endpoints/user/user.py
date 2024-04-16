@@ -83,6 +83,7 @@ async def process_redirect_from_phone(
                 "page_title": 'Профиль пользователя',
                 "from_admin": True,
                 "from_search": True,
+                'current_user': current_user,
                 "cars": cars,
                 'points': points
             }
