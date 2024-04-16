@@ -9,7 +9,10 @@ from sqlalchemy import select, and_
 from app.api.endpoints.utils import get_current_user
 from app.models import User, Service, Order, Bonus
 from app.services.excel import create_excel
+from app.services.report import process_report
+from app.services.telegram import send_excel, send_message
 from app.core.db import get_async_session
+from app.crud import car_crud, user_crud, service_crud, bonus_crud
 
 
 
@@ -50,29 +53,17 @@ async def process_reports(
     """Функция для получения отчётов. """
 
     # TODO: Добавить получение отчёта и отправку его через Telegram.
-
-    params = dict(request.query_params)
-    report_type = params.get('type')
-    #user_id = params.get('user_id', None)
-
-    types_query = {
-        'clients': select(User).where(
-            User.role == 'client'
-        ),
-        #'services': select(Service),
-        #'payments': select(Order).where(Order.user_id == user_id),
-        #'bonuses': select(Bonus).where(
-        #    and_(
-        #       Bonus.user_id == user_id,
-        #        Bonus.is_active == True,
-        #    )
-        #)
-        
-
-    }
-
-    objects = await session.execute(
-        types_query[report_type]
-    )
-    excel = create_excel(objects.scalars().all())
     pass
+
+
+@router.get('/users')
+async def process_reports(
+    user_id: int,
+    session: AsyncSession = Depends(get_async_session),
+):
+    """Функция для получения отчётов пользователей. """
+    user = await user_crud.get(user_id, session)
+    objects = await process_report(session=session, key='users')
+    excel = create_excel(objects)
+    await send_excel(excel=excel, filename='users.xlsx', chat_id=user.tg_id)
+    return status.HTTP_200_OK
