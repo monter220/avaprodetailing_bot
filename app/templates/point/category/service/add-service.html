@@ -39,6 +39,13 @@
       <button type="submit" class="btn btn-custom-red mt-4 mb-4">Сохранить
       </button>
       <a href="/users/me" class="btn btn-custom-black">Отмена</a>
+      {% if errors %}
+        <ul class="errors">
+          {% for error in errors %}
+            <li>{{ error }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
     </form>
   </div>
 {% endblock content %}

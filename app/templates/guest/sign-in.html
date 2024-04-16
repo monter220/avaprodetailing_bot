@@ -18,10 +18,4 @@
     Продолжая использование сервиса, вы соглашаетесь с политикой
     конфиденциальности и даете согласие на обработку своих персональных данных
   </footer>
-
-  <script>
-      let tg = window.Telegram.WebApp;
-      let user_telegram_id = tg.initDataUnsafe.user.id;
-      document.cookie = "tg_id=" + user_telegram_id + "; max-age=2592000; path=/";
-  </script>
 {% endblock content %}

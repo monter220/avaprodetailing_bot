@@ -1,7 +1,9 @@
 import os
+
+from celery import Celery
+from pydantic_settings import BaseSettings
 from aiogram import Dispatcher, Bot
 from aiogram.client.default import DefaultBotProperties
-from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
@@ -52,6 +54,8 @@ class Settings(BaseSettings):
     telegram_provider_token: str = '381764678:TEST: 82806'
     telegram_currency: str = 'RUB'
 
+    redis_url: str = 'redis://127.0.0.1:6379'
+
     class Config:
         env_file = '.env'
 
@@ -64,3 +68,15 @@ bot: Bot = Bot(
     )
 )
 web_hook_path: str = f'{settings.host_url}/webhook'
+
+celery_app = Celery(
+    main=settings.app_title,
+    broker=settings.redis_url,
+    broker_connection_retry_on_startup=True,
+)
+tasks_routes = {
+    'app.tasks.messages.*': {
+        'queue': f'{settings.app_title}_messages'
+    },
+}
+celery_app.conf.task_routes = tasks_routes
