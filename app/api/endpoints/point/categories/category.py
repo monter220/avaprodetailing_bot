@@ -9,13 +9,18 @@ from app.api.endpoints.point.categories.services.service import (
     router as service_router
 )
 from app.api.endpoints.utils import get_current_user
+from app.api.validators import (
+    check_is_superadmin,
+    check_category_duplicate_on_point
+)
 from app.core.db import get_async_session
 from app.crud.category import category_crud
 from app.models.user import User
+from app.schemas.category import CategoryCreate, CategoryUpdate
 
 
 router = APIRouter(
-    prefix='/categories',
+    prefix='{point_id}/categories',
     tags=['categories']
 )
 
@@ -27,24 +32,18 @@ templates = Jinja2Templates(directory='app/templates')
 @router.get('/')
 async def get_categories_page(
     request: Request,
+    point_id: int,
     session: AsyncSession = Depends(get_async_session),
     current_user: Optional[User] = Depends(get_current_user),
 ):
     """Функция для отображения страницы со списком категорий. """
 
-    if not current_user:
-        return RedirectResponse(
-            url='/registration',
-            status_code=status.HTTP_403_FORBIDDEN
-        )
+    check_is_superadmin(current_user)
 
-    if not current_user.is_superadmin:
-        return RedirectResponse(
-            url='/users/me',
-            status_code=status.HTTP_403_FORBIDDEN
-        )
-
-    categories = await category_crud.get_multi(session)
+    categories = await category_crud.get_all_categories_by_point_id(
+        point_id=point_id,
+        session=session
+    )
 
     return templates.TemplateResponse(
         'point/category/categories.html',
@@ -60,11 +59,7 @@ async def get_category_add_page(
 ):
     """Функция для отображения страницы добавления категории услуг. """
 
-    if not current_user.is_superadmin:
-        return RedirectResponse(
-            url='/users/me',
-            status_code=status.HTTP_403_FORBIDDEN
-        )
+    check_is_superadmin(current_user)
 
     return templates.TemplateResponse(
         'point/category/add-category.html',
@@ -75,32 +70,90 @@ async def get_category_add_page(
 @router.post('/add')
 async def create_category(
     request: Request,
+    point_id: int,
     session: AsyncSession = Depends(get_async_session),
     current_user: Optional[User] = Depends(get_current_user),
 ):
     """Функция для обработки добавления категории. """
 
-    # TODO: Добавить обработку добавления категории.
+    check_is_superadmin(current_user)
 
-    pass
+    form_data = await request.form()
+
+    category_data = {
+        'name': form_data['name'],
+        'description': form_data['descr'],
+        'point_id': point_id
+    }
+
+    errors = []
+
+    # Проверка на уникальность категории на точке
+    try:
+        await check_category_duplicate_on_point(
+            name=category_data['name'],
+            point_id=point_id,
+            session=session
+        )
+    except Exception as e:
+        errors.append(str(e))
+
+        return templates.TemplateResponse(
+            'point/category/add-category.html',
+            {'request': request,
+             'errors': errors}
+        )
+
+    # Создание категории, с применением pydantic-схемы
+    # для валидации входных данных
+    try:
+        await category_crud.create(
+            obj_in=CategoryCreate(**category_data),
+            session=session,
+            model='Category',
+            user=current_user
+        )
+    except Exception as e:
+        errors.append(str(e))
+
+        return templates.TemplateResponse(
+            'point/category/add-category.html',
+            {'request': request,
+             'errors': errors}
+        )
+
+    # Редирект на страницу категорий, привязанных к точке,
+    # при успешном создании категории
+    return RedirectResponse(
+        url=f'/points/{point_id}/categories',
+        status_code=status.HTTP_302_FOUND
+    )
 
 
 @router.get('/{category_id}')
 async def get_category_edit_page(
     request: Request,
     category_id: int,
+    point_id: int,
     session: AsyncSession = Depends(get_async_session),
     current_user: Optional[User] = Depends(get_current_user),
 ):
     """Функция для отображения шаблона изменения услуги. """
 
-    if not current_user.is_superadmin:
-        return RedirectResponse(
-            url='/users/me',
-            status_code=status.HTTP_403_FORBIDDEN
-        )
+    check_is_superadmin(current_user)
 
-    category = await category_crud.get(category_id, session)
+    category = await category_crud.get(
+        obj_id=category_id,
+        session=session
+    )
+
+    # Если категория не найдена - редирект на страницу категорий,
+    # привязанных к точке
+    if category is None:
+        return RedirectResponse(
+            url=f'/points/{point_id}/categories',
+            status_code=status.HTTP_302_FOUND
+        )
 
     return templates.TemplateResponse(
         'point/category/edit-category.html',
@@ -113,135 +166,122 @@ async def get_category_edit_page(
 async def update_category(
     request: Request,
     category_id: int,
+    point_id: int,
     session: AsyncSession = Depends(get_async_session),
     current_user: Optional[User] = Depends(get_current_user),
 ):
     """Функция для обработки изменения категории услуг. """
 
-    # TODO: Добавить обработку изменения услуги.
+    check_is_superadmin(current_user)
 
-    pass
+    from_data = await request.form()
+
+    category_update_data = {
+        'name': from_data['name'],
+        'description': from_data['descr']
+    }
+
+    errors = []
+
+    # Здесь не проверяем, что категория найдена,
+    # подразумевается, что этот сценарий отрабатывается в get-запросе
+    category = await category_crud.get(
+        obj_id=category_id,
+        session=session
+    )
+
+    # Проверка на уникальность названия категории на точке
+    try:
+        await check_category_duplicate_on_point(
+            name=category_update_data['name'],
+            point_id=point_id,
+            session=session
+        )
+    except Exception as e:
+        errors.append(str(e))
+
+        return templates.TemplateResponse(
+            'point/category/edit-category.html',
+            {'request': request,
+             'category': category,
+             'errors': errors}
+        )
+
+    # Обновление категории, с применением pydantic-схемы,
+    # для валидации входных данных
+    try:
+        await category_crud.update(
+            db_obj=category,
+            obj_in=CategoryUpdate(**category_update_data),
+            session=session,
+            model='Category',
+            user=current_user
+        )
+    except Exception as e:
+        errors.append(str(e))
+
+        return templates.TemplateResponse(
+            'point/category/edit-category.html',
+            {'request': request,
+             'category': category,
+             'errors': errors}
+        )
+
+    # Редирект на страницу категорий, привязанных к точке,
+    # при успешном обновлении категории
+    return RedirectResponse(
+        url=f'/points/{point_id}/categories',
+        status_code=status.HTTP_302_FOUND
+    )
 
 
 @router.get('{category_id}/delete')
 async def delete_category(
     request: Request,
     category_id: int,
+    point_id: int,
     session: AsyncSession = Depends(get_async_session),
     current_user: User = Depends(get_current_user),
 ):
     """Функция для удаления категории."""
 
-    # TODO: Добавить обработку удаления услуги.
+    check_is_superadmin(current_user)
 
-    pass
+    category = await category_crud.get(
+        obj_id=category_id,
+        session=session
+    )
 
+    # Т.к. это get-запрос, то проверяем, что указанная точка существует
+    if category is None:
+        return RedirectResponse(
+            url=f'/points/{point_id}',
+            status_code=status.HTTP_302_FOUND
+        )
 
-# from fastapi import APIRouter, Depends
-# from sqlalchemy.ext.asyncio import AsyncSession
+    errors = []
 
-# from app.api.validators import check_fields_duplicate, check_exist
-# from app.core.db import get_async_session
-# from app.crud.category import category_crud
-# from app.models import Category
-# from app.schemas.category import CategoryDB, CategoryCreate, CategoryUpdate, \
-#     CategoryServicesDB
+    # Удаление категории
+    try:
+        await category_crud.remove(
+            db_obj=category,
+            user=current_user,
+            session=session,
+            model='Category'
+        )
+    except Exception as e:
+        errors.append(str(e))
 
+        return templates.TemplateResponse(
+            'point/category/edit-category.html',
+            {'request': request,
+             'category': category,
+             'errors': errors}
+        )
 
-# @router.post(
-#     '/',
-#     response_model=CategoryDB,
-#     response_model_exclude_none=True,
-#     # dependencies=[Depends(current_superuser)],
-# )
-# async def create_new_category(
-#     new_category_json: CategoryCreate,
-#     session: AsyncSession = Depends(get_async_session),
-# ) -> Category:
-#     """
-#     Создание категории услуг.
-#     Только для суперюзеров.
-#     """
-#     # Словарь с данными, которые нужно проверить на уникальность.
-#     fields_for_check = {
-#         'name': new_category_json.name,
-#     }
-#     # Проверка на уникальность всех данных
-#     await check_fields_duplicate(category_crud, fields_for_check, session)
-#     # Создание категории услуг
-#     new_category_db = await category_crud.create(new_category_json, session)
-#     return new_category_db
-
-
-# @router.get(
-#     '/full',
-#     response_model=list[CategoryServicesDB],
-#     response_model_exclude_none=True,
-# )
-# async def get_all_categories(
-#     session: AsyncSession = Depends(get_async_session),
-# ):
-#     """Возвращает список всех категорий и услуг."""
-#     return await category_crud.get_all_categories_and_services(session)
-
-
-# @router.get(
-#     '/',
-#     response_model=list[CategoryDB],
-#     response_model_exclude_none=True,
-# )
-# async def get_all_categories(
-#     session: AsyncSession = Depends(get_async_session),
-# ):
-#     """Возвращает список всех категорий."""
-#     return await category_crud.get_multi(session)
-
-
-# @router.patch(
-#     '/{category_id}',
-#     response_model=CategoryDB,
-#     # dependencies=[Depends(current_superuser)],
-# )
-# async def update_category(
-#     category_id: int,
-#     category_json: CategoryUpdate,
-#     session: AsyncSession = Depends(get_async_session),
-# ):
-#     """
-#     Только для суперюзеров.
-
-#     Редактирование категории.
-#     """
-
-#     # Проверка на существование категории в базе
-#     category_db = await check_exist(category_crud, category_id, session)
-
-#     # Проверка на уникальность переданных данных
-#     if category_json.name is not None:
-#         fields_for_check = {'name': category_json.name, }
-#         await check_fields_duplicate(category_crud, fields_for_check, session)
-
-#     # Изменяем поля категории
-#     return await category_crud.update(category_db, category_json, session)
-
-
-# @router.delete(
-#     '/{category_id}',
-#     response_model=CategoryDB,
-#     # dependencies=[Depends(current_superuser)],
-# )
-# async def delete_category(
-#     category_id: int,
-#     session: AsyncSession = Depends(get_async_session),
-# ):
-#     """
-#     Только для суперюзеров.
-
-#     Удаляет категорию.
-#     """
-#     # Проверка на существование категории в базе
-#     category_db = await check_exist(category_crud, category_id, session)
-
-#     # Удаляем категорию.
-#     category = await category_crud.remove(category_db, session)
-#     return category
+    # Редирект на страницу категорий, привязанных к точке,
+    # при успешном удалении категории
+    return RedirectResponse(
+        url=f'/points/{point_id}/categories',
+        status_code=status.HTTP_302_FOUND
+    )

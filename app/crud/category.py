@@ -36,6 +36,28 @@ class CRUDCategory(CRUDBase):
         return category.unique().scalars().all()
 
     @staticmethod
+    async def get_category_by_name(name, session: AsyncSession):
+        """Ищет категорию по её имени. """
+
+        category = await session.execute(
+            select(Category)
+            .filter_by(name=name)
+            .options(selectinload(Category.services))
+        )
+        return category.unique().scalars().first()
+
+    @staticmethod
+    async def get_all_categories_by_point_id(point_id: int, session: AsyncSession):
+        """Возвращает все категории, связанные с точкой."""
+
+        categories = await session.execute(
+            select(Category).filter_by(
+                point_id=point_id).options(
+                selectinload(Category.services))
+        )
+        return categories.unique().scalars().all()
+
+    @staticmethod
     async def category_by_id(category_id, session: AsyncSession):
         category = await session.execute(
             select(Category)
@@ -43,15 +65,6 @@ class CRUDCategory(CRUDBase):
             .options(selectinload(Category.services))
         )
         return category.unique().scalars().first()
-
-    @staticmethod
-    async def categories_by_point(point_id, session: AsyncSession):
-        category = await session.execute(
-            select(Category)
-            .filter_by(point_id=point_id)
-            .options(selectinload(Category.services))
-        )
-        return category.unique().scalars().all()
 
 
 category_crud = CRUDCategory(Category)
