@@ -14,6 +14,7 @@ class Settings(BaseSettings):
 
     pay_type_cash: int = 1
     pay_type_online: int = 2
+    system_user_id: int = 1
 
     min_fio_len: int = 2
     max_fio_len: int = 100
