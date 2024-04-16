@@ -49,7 +49,7 @@ async def get_profile_template(
         "user/profile.html",
         {
             "request": request,
-            "page_title": 'Профиль пользователя',
+            "title": 'Профиль пользователя',
             "user": current_user,
             "cars": cars,
             'points': points
