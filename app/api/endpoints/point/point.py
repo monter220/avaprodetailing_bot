@@ -1,6 +1,6 @@
 from typing import Optional
 
-from fastapi import APIRouter, Depends, Request, status
+from fastapi import APIRouter, Depends, Request, status, Form
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -12,6 +12,7 @@ from app.api.endpoints.utils import get_current_user
 from app.core.db import get_async_session
 from app.crud.point import point_crud
 from app.models.user import User
+from app.schemas.point import PointUpdate
 
 router = APIRouter(
     prefix='/points',
@@ -26,43 +27,60 @@ templates = Jinja2Templates(directory='app/templates')
 @router.get('/add')
 async def get_point_add_page(
     request: Request,
-    point_id: int = None,
     current_user: Optional[User] = Depends(get_current_user),
 ):
     """Функция для получения формы добавления новой точки."""
-
     if not current_user.is_superadmin:
         return RedirectResponse(
             url='/users/me',
-            status_code=status.HTTP_403_FORBIDDEN
+            status_code=status.HTTP_302_FOUND,
         )
 
     return templates.TemplateResponse(
         '/point/add-point.html',
-        {'request': request,
-         'title': 'Добавление точки'}
+        {
+            'request': request,
+            'title': 'Добавление точки',
+        }
     )
 
 
 @router.post('/add')
 async def add_point(
     request: Request,
+    name: str = Form(...),
+    address: str = Form(...),
     current_user: Optional[User] = Depends(get_current_user),
     session: AsyncSession = Depends(get_async_session)
 ):
     """Функция для обработки добавления новой точки. """
+    if not current_user.is_superadmin:
+        return RedirectResponse(
+            url='/users/me',
+            status_code=status.HTTP_302_FOUND,
+        )
 
-    # TODO: Добавить обработку данных из формы.
+    point = {
+        'name': name,
+        'address': address,
+    }
+    point = await point_crud.create_from_dict(
+        obj_in=point,
+        session=session,
+    )
 
-    pass
+    return RedirectResponse(
+        request.url_for('get_point', point_id=point.id),
+        status_code=status.HTTP_302_FOUND,
+    )
 
 
 @router.get('/{point_id}')
 async def get_point(
-        point_id: int,
-        request: Request,
-        current_user: Optional[User] = Depends(get_current_user),
-        session: AsyncSession = Depends(get_async_session)
+    point_id: int,
+    request: Request,
+    current_user: Optional[User] = Depends(get_current_user),
+    session: AsyncSession = Depends(get_async_session)
 ):
     point = await point_crud.get(
         session=session,
@@ -76,7 +94,6 @@ async def get_point(
     # номер телефона - нужно отразить это в модели.
     points = await point_crud.point_by_id(point_id, session)
     print(jsonable_encoder(points))
-
 
     # TODO: обдумать, как это должно передаваться и отразить в шаблоне!!!
     # Так же в контексте должен передаваться
@@ -124,19 +141,21 @@ async def get_point_edit_page(
     session: AsyncSession = Depends(get_async_session)
 ):
     """Функция для получения страницы редактирования точки. """
-
     if not current_user.is_superadmin:
         return RedirectResponse(
             url='/users/me',
             status_code=status.HTTP_403_FORBIDDEN
         )
 
-    point = await point_crud.get(session, point_id)
+    point = await point_crud.get(point_id, session)
 
     return templates.TemplateResponse(
         '/point/edit-point.html',
-        {'request': request,
-         'point': point}
+        {
+            'request': request,
+            'point': point,
+            'title': 'Редактирование точки',
+        }
     )
 
 
@@ -144,14 +163,29 @@ async def get_point_edit_page(
 async def update_point(
     request: Request,
     point_id: int,
+    name: str = Form(...),
+    address: str = Form(...),
     current_user: Optional[User] = Depends(get_current_user),
     session: AsyncSession = Depends(get_async_session)
 ):
     """Функция для обработки изменения точки. """
-
-    # TODO: Добавить обработку изменений из формы.
-
-    pass
+    point = await point_crud.get(point_id, session)
+    if point:
+        new_data = {
+            'name': name,
+            'address': address,
+        }
+        obj_in = PointUpdate(**new_data)
+        await point_crud.update(
+            db_obj=point,
+            obj_in=obj_in,
+            user=current_user,
+            session=session,
+        )
+        return RedirectResponse(
+            url=f'/points/{point_id}',
+            status_code=status.HTTP_302_FOUND,
+        )
 
 
 @router.get('/{point_id}/delete')
@@ -162,16 +196,21 @@ async def delete_point(
     session: AsyncSession = Depends(get_async_session)
 ):
     """Функция для удаления точки. """
-
     if not current_user.is_superadmin:
         return RedirectResponse(
             url='/users/me',
             status_code=status.HTTP_403_FORBIDDEN
         )
 
-    # TODO: Добавить обработку удаления точки.
+    point = await point_crud.get(point_id, session)
+    if point:
+        await point_crud.remove(
+            db_obj=point, user=current_user, session=session)
 
-    pass
+    return RedirectResponse(
+        url='/users/me',
+        status_code=status.HTTP_302_FOUND,
+    )
 
 # from fastapi import APIRouter, Depends
 # from sqlalchemy.ext.asyncio import AsyncSession

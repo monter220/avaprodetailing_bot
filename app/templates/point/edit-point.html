@@ -15,7 +15,7 @@
       </button>
       <a
         onclick="return confirm('Вы действительно хотите удалить эту точку?');"
-        href="/users/me" class="btn btn-custom-black">Удалить</a>
+        href="/points/{{ point.id }}/delete" class="btn btn-custom-black">Удалить</a>
       <a href="/points/{{ point.id }}" class="btn btn-custom-black">Отмена</a>
     </form>
   </div>
