@@ -68,23 +68,7 @@ async def get_point(
         session=session,
         obj_id=point_id
     )
-    from fastapi.encoders import jsonable_encoder
-    # TODO: В контексте так же нужно передавть "point_phone_number"
-    # это должен быть номер администратора,
-    # привязанного к точке на данный момент
-    # если у точки есть какой-то статичный
-    # номер телефона - нужно отразить это в модели.
     points = await point_crud.point_by_id(point_id, session)
-    print(jsonable_encoder(points))
-
-
-    # TODO: обдумать, как это должно передаваться и отразить в шаблоне!!!
-    # Так же в контексте должен передаваться
-    # словарь с услугами и их категориями.
-    # Это необходимо для корректного
-    # отображения услуг и их категорий в шаблоне.
-    # Пример: {'category_1': [service_1, service_2],
-    # 'category_2': [service_3]}.
 
     if current_user.is_admin:
         return templates.TemplateResponse(
@@ -92,8 +76,6 @@ async def get_point(
             {
                 'request': request,
                 'point': points,
-                # 'point_phone_number': ...
-                # 'point_service_categories': ...
             }
         )
 
@@ -102,10 +84,9 @@ async def get_point(
             '/point/point.html',
             {
                 'request': request,
-                'point': point,
+                'point': points,
                 'from_superadmin': True
-                # 'point_phone_number': ...
-                # 'point_service_categories': ...
+
             }
         )
 
