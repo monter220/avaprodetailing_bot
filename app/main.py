@@ -9,7 +9,7 @@ from app.api.routers import main_router
 from app.core.config import settings, web_hook_path, bot
 from app.core.config_logger import logger
 from app.bot.handlers import command_router, payment_router
-from app.core.init_db import create_role, create_paytype, create_eventtypes
+from app.core.init_db import create_role, create_paytype, create_eventtypes, create_superadmin
 from app.middlewares import TelegramIDCheckingMiddleware
 
 
@@ -21,6 +21,7 @@ async def lifespan(app: FastAPI):
     await create_role()
     await create_paytype()
     await create_eventtypes()
+    await create_superadmin()
     await bot.set_webhook(
         url=web_hook_path,
         drop_pending_updates=settings.bot_drop_pending_updates,

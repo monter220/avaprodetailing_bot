@@ -28,12 +28,20 @@ class UserUpdate(BaseModel):
     patronymic: Optional[str] = Field(None, max_length=settings.max_fio_len)
     date_birth: Optional[date] = Field(None)
 
-    @validator('surname', 'name', 'patronymic')
+    @validator('surname', 'name')
     def check_alphabet_only(cls, value):
         check = value.replace(' ', '').replace('-', '')
         if check.isalpha():
             return value
         raise ValueError(settings.alphabet_error)
+
+    @validator('patronymic')
+    def check_alphabet_only(cls, value):
+        if value:
+            check = value.replace(' ', '').replace('-', '')
+            if not check.isalpha():
+                raise ValueError(settings.alphabet_error)
+        return value
 
     @validator('date_birth')
     def check_age(cls, value):
@@ -54,12 +62,20 @@ class UserCreate(BaseModel):
     date_birth: date
     phone: str = Field(max_length=settings.max_phone_len)
 
-    @validator('surname', 'name', 'patronymic')
+    @validator('surname', 'name')
     def check_alphabet_only(cls, value):
         check = value.replace(' ', '').replace('-', '')
         if check.isalpha():
             return value
         raise ValueError(settings.alphabet_error)
+
+    @validator('patronymic')
+    def check_alphabet_only(cls, value):
+        if value:
+            check = value.replace(' ', '').replace('-', '')
+            if not check.isalpha():
+                raise ValueError(settings.alphabet_error)
+        return value
 
     @validator('date_birth')
     def check_age(cls, value):
