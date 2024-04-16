@@ -9,11 +9,11 @@ from starlette import status
 
 from app.core.db import get_async_session
 from app.core.config import settings
-from app.crud import user_crud, bonus_crud
+from app.crud import user_crud
 from app.models import User
-from app.schemas.user import UserCreate, UserUpdateTG
+from app.schemas.user import UserCreate
 from app.api.endpoints.utils import get_current_user, get_tg_id_cookie
-from app.api.validators import check_duplicate, check_user_by_tg_exist
+from app.api.validators import check_user_by_tg_exist
 
 
 router = APIRouter(
@@ -176,7 +176,6 @@ async def registrate_user(
     )
 
     return response
-
 
 
 @router.get('/success_registration')

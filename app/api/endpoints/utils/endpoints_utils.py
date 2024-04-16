@@ -1,12 +1,8 @@
-from typing import Optional
-
-from fastapi import Depends, Request, status
-from fastapi.responses import RedirectResponse
+from fastapi import Depends, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.db import get_async_session
 from app.crud.user import user_crud
-from app.models import User
 
 
 async def get_tg_id_cookie(request: Request):
@@ -21,18 +17,11 @@ async def get_current_user(
 ):
     """
     Функция для получения текущего пользователя.
-    Если пользователь не найден, то перенаправляет на главную страницу.
     """
 
     user = await user_crud.get_user_by_telegram_id(
         user_telegram_id=int(user_telegram_id),
         session=session
     )
-
-    if user is None:
-        return RedirectResponse(
-            url='/',
-            status_code=status.HTTP_302_FOUND
-        )
 
     return user

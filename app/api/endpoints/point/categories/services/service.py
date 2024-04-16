@@ -18,7 +18,7 @@ from app.schemas.service import ServiceCreate, ServiceUpdate
 
 
 router = APIRouter(
-    prefix='{category_id}/services',
+    prefix='/{category_id}/services',
     tags=['services']
 )
 

@@ -20,7 +20,7 @@ from app.schemas.category import CategoryCreate, CategoryUpdate
 
 
 router = APIRouter(
-    prefix='{point_id}/categories',
+    prefix='/{point_id}/categories',
     tags=['categories']
 )
 

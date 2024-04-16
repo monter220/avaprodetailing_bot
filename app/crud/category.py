@@ -47,7 +47,10 @@ class CRUDCategory(CRUDBase):
         return category.unique().scalars().first()
 
     @staticmethod
-    async def get_all_categories_by_point_id(point_id: int, session: AsyncSession):
+    async def get_all_categories_by_point_id(
+        point_id: int,
+        session: AsyncSession
+    ):
         """Возвращает все категории, связанные с точкой."""
 
         categories = await session.execute(

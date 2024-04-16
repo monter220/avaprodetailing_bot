@@ -10,23 +10,27 @@
       class="bi bi-telephone-outbound-fill"></i> {{ point_phone_number }}</a>
   </div>
 
-  {% if point_service_categories %}
-    {% for category in point_service_categories.keys() %}
+  {% if categories %}
+    {% for category in categories %}
       <div>
         {% if from_superadmin %}
-          <h2>{{ category.name }} <a href="/points/categories/{{ category.id }}"><i
+          <h2>{{ category['name'] }} <a href="/points/{{ pont.id }}/categories/{{ category['id'] }}"><i
           class="bi bi-pencil-fill"></i></a></h2>
         {% else %}
-          <h2>{{ category.name }}</h2>
+          <h2>{{ category['name'] }}</h2>
         {% endif %}
         <table class="table table-dark table-striped">
           <tbody>
-            {% for service in point_service_categories[category] %}
+            {% for service in category['services'] %}
               <tr>
-                <td class="align-middle">{{ service.name }}<br><small>{{ service.description }}</small></td>
-                <td class="text-end align-middle">{{ service.cost }}</td>
+                <td class="align-middle">{{ service['name'] }}<br><small>{{ service['description'] }}</small></td>
+                <td class="text-end align-middle">{{ service['cost'] }}</td>
                 {% if from_superadmin %}
-                  <td class="text-end align-middle"><a href="/points/categories/services/{{ service.id }}"><i class="bi bi-pencil-fill"></i></a></td>
+                  <td class="text-end align-middle">
+                    <a href="/points{{ point.id }}/categories{ category['id'] }/services/{{ service['id'] }}">
+                      <i class="bi bi-pencil-fill"></i>
+                    </a>
+                  </td>
                 {% endif %}
               </tr>
             {% endfor %}
