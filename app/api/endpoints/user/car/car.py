@@ -92,10 +92,7 @@ async def add_car(
         async with open(os.path.join(imgdir, file_name), mode='wb') as f:
             await f.write(content)
         short_path = f'{settings.host_folder}/{user_id}/{file_name}'
-        if settings.local_test:
-            path_to_img = f'http://127.0.0.1:8000/{short_path}'
-        else:
-            path_to_img = f'http://{settings.host_ip}:{settings.app_port}/{short_path}'
+        path_to_img = f'/{short_path}'
         await car_crud.create_car(
             path=path_to_img,
             obj_in=CarCreate(**car),
@@ -171,10 +168,7 @@ async def edit_car(
         async with open(os.path.join(imgdir, file_name), mode='wb') as f:
             await f.write(content)
         short_path = f'{settings.host_folder}/{user_id}/{file_name}'
-        if settings.local_test:
-            path_to_img = f'http://127.0.0.1:8000/{short_path}'
-        else:
-            path_to_img = f'http://{settings.host_ip}:{settings.app_port}/{short_path}'
+        path_to_img = f'/{short_path}'
         car['image'] = path_to_img
     await car_crud.update(
         db_obj=await check_exist(car_crud, car_id, session),

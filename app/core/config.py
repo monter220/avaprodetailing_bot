@@ -50,7 +50,6 @@ class Settings(BaseSettings):
     app_port: int = 443
     cookies_ttl: int = (30 * 24 * 60 * 60)  # 30 дней
     testing: int = 0
-    local_test: int = 1
 
     telegram_provider_token: str = '381764678:TEST: 82806'
     telegram_currency: str = 'RUB'
