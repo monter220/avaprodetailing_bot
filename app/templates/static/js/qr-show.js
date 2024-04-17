@@ -40,6 +40,7 @@ function qrCallBack(data, decodedResult = "") {
 function qrNativeCallBack(data) {
     let phoneNumber = document.getElementById("phone");
     phoneNumber.value = data;
+    window.location.href = "/users/me/search/phone-number/" + data
     return true;
 }
 
@@ -59,6 +60,7 @@ function getCustomScanner() {
         (decodedText, decodedResult) => {
             let phoneNumber = document.getElementById("phone");
             phoneNumber.value = decodedText;
+            window.location.href = "/users/me/search/phone-number/" + decodedText
             hideQRScanner();
             html5QrCode.stop();
         },
