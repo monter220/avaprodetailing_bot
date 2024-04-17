@@ -77,7 +77,10 @@ celery_app = Celery(
 )
 tasks_routes = {
     'app.tasks.messages.*': {
-        'queue': f'{settings.app_title}_messages'
+        'queue': f'{settings.app_title}_messages',
+    },
+    'app.tasks.schedulers.*': {
+        'queue': f'{settings.app_title}_schedulers',
     },
 }
 celery_app.conf.task_routes = tasks_routes

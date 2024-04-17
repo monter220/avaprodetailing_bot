@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from sqlalchemy import true, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
@@ -45,9 +47,9 @@ class CRUDBonus(CRUDBase):
         return bonuses.scalars().all()
 
     async def get_bonuses_by_user_id(
-            self,
-            user_id: int,
-            session: AsyncSession,
+        self,
+        user_id: int,
+        session: AsyncSession,
     ) -> list[Bonus]:
         """Получение бонусов пользователя."""
         bonuses = await session.execute(
@@ -57,6 +59,25 @@ class CRUDBonus(CRUDBase):
             ).order_by(self.model.id.desc())
         )
         return bonuses.scalars().all()
+
+    async def burn_bonuses(
+        self,
+        session: AsyncSession,
+    ):
+        """Обработка сгоревших бонусов."""
+        bonuses = await session.execute(
+            select(self.model).options(joinedload(self.model.user)).where(
+                self.model.is_active == true(),
+                self.model.date_end < datetime.now(),
+            )
+        )
+        bonuses = bonuses.scalars().all()
+        for bonus in bonuses:
+            bonus.is_active = False
+            if bonus.amount > 0:
+                bonus.user.bonus -= bonus.amount - bonus.used
+
+        await session.commit()
 
 
 bonus_crud = CRUDBonus(Bonus)
