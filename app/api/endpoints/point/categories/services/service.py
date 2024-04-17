@@ -6,6 +6,7 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.endpoints.utils import get_current_user
+from app.core.config import settings
 from app.core.db import get_async_session
 from app.crud.category import category_crud
 from app.crud.service import service_crud
@@ -37,7 +38,7 @@ async def get_service_add_page(
     categories = await category_crud.get_multi(session)
 
     return templates.TemplateResponse(
-        'point/category/add-service.html',
+        'point/category/service/add-service.html',
         {
             'request': request,
             'categories': categories,
@@ -48,6 +49,7 @@ async def get_service_add_page(
 @router.post('/add')
 async def create_service(
     request: Request,
+    point_id: int,
     session: AsyncSession = Depends(get_async_session),
     current_user: Optional[User] = Depends(get_current_user),
 ):
@@ -60,7 +62,7 @@ async def create_service(
         'name': form_data.get('name'),
         'description': form_data.get('descr'),
         'cost': int(form_data.get('cost')),
-        'bonus': int(form_data.get('bonus')),
+        'default_bonus': int(form_data.get('bonus', settings.default_bonus)),
         'category_id': int(form_data.get('category')),
     }
 
@@ -71,6 +73,7 @@ async def create_service(
         await check_service_duplicate_in_category(
             name=service_data['name'],
             category_id=service_data['category_id'],
+            session=session
         )
     except Exception as e:
         errors.append(str(e))
@@ -78,7 +81,7 @@ async def create_service(
         categories = await category_crud.get_multi(session)
 
         return templates.TemplateResponse(
-            'point/category/add-service.html',
+            'point/category/service/add-service.html',
             {'request': request,
              'errors': errors,
              'categories': categories}
@@ -86,7 +89,7 @@ async def create_service(
 
     # Создаем услугу с применением pydantic-схемы для валидации
     try:
-        await service_crud.create(
+        service = await service_crud.create(
             obj_in=ServiceCreate(**service_data),
             session=session,
             model='Service',
@@ -99,7 +102,7 @@ async def create_service(
         categories = await category_crud.get_multi(session)
 
         return templates.TemplateResponse(
-            'point/category/add-service.html',
+            'point/category/service/add-service.html',
             {'request': request,
              'errors': errors,
              'categories': categories}
@@ -107,7 +110,7 @@ async def create_service(
 
     # Перенаправляем на страницу категории, к которой принадлежит новая услуга
     return RedirectResponse(
-        url='/categories/{service.category_id}',
+        url=f'/points/{point_id}/categories/{service.category_id}',
         status_code=status.HTTP_302_FOUND
     )
 
@@ -117,6 +120,7 @@ async def get_service_edit_page(
     request: Request,
     service_id: int,
     category_id: int,
+    point_id: int,
     session: AsyncSession = Depends(get_async_session),
     current_user: Optional[User] = Depends(get_current_user),
 ):
@@ -138,10 +142,11 @@ async def get_service_edit_page(
     categories = await category_crud.get_multi(session)
 
     return templates.TemplateResponse(
-        'point/category/edit-service.html',
+        'point/category/service/edit-service.html',
         {
             'request': request,
             'service': service,
+            'point_id': point_id,
             'categories': categories,
         }
     )
@@ -151,6 +156,7 @@ async def get_service_edit_page(
 async def update_service(
     request: Request,
     service_id: int,
+    point_id: int,
     session: AsyncSession = Depends(get_async_session),
     current_user: Optional[User] = Depends(get_current_user),
 ):
@@ -168,7 +174,7 @@ async def update_service(
         'name': form_data.get('name'),
         'description': form_data.get('descr'),
         'cost': form_data.get('cost'),
-        'bonus': form_data.get('bonus'),
+        'default_bonus': form_data.get('bonus'),
         'category_id': form_data.get('category'),
     }
 
@@ -176,8 +182,10 @@ async def update_service(
     if service_update_data['cost'] is not None:
         service_update_data['cost'] = int(service_update_data['cost'])
 
-    if service_update_data['bonus'] is not None:
-        service_update_data['bonus'] = int(service_update_data['bonus'])
+    if service_update_data['default_bonus'] is not None:
+        service_update_data['default_bonus'] = int(
+            service_update_data['default_bonus']
+        )
 
     if service_update_data['category_id'] is not None:
         service_update_data['category_id'] = int(
@@ -197,7 +205,7 @@ async def update_service(
         categories = await category_crud.get_multi(session)
 
         return templates.TemplateResponse(
-            'point/category/edit-service.html',
+            'point/category/service/edit-service.html',
             {'request': request,
              'errors': errors,
              'categories': categories}
@@ -214,16 +222,17 @@ async def update_service(
 
     # Перенаправляем на страницу категории, к которой принадлежит услуга
     return RedirectResponse(
-        url='/categories/{service.category_id}',
+        url=f'/points/{point_id}',
         status_code=status.HTTP_302_FOUND
     )
 
 
-@router.get('{service_id}/delete')
+@router.get('/{service_id}/delete')
 async def delete_service(
     request: Request,
     service_id: int,
     category_id: int,
+    point_id: int,
     session: AsyncSession = Depends(get_async_session),
     current_user: User = Depends(get_current_user),
 ):
@@ -235,7 +244,7 @@ async def delete_service(
     # Перенаправляем на страницу категории, если услуга не найдена
     if service is None:
         return RedirectResponse(
-            url=f'/categories/{category_id}',
+            url=f'/points/{point_id}/categories/{category_id}',
             status_code=status.HTTP_302_FOUND
         )
 
@@ -249,6 +258,6 @@ async def delete_service(
 
     # Перенаправляем на страницу категории, к которой принадлежит услуга
     return RedirectResponse(
-        url='/categories/{service.category_id}',
+        url=f'/points/{point_id}',
         status_code=status.HTTP_302_FOUND
     )

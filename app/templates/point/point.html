@@ -36,28 +36,22 @@
             {% endfor %}
           </tbody>
         </table>
-        {% if from_superadmin %}
-          <div id="add-car-button">
-            <p class="text-end">
-              <a href="/points/{{ point.id }}/categories/{{ category.id }}/services/add"
-                class="d-flex justify-content-center align-items-center col-1 btn btn-custom-black"><i
-                class="bi bi-plus-circle-fill"></i> Добавить услугу</a>
-            </p>
-          </div>
-          <div id="add-category-button">
-            <p class="text-end">
-              <a href="/points/{{ point.id }}/categories/add"
-                class="d-flex justify-content-center align-items-center col-1 btn btn-custom-black"><i
-                class="bi bi-plus-circle-fill"></i> Добавить категорию</a>
-            </p>
-          </div>
-        {% endif %}
       </div>
     {% endfor %}
   {% else %}
-    <h2>К данной точке ещё не прикреплено ни одной услуги!</h2>
+    <h5>К данной точке ещё не прикреплено ни одной услуги</h5>
   {% endif %}
  
+  {% if from_superadmin %}
+    <div id="add-category-button">
+      <p class="text-end">
+        <a href="/points/{{ point.id }}/categories/add"
+          class="d-flex justify-content-center align-items-center col-1 btn btn-custom-black"><i
+          class="bi bi-plus-circle-fill"></i> Добавить категорию</a>
+      </p>
+    </div>
+  {% endif %}
+
 {% if from_superadmin %}
  <div>
     <h2>Администраторы</h2>
@@ -79,17 +73,13 @@
         </a>
       {% endfor %}
     {% else %}
-      <h2>К данной точке ещё не прикреплены администраторы</h2>
+      <h5>К данной точке ещё не прикреплены администраторы</h5>
     {% endif %}
   </div>
 
   <div>
     <a href="/points/{{ point.id }}/edit" class="btn btn-custom-black">Изменить точку</a>
   </div>
-  <div>
-    <a href="/users/me" class="btn btn-custom-black">Назад</a>
-  </div>
-</div>
 {% endif %}
   <div>
     <a href="/users/me" class="btn btn-custom-black">Назад</a>

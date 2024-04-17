@@ -6,7 +6,6 @@ from typing import Optional
 from pydantic import (
     BaseModel,
     Field,
-    PositiveInt,
     validator,
     Extra,
     NonNegativeInt,
@@ -27,6 +26,8 @@ class UserUpdate(BaseModel):
     name: Optional[str] = Field(None, max_length=settings.max_fio_len)
     patronymic: Optional[str] = Field(None, max_length=settings.max_fio_len)
     date_birth: Optional[date] = Field(None)
+    role: int = Field(None, ge=0)
+    point_id: Optional[int] = Field(None, ge=-1)
 
     @validator('surname', 'name')
     def check_alphabet_only(cls, value):

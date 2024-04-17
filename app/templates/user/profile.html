@@ -36,8 +36,13 @@
     {% if current_user.is_superadmin %}
       {% if not user.is_admin %}
         <div>
-          <a href="/users/{{ user.id }}/edit-admins"
+          <a href="/users/{{ user.id }}/admin-appoint"
             class="d-flex justify-content-center align-items-center col-1 btn btn-custom-black">НАЗНАЧИТЬ АДМИНИСТРАТОРОМ</a>
+        </div>
+      {% else %}
+        <div>
+          <a href="/users/{{ user.id }}/admin-appoint"
+            class="d-flex justify-content-center align-items-center col-1 btn btn-custom-black">ПЕРЕНАЗНАЧИТЬ ИЛИ УВОЛИТЬ АДМИНИСТРАТОРА</a>
         </div>
       {% endif %}
     {% endif %}
@@ -52,7 +57,7 @@
     </div>
   </a>
 
-  {% if user.role != 1 %}
+  {% if user.role != 1 and not from_search %}
     <div id="qr-code-button">
       <button onclick="getNativeScanner()" href="#"
               class="d-flex justify-content-center align-items-center col-1 btn btn-custom-yellow mb-1">
@@ -90,7 +95,7 @@
     </div>
 
     <div>
-      {% if user.is_admin %}
+      {% if user.is_admin and not from_search %}
         <a href="/reports/{{ user.point_id }}" class="row gray-container">
       {% else %}
         <a href="/reports" class="row gray-container">
@@ -108,7 +113,7 @@
         </div>
       </a>
 
-    {% if user.is_superadmin %}
+    {% if user.is_superadmin and not from_search %}
       <a href="/sending-ads" class="row gray-container">
         <div class="col text-left">
           <div class="icon-circle">

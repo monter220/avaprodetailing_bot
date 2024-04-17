@@ -1,10 +1,8 @@
 from typing import Optional
 
-from pydantic import Field, field_validator, PositiveInt
-from pydantic_core.core_schema import ValidationInfo
+from pydantic import Field, PositiveInt
 
 from app.core.config import settings
-from app.translate.ru import FIELD_ERROR
 from .base_name_descr import BaseNameDescrSchema
 from .service import ServiceDB
 
@@ -23,15 +21,15 @@ class CategoryCreate(BaseNameDescrSchema):
 
 
 class CategoryUpdate(CategoryBase):
-    @field_validator(
-        'name',
-        'point_id',
-        mode='before'
+    name: Optional[str] = Field(
+        None,
+        min_length=settings.min_name_len,
+        max_length=settings.max_name_len
     )
-    def field_cannot_be_null(cls, value: str, info: ValidationInfo):
-        if value is None:
-            raise ValueError(FIELD_ERROR.format(info.field_name))
-        return value
+    description: Optional[str] = Field(
+        None,
+        max_length=255
+    )
 
 
 class CategoryBaseDB(BaseNameDescrSchema):
