@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 from aiogram import types
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
 import uvicorn
 
 from app.api.routers import main_router
@@ -46,12 +47,12 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title=settings.app_title,
-              scheme='https',
               lifespan=lifespan)
 
 if not settings.testing:
     app.add_middleware(TelegramIDCheckingMiddleware)
 
+app.add_middleware(HTTPSRedirectMiddleware)
 app.mount('/static', StaticFiles(directory='app/templates/static'),
           name='static')  # Подключение статических файлов.
 
