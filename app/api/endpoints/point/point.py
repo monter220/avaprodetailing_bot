@@ -12,7 +12,7 @@ from app.api.endpoints.utils import get_current_user
 from app.core.db import get_async_session
 from app.crud.point import point_crud
 from app.models.user import User
-from app.schemas.point import PointUpdate
+from app.schemas.point import PointUpdate, PointCreate
 
 
 router = APIRouter(
@@ -66,9 +66,11 @@ async def add_point(
         'name': name,
         'address': address,
     }
-    point = await point_crud.create_from_dict(
-        obj_in=point,
+    point = await point_crud.create(
+        obj_in=PointCreate(**point),
         session=session,
+        model='Point',
+        user=current_user,
     )
 
     return RedirectResponse(
@@ -155,6 +157,7 @@ async def update_point(
             obj_in=obj_in,
             user=current_user,
             session=session,
+            model='Point',
         )
         return RedirectResponse(
             url=f'/points/{point_id}',
