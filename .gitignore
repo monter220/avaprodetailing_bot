@@ -161,6 +161,7 @@ cython_debug/
 
 .gitignore
 alembic/versions/
+/app/templates/static/media
 avaprodetailing_bot.db
 celerybeat-schedule.bak
 celerybeat-schedule.dat
