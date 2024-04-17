@@ -46,6 +46,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title=settings.app_title,
+              scheme='https',
               lifespan=lifespan)
 
 if not settings.testing:
