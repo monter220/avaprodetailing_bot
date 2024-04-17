@@ -51,8 +51,8 @@ app = FastAPI(title=settings.app_title,
 
 if not settings.testing:
     app.add_middleware(TelegramIDCheckingMiddleware)
+    app.add_middleware(HTTPSRedirectMiddleware)
 
-app.add_middleware(HTTPSRedirectMiddleware)
 app.mount('/static', StaticFiles(directory='app/templates/static'),
           name='static')  # Подключение статических файлов.
 
