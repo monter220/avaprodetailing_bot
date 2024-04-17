@@ -79,5 +79,8 @@ tasks_routes = {
     'app.tasks.messages.*': {
         'queue': f'{settings.app_title}_messages'
     },
+    'app.tasks.reports.*': {
+        'queue': f'{settings.app_title}_reports'
+    },
 }
 celery_app.conf.task_routes = tasks_routes
