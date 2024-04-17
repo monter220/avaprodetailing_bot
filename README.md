@@ -3,6 +3,7 @@
 ## 1. Команда
 - Беликов Дмитрий - [monter220](https://github.com/monter220)
 - Сергей Иванов - [isv160179](https://github.com/isv160179)
+- Сергей Филатов - [Serhioth](https://github.com/Serhioth)
 - Колтыгин Сергей - [cmipro](https://github.com/cmipro)
 - Лаврушенков Александр - [lavralex](https://github.com/lavralex)
 
