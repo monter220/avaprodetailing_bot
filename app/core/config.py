@@ -82,5 +82,8 @@ tasks_routes = {
     'app.tasks.schedulers.*': {
         'queue': f'{settings.app_title}_schedulers',
     },
+    'app.tasks.reports.*': {
+        'queue': f'{settings.app_title}_reports'
+    },
 }
 celery_app.conf.task_routes = tasks_routes

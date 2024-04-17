@@ -4,17 +4,12 @@ from fastapi import APIRouter, Depends, Request, status
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, and_
 
 from app.api.endpoints.utils import get_current_user
-from app.models import User, Service, Order, Bonus
-from app.services.excel import create_excel
+from app.models import User
 from app.services.report import process_report
-from app.services.telegram import send_excel, send_message
 from app.core.db import get_async_session
-from app.crud import car_crud, user_crud, service_crud, bonus_crud
-
-
+from app.tasks.reports import send_report
 
 router = APIRouter(
     prefix='/reports',
@@ -27,11 +22,10 @@ templates = Jinja2Templates(directory="app/templates")
 @router.get('/')
 async def get_reports_page(
     request: Request,
-    current_user: Optional[User] = Depends(get_current_user)
+    current_user: Optional[User] = Depends(get_current_user),
 ):
-    """Функция для получения страницы с  отчётами. """
-
-    if current_user.is_superadmin:
+    """Функция для получения страницы с отчётами."""
+    if current_user.is_superadmin or current_user.is_admin:
         return templates.TemplateResponse(
             'reports/reports.html',
             {
@@ -40,30 +34,81 @@ async def get_reports_page(
         )
     else:
         return RedirectResponse(
-            url='users/me',
-            status_code=status.HTTP_403_FORBIDDEN
+            url='/users/me',
+            status_code=status.HTTP_302_FOUND,
         )
 
 
-@router.post('/')
-async def process_reports(
-    request: Request,
-    session: AsyncSession = Depends(get_async_session)
-):
-    """Функция для получения отчётов. """
-
-    # TODO: Добавить получение отчёта и отправку его через Telegram.
-    pass
-
-
 @router.get('/users')
-async def process_reports(
-    user_id: int,
+async def get_users_report(
+    current_user: Optional[User] = Depends(get_current_user),
     session: AsyncSession = Depends(get_async_session),
 ):
-    """Функция для получения отчётов пользователей. """
-    user = await user_crud.get(user_id, session)
-    objects = await process_report(session=session, key='users')
-    excel = create_excel(objects)
-    await send_excel(excel=excel, filename='users.xlsx', chat_id=user.tg_id)
-    return status.HTTP_200_OK
+    """Функция для получения отчётов пользователей."""
+    if not (current_user.is_superadmin or current_user.is_admin):
+        return RedirectResponse(
+            url='/users/me',
+            status_code=status.HTTP_302_FOUND,
+        )
+
+    send_report.delay(
+        key='users',
+        user_tg_id=current_user.tg_id,
+    )
+
+    return RedirectResponse(
+        url='/users/me',
+        status_code=status.HTTP_302_FOUND,
+    )
+
+
+@router.get('/orders')
+async def get_orders_report(
+    current_user: Optional[User] = Depends(get_current_user),
+    session: AsyncSession = Depends(get_async_session),
+):
+    """Функция для получения отчётов по услугам."""
+    if not (current_user.is_superadmin or current_user.is_admin):
+        return RedirectResponse(
+            url='/users/me',
+            status_code=status.HTTP_302_FOUND,
+        )
+
+    send_report.delay(
+        key='orders',
+        user_tg_id=current_user.tg_id,
+        field_names=[
+            'Дата', 'Номер машины', 'Стоимость', 'Бонусы', 'Телефон клиента',
+        ],
+    )
+
+    return RedirectResponse(
+        url='/users/me',
+        status_code=status.HTTP_302_FOUND,
+    )
+
+
+@router.get('/payments')
+async def get_orders_report(
+    current_user: Optional[User] = Depends(get_current_user),
+    session: AsyncSession = Depends(get_async_session),
+):
+    """Функция для получения отчётов по оплатам."""
+    if not (current_user.is_superadmin or current_user.is_admin):
+        return RedirectResponse(
+            url='/users/me',
+            status_code=status.HTTP_302_FOUND,
+        )
+
+    send_report.delay(
+        key='payments',
+        user_tg_id=current_user.tg_id,
+        field_names=[
+            'Дата', 'Стоимость', 'Тип платежа',
+        ],
+    )
+
+    return RedirectResponse(
+        url='/users/me',
+        status_code=status.HTTP_302_FOUND,
+    )
