@@ -31,7 +31,7 @@ async def render_sign_in_template(
     current_user: Optional[User] = Depends(get_current_user),
 ):
     """Функция для рендеринга страницы из шаблона. """
-    if current_user:
+    if current_user and not current_user.is_ban:
         return RedirectResponse(
             '/users/me',
             status_code=status.HTTP_302_FOUND,
@@ -56,7 +56,7 @@ async def render_phone_template(
     Если нет - открывает страницу для ввода номера.
     """
 
-    if current_user and current_user.tg_id is not None:
+    if current_user and not current_user.is_ban and current_user.tg_id is not None:
         return RedirectResponse(
             '/users/me',
             status_code=status.HTTP_302_FOUND,

@@ -20,6 +20,11 @@ async def check_duplicate(
 ) -> Optional[User]:
     user = await user_crud.get_user_by_phone_number(phone, session)
     if user:
+        if user.is_ban:
+            raise HTTPException(
+                status_code=451,
+                detail='Пользователь заблокирован!',
+            )
         if user.tg_id:
             raise HTTPException(
                 status_code=422,

@@ -36,6 +36,11 @@ async def get_profile_template(
     session: AsyncSession = Depends(get_async_session)
 ):
     """Функция для получения собственного профиля пользователя."""
+    if current_user.is_ban:
+        return RedirectResponse(
+            url='/phone',
+            status_code=status.HTTP_302_FOUND,
+        )
 
     cars = await car_crud.get_user_cars(
         session=session,
@@ -105,6 +110,11 @@ async def get_edit_profile_template(
     current_user: User = Depends(get_current_user),
 ):
     """Функция для получения формы редактирования профиля пользователя."""
+    if current_user.is_ban:
+        return RedirectResponse(
+            url='/phone',
+            status_code=status.HTTP_302_FOUND,
+        )
     await check_admin_or_myprofile_car(
         user_id=user_id,
         user_telegram_id=int(user_telegram_id),
@@ -163,6 +173,11 @@ async def get_payments_template(
     current_user: User = Depends(get_current_user),
 ):
     """Функция для отображения шаблона с историей платежей и бонусов."""
+    if current_user.is_ban:
+        return RedirectResponse(
+            url='/phone',
+            status_code=status.HTTP_302_FOUND,
+        )
     bonuses = await bonus_crud.get_bonuses_by_user_id(user_id, session)
     user = await user_crud.get(user_id, session)
     # TODO Какая у нас проверка на роль суперадмина?

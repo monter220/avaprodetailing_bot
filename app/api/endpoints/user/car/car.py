@@ -46,6 +46,11 @@ async def get_add_car_template(
         current_user: User = Depends(get_current_user),
 ):
     """Форма добавления машины"""
+    if current_user.is_ban:
+        return RedirectResponse(
+            url='/phone',
+            status_code=status.HTTP_302_FOUND,
+        )
     await check_admin_or_myprofile_car(
         user_id=user_id,
         user_telegram_id=int(user_telegram_id),
@@ -125,6 +130,11 @@ async def get_edit_car_template(
     session: AsyncSession = Depends(get_async_session),
 ):
     """Функция для получения формы редактирования машины. """
+    if current_user.is_ban:
+        return RedirectResponse(
+            url='/phone',
+            status_code=status.HTTP_302_FOUND,
+        )
     car = await car_crud.get(
         obj_id=car_id,
         session=session
