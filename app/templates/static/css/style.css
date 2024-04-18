@@ -146,10 +146,11 @@ input[type=file]::file-selector-button {
     align-items: center;
 }
 
-.profile-btn {
+.profile-btn, .profile-btn:active {
     width: unset;
     padding-top: 3px;
     height: 30px;
+    border: none;
 }
 
 .gray-container {

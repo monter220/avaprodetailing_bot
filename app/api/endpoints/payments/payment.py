@@ -48,7 +48,6 @@ async def get_payments_template(
     if not cars:
         return RedirectResponse(
             url=f'/users/{user_id}/cars/add'
-            # car_router.url_path_for('add_car', user_id=user_id)
         )
 
     services = await service_crud.get_services_by_point_id(
@@ -160,5 +159,4 @@ async def process_payment(
 
     return RedirectResponse(
         url='/users/me'
-        # user_router.url_path_for('get_profile_template', user_id=user_id)
     )

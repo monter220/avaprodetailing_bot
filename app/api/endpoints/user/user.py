@@ -17,7 +17,6 @@ from app.api.validators import (
     check_is_superadmin
 )
 
-
 router = APIRouter(
     prefix="/users",
     tags=["user"]
@@ -51,7 +50,8 @@ async def get_profile_template(
             "title": 'Профиль пользователя',
             "user": current_user,
             "cars": cars,
-            'points': points
+            'points': points,
+            'current_user': current_user,
         }
     )
 
@@ -96,12 +96,13 @@ async def process_redirect_from_phone(
         )
 
 
-@router.get("/{user_id}/edit")
+@router.get('/{user_id}/edit')
 async def get_edit_profile_template(
     request: Request,
     user_id: int,
     session: AsyncSession = Depends(get_async_session),
     user_telegram_id: str = Depends(get_tg_id_cookie),
+    current_user: User = Depends(get_current_user),
 ):
     """Функция для получения формы редактирования профиля пользователя."""
     await check_admin_or_myprofile_car(
@@ -112,10 +113,12 @@ async def get_edit_profile_template(
     await check_user_exist(user_id, session)
     user = await user_crud.get(user_id, session)
     return templates.TemplateResponse(
-        "user/profile-edit.html",
+        'user/profile-edit.html',
         {
-            "request": request,
-            "user": user
+            'request': request,
+            'user': user,
+            'is_client_profile': user_id != current_user.id,
+            'current_user': current_user,
         }
     )
 
@@ -138,6 +141,7 @@ async def process_edit_profile(
     new_user_data['name'] = form_data.get('name')
     new_user_data['patronymic'] = form_data.get('patronymic')
     new_user_data['date_birth'] = form_data.get('date_birth')
+    new_user_data['phone'] = form_data.get('phone')
     await user_crud.update(
         db_obj=user,
         obj_in=UserUpdate(**new_user_data),
@@ -155,8 +159,8 @@ async def process_edit_profile(
 async def get_payments_template(
     request: Request,
     user_id: int,
-        session: AsyncSession = Depends(get_async_session),
-        current_user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_async_session),
+    current_user: User = Depends(get_current_user),
 ):
     """Функция для отображения шаблона с историей платежей и бонусов."""
     bonuses = await bonus_crud.get_bonuses_by_user_id(user_id, session)
@@ -218,6 +222,7 @@ async def update_user_bonus(
 @router.get('/{user_id}/admin-appoint')
 async def get_admin_appoint_page(
     request: Request,
+    user_id: int,
     session: AsyncSession = Depends(get_async_session),
     current_user: User = Depends(get_current_user)
 ):
@@ -225,12 +230,20 @@ async def get_admin_appoint_page(
 
     check_is_superadmin(current_user)
 
+    user = await user_crud.get(
+        obj_id=user_id,
+        session=session
+    )
+
     points = await point_crud.get_multi(session=session)
 
     return templates.TemplateResponse(
         'user/edit-admin-point.html',
-        {'request': request,
-         'points': points}
+        {
+            'request': request,
+            'points': points,
+            'user': user,
+        }
     )
 
 
@@ -249,7 +262,6 @@ async def appoint_admin(
     )
 
     if user is None:
-
         return RedirectResponse(
             url='/users/me',
             status_code=status.HTTP_302_FOUND
@@ -266,17 +278,15 @@ async def appoint_admin(
             # равно нулю или быть None по неизвестной мне причине
             # -1 значит, что пользователь отвязан от точки
             'point_id': -1,
-            'role': 1
+            'role': 1 if user.role != 3 else 3,
         }
     else:
         user_update_data = {
             'point_id': form_data.get('point'),
-            'role': 2
+            'role': 2 if user.role != 3 else 3
         }
 
     try:
-        print(user_update_data)
-
         await user_crud.update(
             db_obj=user,
             obj_in=UserUpdate(**user_update_data),

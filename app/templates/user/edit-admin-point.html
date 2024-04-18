@@ -16,14 +16,14 @@
       {% if points %}
         {% for point in points %}
           <div class="form-check">
-            <input class="form-check-input" type="radio" name="point" value="{{ point.id }}" id="{{ point.id }}">
+            <input class="form-check-input" type="radio" name="point" value="{{ point.id }}" id="{{ point.id }}" {% if user.point_id == point.id %}checked{% endif %}>
             <label class="form-check-label" for="{{ point.id }}">
               {{ point.name }}
             </label>
           </div>
         {% endfor %}
       {% else %}
-        <h2>Не удалось получить список точек - обновите страницу или обратитесь к администратору.</h2>
+        <p>Не удалось получить список точек - обновите страницу или обратитесь к администратору.</p>
       {% endif %}
       {% if errors %}
         <ul class="errors">

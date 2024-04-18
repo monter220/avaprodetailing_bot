@@ -17,7 +17,6 @@ from app.api.validators import (
     check_service_duplicate_in_category
 )
 
-
 router = APIRouter(
     prefix='/{category_id}/services',
     tags=['services']
@@ -50,6 +49,7 @@ async def get_service_add_page(
 async def create_service(
     request: Request,
     point_id: int,
+    category_id: int,
     session: AsyncSession = Depends(get_async_session),
     current_user: Optional[User] = Depends(get_current_user),
 ):
@@ -63,7 +63,7 @@ async def create_service(
         'description': form_data.get('descr'),
         'cost': int(form_data.get('cost')),
         'default_bonus': int(form_data.get('bonus', settings.default_bonus)),
-        'category_id': int(form_data.get('category')),
+        'category_id': category_id,
     }
 
     errors = []
@@ -110,7 +110,7 @@ async def create_service(
 
     # Перенаправляем на страницу категории, к которой принадлежит новая услуга
     return RedirectResponse(
-        url=f'/points/{point_id}/categories/{service.category_id}',
+        url=f'/points/{point_id}/',
         status_code=status.HTTP_302_FOUND
     )
 
@@ -175,7 +175,6 @@ async def update_service(
         'description': form_data.get('descr'),
         'cost': form_data.get('cost'),
         'default_bonus': form_data.get('bonus'),
-        'category_id': form_data.get('category'),
     }
 
     # Преобразуем значения cost, bonus и category_id в числа
@@ -187,29 +186,24 @@ async def update_service(
             service_update_data['default_bonus']
         )
 
-    if service_update_data['category_id'] is not None:
-        service_update_data['category_id'] = int(
-            service_update_data['category_id']
-        )
-
     # Проверяем, что в данной категории нет услуги с таким именем
-    try:
-        await check_service_duplicate_in_category(
-            name=service_update_data['name'],
-            category_id=service_update_data['category_id'],
-            session=session
-        )
-    except Exception as e:
-        errors.append(str(e))
-
-        categories = await category_crud.get_multi(session)
-
-        return templates.TemplateResponse(
-            'point/category/service/edit-service.html',
-            {'request': request,
-             'errors': errors,
-             'categories': categories}
-        )
+    # try:
+    #     await check_service_duplicate_in_category(
+    #         name=service_update_data['name'],
+    #         category_id=service_update_data['category_id'],
+    #         session=session
+    #     )
+    # except Exception as e:
+    #     errors.append(str(e))
+    #
+    #     categories = await category_crud.get_multi(session)
+    #
+    #     return templates.TemplateResponse(
+    #         'point/category/service/edit-service.html',
+    #         {'request': request,
+    #          'errors': errors,
+    #          'categories': categories}
+    #     )
 
     # Обновляем услугу с применением pydantic-схемы для валидации
     await service_crud.update(

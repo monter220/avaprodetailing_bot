@@ -5,24 +5,6 @@
     <h1>Добавить услугу</h1>
 
     <form action="#" method="post">
-      <div class="form-group">
-        <div style="margin-bottom: 20px;">
-          <p>Категория</p>
-            {% if categories %}
-              {% for category in categories %}
-                <div class="form-check">
-                  <input class="form-check-input" type="radio" name="category"
-                        id="{{ category.name }}" value="{{ category.id }}">
-                  <label class="form-check-label" for="{{ category.name }}">
-                    {{ category.name }}
-                  </label>
-                </div>
-              {% endfor %}
-            {% else %}
-                <p>Категорий не отбнаружено</p>
-            {% endif %}
-        </div>
-      </div>
 
       <label for="name">Название услуги</label>
       <input type="text" class="form-control" id="name" name="name"
