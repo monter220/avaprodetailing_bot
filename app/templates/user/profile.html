@@ -186,7 +186,8 @@
 
     {% if from_search and current_user.is_superadmin %}
       <div>
-        <a href="/users/{{ user.id }}/ban"
+        <a onclick="return confirm('Вы действительно хотите заблокировать этого клиента?');"
+           href="/users/{{ user.id }}/ban"
           class="d-flex justify-content-center align-items-center col-1 btn btn-custom-black">ЗАБЛОКИРОВАТЬ АККАУНТ</a>
       </div>  
     {% endif %}
