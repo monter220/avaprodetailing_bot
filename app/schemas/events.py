@@ -6,16 +6,15 @@ from pydantic import (
     BaseModel,
     PositiveInt,
     Extra,
-    NonNegativeInt,
     Field,
 )
 
 
 class EventsCreate(BaseModel):
-    author: Optional[NonNegativeInt] = Field(None)
+    author: Optional[PositiveInt] = Field(None)
     model: str
     data: str
-    type_id: NonNegativeInt
+    type_id: PositiveInt
 
     class Config:
         extra = Extra.forbid
@@ -23,7 +22,7 @@ class EventsCreate(BaseModel):
 
 class EventsDB(EventsCreate):
     date: datetime
-    id: NonNegativeInt
+    id: PositiveInt
 
     class Config:
         orm_mode = True

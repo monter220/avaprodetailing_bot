@@ -19,12 +19,10 @@ async def insert_into_events(
             event['author'] = user.id
         event['model'] = model
         event['type_id'] = type
-        # event_data: dict[str, dict[str, str]] = dict.fromkeys(['old', 'new'])
-        # event_data['new'] = obj_in_data
         event['data'] = f'{event_data}'
         session.add(Events(**event))
-    except:
+    except Exception as e:
         raise HTTPException(
             status_code=507,
-            detail='Не удалось записать в лог!',
+            detail=f'{e}. Не удалось записать в лог!',
         )

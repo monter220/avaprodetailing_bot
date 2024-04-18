@@ -1,7 +1,5 @@
 import contextlib
 
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from app.core.db import get_async_session
 from app.crud import user_crud
 from app.crud.order import order_crud

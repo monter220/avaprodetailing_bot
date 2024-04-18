@@ -6,7 +6,6 @@ from pydantic import (
     BaseModel,
     Field,
     PositiveInt,
-    NonNegativeInt,
     validator,
     Extra,
     model_validator,
@@ -39,13 +38,16 @@ class CarUpdate(BaseModel):
             return cls(**json.loads(value))
         return value
 
+    class Config:
+        extra = Extra.forbid
+
 
 class CarCreate(BaseModel):
     image: Optional[str] = Field(None)
     brand: str
     model: str
     license_plate_number: str
-    user_id: int
+    user_id: PositiveInt
 
     @validator('brand')
     def check_alphabet_only(cls, value):
@@ -65,8 +67,11 @@ class CarCreate(BaseModel):
             return cls(**json.loads(value))
         return value
 
+    class Config:
+        extra = Extra.forbid
+
 
 class CarDB(CarCreate):
-    
+
     class Config:
         orm_mode = True
