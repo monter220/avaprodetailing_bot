@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="container-flex">
+    <h1>Отчеты</h1>
+    <a onclick="return confirm('Подготовить отчет по пользователям? Он будет прислан в личные сообщения.')" href="/reports/users/" class="row gray-container">
+      <div class="col text-left">
+        <div class="icon-circle">
+          <i class="bi bi-file-earmark-bar-graph-fill"></i>
+        </div>
+      </div>
+      <div class="col-8 text-left">
+        <p class="top-text">Пользователи</p>
+      </div>
+      <div class="col-1 text-end">
+        <i class="bi bi-chevron-right"></i>
+      </div>
+    </a>
+    <a onclick="return confirm('Подготовить отчет по заказам? Он будет прислан в личные сообщения.')" href="/reports/orders/" class="row gray-container">
+      <div class="col text-left">
+        <div class="icon-circle">
+          <i class="bi bi-file-earmark-bar-graph-fill"></i>
+        </div>
+      </div>
+      <div class="col-8 text-left">
+        <p class="top-text">Заказы</p>
+      </div>
+      <div class="col-1 text-end">
+        <i class="bi bi-chevron-right"></i>
+      </div>
+    </a>
+    <a onclick="return confirm('Подготовить отчет по оплатам? Он будет прислан в личные сообщения.')" href="/reports/payments/" class="row gray-container">
+      <div class="col text-left">
+        <div class="icon-circle">
+          <i class="bi bi-file-earmark-bar-graph-fill"></i>
+        </div>
+      </div>
+      <div class="col-8 text-left">
+        <p class="top-text">Оплаты</p>
+      </div>
+      <div class="col-1 text-end">
+        <i class="bi bi-chevron-right"></i>
+      </div>
+    </a>
+
+    <a href="/users/me" class="btn btn-custom-black">Назад</a>
+  </div>
+{% endblock content %}

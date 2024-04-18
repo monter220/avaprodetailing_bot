@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-flex">
+    <img src="static/img/logo.png" alt="AVAPRODETAILING" class="logo">
+
+    <div id="welcome-message">
+      <h1>Добро пожаловать,</h1>
+      <p>для продолжения использования бота зарегистрируйтесь или войдите</p>
+    </div>
+
+    <a href="/phone"
+       class="btn btn-custom-red mt-4 mb-4">Зарегистрироваться</a>
+    <a href="/phone" class="btn btn-custom-black">Войти</a>
+  </div>
+
+  <footer class="bg-transparent text-center text-white">
+    Продолжая использование сервиса, вы соглашаетесь с политикой
+    конфиденциальности и даете согласие на обработку своих персональных данных
+  </footer>
+
+{% endblock content %}

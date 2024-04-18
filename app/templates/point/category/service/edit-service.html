@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-flex">
+  <h1>Изменить услугу</h1>
+
+  <form action="#" method="post">
+    <div class="form-group">
+      <div style="margin-bottom: 20px;">
+        <p>Категория</p>
+          {% if categories %}
+            {% for category in categories %}
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="category"
+                      id="{{ category.name }}" value="{{ category.id }}">
+                <label class="form-check-label" for="{{ category.name }}">
+                  {{ category.name }}
+                </label>
+              </div>
+            {% endfor %}
+          {% else %}
+              <p>Категорий не отбнаружено</p>
+          {% endif %}
+      </div>
+    </div>
+
+    <label for="name">Название услуги</label>
+    <input type="text" class="form-control" id="name" name="name"
+           placeholder="НАЗВАНИЕ УСЛУГИ" required value="{{ service.name }}">
+    <label for="descr">Описание услуги</label>
+    <textarea class="form-control" id="descr" name="descr" rows="3" required
+              placeholder="Описание услуги">{{ service.description }}</textarea>
+    <label for="cost">Минимальная стоимость</label>
+    <input type="text" class="form-control" id="cost" name="cost"
+           required value="{{ service.cost }}">
+    <label for="bonus">Процент бонусов</label>
+    <input type="text" class="form-control" id="bonus" name="bonus"
+           required value="{{ service.default_bonus }}">
+    <button type="submit" class="btn btn-custom-red mt-4 mb-4">Сохранить
+    </button>
+    <a
+      onclick="return confirm('Вы действительно хотите удалить эту услугу?');"
+      href="/points/{{ point_id }}/categories/{{ service.category_id }}/services/{{ service.id }}/delete" class="btn btn-custom-black">Удалить</a>
+    <a href="/users/me" class="btn btn-custom-black">Отмена</a>
+    {% if errors %}
+      <ul class="errors">
+        {% for error in errors %}
+          <li>{{ error }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  </form>
+</div>
+{% endblock content %}

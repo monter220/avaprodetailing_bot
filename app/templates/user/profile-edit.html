@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-flex">
+  <h1>Изменить профиль</h1>
+
+  <form action="#" method="post">
+    <div class="form-group">
+      {% if from_admin or from_superadmin %}
+        <input type="text" class="form-control" id="phone" name="phone"
+        placeholder="НОМЕР ТЕЛЕФОНА" value="{{ user.phone }}" required>
+      {% endif %}
+      <input type="text" class="form-control" id="surname" name="surname"
+             placeholder="ФАМИЛИЯ" value="{{ user.surname }}" required>
+      <input type="text" class="form-control" id="name" name="name"
+             placeholder="ИМЯ" value="{{ user.name }}" required>
+      <input type="text" class="form-control" id="patronymic" name="patronymic"
+             placeholder="ОТЧЕСТВО" value="{{ user.patronymic }}">
+      <input placeholder="ДАТА РОЖДЕНИЯ" type="date" class="form-control"
+             id="date_birth" name="date_birth" value="{{ user.date_birth }}"
+             required>
+    </div>
+    <button type="submit" class="btn btn-custom-red mt-4 mb-4">Сохранить
+    </button>
+    <a href="/users/{{user.id}}" class="btn btn-custom-black">Отмена</a>
+  </form>
+</div>
+{% endblock content %}

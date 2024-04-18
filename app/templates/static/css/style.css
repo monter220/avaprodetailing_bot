@@ -1,0 +1,297 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+@import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css");
+
+body {
+    background-color: #1a1a1a;
+    color: #fff;
+    font-family: "Inter", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;
+    font-variation-settings: "slnt" 0;
+}
+
+.logo {
+    width: 280px;
+    margin: 20px auto 0;
+}
+
+.welcome-message {
+    margin: 0 0;
+}
+
+.btn-custom-red, .btn-custom-red:focus, .btn-custom-red:active {
+    background-color: #c40000 !important;
+    border-radius: 25px;
+    color: #fff;
+    height: 45px;
+    padding-top: 10px;
+    width: 100%;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.btn-custom-black, .btn-custom-black:focus, .btn-custom-black:active {
+    border: 1px solid #4f4f4f !important;
+    border-radius: 25px;
+    height: 45px;
+    padding-top: 10px;
+    color: #fff;
+    width: 100%;
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+footer {
+    position: fixed;
+    bottom: 10px;
+    width: 100%;
+    padding: 14px;
+    font-size: 12px;
+    font-weight: 300;
+}
+
+footer a {
+    color: #fff;
+}
+
+.container-flex {
+    display: flex;
+    flex-direction: column;
+    padding: 40px 30px;
+}
+
+.container-flex > h1 {
+    margin: 10px 0 40px;
+
+}
+
+.profile h1 {
+    font-size: 36px;
+    margin-bottom: 14px;
+}
+
+.profile #birthday {
+    color: #c1c1c1;
+}
+
+input.form-control, input.form-control:focus, .custom-file-upload {
+    margin: 10px 0;
+    background-color: #333;
+    border: none;
+    height: 45px;
+    color: #c1c1c1;
+}
+textarea.form-control, textarea.form-control:focus{
+    margin: 10px 0;
+    background-color: #333;
+    border: none;
+    color: #c1c1c1;
+}
+
+input, textarea {
+    outline: none !important;
+    box-shadow: none !important;
+    border-color: transparent;
+}
+
+
+.form-control::placeholder {
+    color: #c1c1c1;
+    opacity: 1;
+}
+
+h1 {
+    font-size: calc(1.375rem + 1.5vw);
+}
+
+input[type=file] {
+    display: block;
+    color: #c1c1c1;
+    font-style: oblique;
+    text-transform: lowercase;
+    margin-bottom: 20px;
+}
+
+input[type=file]::file-selector-button {
+    display: inline-block;
+    padding: 8px 12px 0;
+    cursor: pointer;
+    border-radius: var(--bs-border-radius);
+    border: 3px solid #595959;
+}
+
+.custom-file-upload {
+    display: inline-block;
+    padding: 8px 12px 0;
+    cursor: pointer;
+    border-radius: var(--bs-border-radius);
+    border: 3px solid #595959;
+    margin: 10px 0;
+    background-color: #333;
+    height: 45px;
+    color: #c1c1c1;
+}
+
+input[type=file]::file-selector-button {
+    display: none;
+}
+
+.profile {
+    font-weight: 600;
+}
+
+#profile-description {
+    align-items: center;
+}
+
+.profile-btn {
+    width: unset;
+    padding-top: 3px;
+    height: 30px;
+}
+
+.gray-container {
+    background-color: #333;
+    padding: 20px 20px 20px 10px;
+    border-radius: 10px;
+    align-items: center;
+    text-decoration: none;
+    color: #fff;
+    margin: 15px 0;
+}
+
+.gray-container p {
+    margin-bottom: 0;
+}
+
+.gray-container .top-text {
+    font-size: 20px;
+}
+
+.gray-container .low-text {
+    color: #c1c1c1;
+    font-size: 12px;
+}
+
+.btn-custom-yellow, .btn-custom-yellow:focus, .btn-custom-yellow:active {
+    background-color: #fc0 !important;
+    border-radius: 25px;
+    color: #000000;
+    height: 60px;
+    padding-top: 10px;
+    width: 100%;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.btn-custom-yellow i, #add-car-button i, #add-category-button i {
+    margin-right: 10px;
+    font-size: 25px;
+}
+
+.btn-custom-blue, .btn-custom-blue:focus, .btn-custom-blue:active {
+    background-color: #c40000 !important;
+    border-radius: 25px;
+    color: #ffffff;
+    height: 50px;
+    padding-top: 10px;
+    width: 300px;
+    font-size: 15px;
+    font-weight: 600;
+    margin: 30px auto;
+}
+
+.btn-custom-blue i, #btn-custom-blue i {
+    margin-right: 10px;
+    font-size: 25px;
+}
+
+
+#qr-code-button {
+    margin: 10px 0;
+    text-align: center;
+}
+
+.profile h2 {
+    margin-top: 20px;
+}
+
+form h2 {
+    margin-top: 30px;
+}
+
+.payment h1{
+    margin-bottom: 0;
+}
+
+.icon-circle {
+    background-color: red;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    width: 50px;
+    height: 50px;
+    overflow: hidden;
+    position: relative;
+}
+
+.gray-container .icon-circle i {
+    font-size: 28px;
+}
+
+.icon-circle img {
+    width: 200%;
+    height: auto;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+#qrcode {
+    margin: 0 auto;
+    display: none;
+    background-color: #fff;
+    padding: 10px;
+}
+
+#car-card {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+#car-card .icon-circle {
+    width: 200px;
+    height: 200px;
+}
+
+#point-address {
+    margin-top: -30px;
+}
+
+.my-point {
+    background-color: #555;
+}
+
+.search-client {
+    border: 2px solid #4f4f4f;
+    border-radius: 10px;
+    padding: 10px;
+}
+
+#custom-qr-scanner-link {
+    color: #666;
+}
+
+table a{
+    color: #fff;
+}
+
+h2 a i{
+    color: #fff;
+    margin-left: 10px;
+}

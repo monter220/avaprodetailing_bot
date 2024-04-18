@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-flex payment">
+  <h1>Оплата</h1>
+
+  <form action="{{ url_for('process_payment', user_id=user_id) }}" method="post">
+    <div class="form-group">
+
+      <h2>Выберите автомобиль</h2>
+      {% for car in cars %}
+      <div class="form-check">
+        <input class="form-check-input" type="radio" name="car_id"
+               id="car-{{ car.id }}"
+               value="{{ car.id }}" {% if loop.first %}checked{% endif %}>
+        <label class="form-check-label" for="car-{{ car.id }}">
+          {{car.brand}} {{car.model}}
+        </label>
+      </div>
+      {% endfor %}
+
+      <h2>Выберите услуги</h2>
+
+      <div id="service-list">
+        {% for service in services %}
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" value="{{ service.id }}" id="s-{{ service.id }}"
+                 data-name="{{ service.name }}" data-cost="{{ service.cost }}" data-bonus="{{ service.default_bonus / 100 }}">
+          <label class="form-check-label" for="s-{{ service.id }}">{{ service.name }}</label>
+        </div>
+        {% endfor %}
+      </div>
+
+      <h2>Подтвердите цены</h2>
+      <div id="service-list-result">
+      </div>
+
+      <p>Итого: <span id="global-cost">0</span> ₽</p>
+
+      <h2>Бонусы</h2>
+      <p>Доступно <span id="client-bonuses">{{ bonus_balance}}</span> бонусов</p>
+
+      <label>Бонусы (для списания со знаком минус):</label>
+      <input type="text" class="form-control" id="bonuses"
+             value="0"
+             required>
+
+      <h2>Способ оплаты</h2>
+      <div class="form-check">
+        <input class="form-check-input" type="radio" name="payment_type"
+               id="cash" value="cash" checked>
+        <label class="form-check-label" for="cash">
+          Наличными
+        </label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="radio" name="payment_type"
+               id="online" value="online" {% if not is_registered %} disabled {% endif %}>
+        <label class="form-check-label" for="online">
+          Онлайн
+        </label>
+      </div>
+
+      <h2>Итого</h2>
+      <p>К оплате: <span id="result-cost">0</span> ₽</p>
+      <p>Бонусы: <span id="result-bonuses">0</span></p>
+      <input type="hidden" name="service_result_cost" id="service-result-cost"
+             value="0">
+      <input type="hidden" name="service_result_bonus"
+             id="service-result-bonus" value="0">
+
+    </div>
+    <button type="submit" class="btn btn-custom-red mt-4 mb-4">Подтвердить
+    </button>
+    <a href="admin-profile.html" class="btn btn-custom-black">Отмена</a>
+  </form>
+</div>
+
+{% endblock content %}

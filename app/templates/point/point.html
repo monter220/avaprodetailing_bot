@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-flex">
+  <h1>{{ point.name }}</h1>
+  <div id="point-address">{{ point.address }}</div>
+  <div class="text-center">
+    {% if point.categories %}
+      {% for admin in point.admins %}
+    <a href="tel:{{ admin.phone }}"
+       class="d-flex justify-content-center align-items-center col-1 btn btn-custom-blue"><i
+      class="bi bi-telephone-outbound-fill"></i> {{ admin.phone }}</a>
+    {% endfor %}
+    {% endif %}
+  </div>
+
+  {% if point.categories %}
+    {% for category in point.categories %}
+      <div>
+        {% if from_superadmin %}
+          <h2>{{ category.name }} <a href="/points/{{ point.id }}/categories/{{ category.id }}"><i
+          class="bi bi-pencil-fill"></i></a></h2>
+        {% else %}
+          <h2>{{ category.name }}</h2>
+        {% endif %}
+        <table class="table table-dark table-striped">
+          <tbody>
+            {% for service in category.services %}
+              <tr>
+                <td class="align-middle">{{ service.name }}<br><small>{{ service.description }}</small></td>
+                <td class="text-end align-middle">{{ service.cost }}</td>
+                {% if from_superadmin %}
+                  <td class="text-end align-middle"><a href="/points/{{ point.id }}/categories/{{ category.id }}/services/{{ service.id }}"><i class="bi bi-pencil-fill"></i></a></td>
+                {% endif %}
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% endfor %}
+  {% else %}
+    <h5>К данной точке ещё не прикреплено ни одной услуги</h5>
+  {% endif %}
+ 
+  {% if from_superadmin %}
+    <div id="add-category-button">
+      <p class="text-end">
+        <a href="/points/{{ point.id }}/categories/add"
+          class="d-flex justify-content-center align-items-center col-1 btn btn-custom-black"><i
+          class="bi bi-plus-circle-fill"></i> Добавить категорию</a>
+      </p>
+    </div>
+  {% endif %}
+
+{% if from_superadmin %}
+ <div>
+    <h2>Администраторы</h2>
+    {% if point.admins %}
+      {% for admin in point.admins %}
+        <a href="/users/{{ admin.id }}" class="row gray-container">
+          <div class="col text-left">
+            <div class="icon-circle">
+              <i class="bi bi-person-fill"></i>
+            </div>
+          </div>
+          <div class="col-8 text-left">
+            <p class="top-text">{{ admin.surname }}</p>
+            <p class="low-text">{{ admin.name }} {{ admin.patronymic }}</p>
+          </div>
+          <div class="col-1 text-end">
+            <i class="bi bi-chevron-right"></i>
+          </div>
+        </a>
+      {% endfor %}
+    {% else %}
+      <h5>К данной точке ещё не прикреплены администраторы</h5>
+    {% endif %}
+  </div>
+
+  <div>
+    <a href="/points/{{ point.id }}/edit" class="btn btn-custom-black">Изменить точку</a>
+  </div>
+{% endif %}
+  <div>
+    <a href="/users/me" class="btn btn-custom-black">Назад</a>
+  </div>
+</div>
+{% endblock content %}

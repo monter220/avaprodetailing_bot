@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-flex">
+  <h1>История платежей</h1>
+
+  {% if is_superadmin %}
+  <div class="mt-2 mb-4 search-client">
+    <form action="" method="post">
+      <div class="form-group">
+        <label for="bonus">бонусы</label>
+        <input type="tel" class="form-control" id="bonus"
+               value="{{ user.bonus }}" placeholder="{{ user.bonus }}" name="bonus_amount" required>
+      </div>
+      <button type="submit" class="btn btn-custom-red mt-2 mb-2">Изменить
+      </button>
+    </form>
+  </div>
+  {% endif %}
+  {% if bonuses %}
+  <div>
+    <table class="table table-dark table-striped">
+      <thead>
+      <tr>
+        <th class="align-middle" scope="col">Дата</th>
+        <th class="text-end align-middle" scope="col">Платеж</th>
+        <th class="text-end align-middle" scope="col">Бонусы</th>
+      </tr>
+      </thead>
+      <tbody>
+        {% for bonus in bonuses %}
+      <tr>
+        <td class="align-middle">{{ bonus.date_begin.strftime('%d.%m.%Y') }} г.</td>
+        <td class="text-end align-middle">{% if bonus.order %}{{ bonus.order.cost }} ₽{% else %} - {% endif %}</td>
+        <td class="text-end align-middle {% if bonus.amount > 0 %}text-success{% else %}text-danger{% endif %}">{% if bonus.amount > 0 %}+{% endif %}{{ bonus.amount }}</td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+    {% else %}
+  <p>Вы ещё не совершали заказов. Может быть, пришло время попробовать?</p>
+  {% endif %}
+  {% if is_client_page %}
+  <a href="/users/{{user.id}}" class="btn btn-custom-black">Назад</a>
+  {% else %}
+  <a href="/users/me" class="btn btn-custom-black">Назад</a>
+  {% endif %}
+</div>
+{% endblock content %}
