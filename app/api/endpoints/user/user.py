@@ -311,3 +311,24 @@ async def appoint_admin(
         url='/users/me',
         status_code=status.HTTP_302_FOUND
     )
+
+
+@router.get('/{user_id}/ban')
+async def get_admin_ban_user(
+    request: Request,
+    user_id: int,
+    session: AsyncSession = Depends(get_async_session),
+    current_user: User = Depends(get_current_user)
+):
+    """Функция для блокировки клиента. """
+    check_is_superadmin(current_user)
+    await user_crud.user_ban(
+        user_id=user_id,
+        author=current_user,
+        session=session,
+    )
+
+    return RedirectResponse(
+        url='/users/me',
+        status_code=status.HTTP_302_FOUND
+    )

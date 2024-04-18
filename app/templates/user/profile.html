@@ -193,7 +193,7 @@
 
   {% if from_search and current_user.is_superadmin %}
   <div>
-    <a href="/users/{{ user.id }}/ban"
+    <a onclick="return confirm('Вы действительно хотите {% if not user.is_ban %}ЗАБЛОКИРОВАТЬ{% else %} РАЗБЛОКИРОВАТЬ {% endif %} этого клиента?');"  href="/users/{{ user.id }}/ban"
        class="d-flex justify-content-center align-items-center col-1 btn btn-custom-black">{% if not user.is_ban %}ЗАБЛОКИРОВАТЬ{% else %} РАЗБЛОКИРОВАТЬ {% endif %}
       АККАУНТ</a>
   </div>
