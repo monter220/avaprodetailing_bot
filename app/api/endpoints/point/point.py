@@ -74,7 +74,7 @@ async def add_point(
     )
 
     return RedirectResponse(
-        request.url_for('get_point', point_id=point.id),
+        url=f'/points/{point.id}',
         status_code=status.HTTP_302_FOUND,
     )
 

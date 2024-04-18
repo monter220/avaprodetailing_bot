@@ -16,7 +16,6 @@ from app.schemas.user import UserCreate, UserUpdateTG
 from app.api.endpoints.utils import get_current_user, get_tg_id_cookie
 from app.api.validators import check_duplicate, check_user_by_tg_exist
 
-
 router = APIRouter(
     tags=['guest']
 )
@@ -27,8 +26,17 @@ templates = Jinja2Templates(
 
 
 @router.get('/')
-async def render_sign_in_template(request: Request):
+async def render_sign_in_template(
+    request: Request,
+    current_user: Optional[User] = Depends(get_current_user),
+):
     """Функция для рендеринга страницы из шаблона. """
+    if current_user:
+        return RedirectResponse(
+            '/users/me',
+            status_code=status.HTTP_302_FOUND,
+        )
+
     return templates.TemplateResponse(
         'guest/sign-in.html',
         {'request': request,
@@ -229,5 +237,21 @@ async def render_success_registration_template(
             'request': request,
             'user_id': user.id,
             'title': 'Вы успешно зарегистрировались!',
+        }
+    )
+
+
+@router.get('/call/{phone_number}')
+async def render_phone_template(
+    request: Request,
+    phone_number: str,
+):
+    """Отображение шаблона для набора номера."""
+    return templates.TemplateResponse(
+        'guest/phone_number.html',
+        {
+            'request': request,
+            'phone_number': phone_number,
+            'title': 'Набор номера телефона',
         }
     )

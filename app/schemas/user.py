@@ -28,6 +28,7 @@ class UserUpdate(BaseModel):
     date_birth: Optional[date] = Field(None)
     role: int = Field(None, ge=0)
     point_id: Optional[int] = Field(None, ge=-1)
+    phone: Optional[str] = Field(None, max_length=settings.max_phone_len)
 
     @validator('surname', 'name')
     def check_alphabet_only(cls, value):
