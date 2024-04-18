@@ -62,7 +62,8 @@ class UserUpdate(BaseModel):
 
     @validator('phone')
     def check_phone(cls, value):
-        check = value.replace('(', '').replace(')', '').replace(' ', '').replace('-', '')
+        check = value.replace(
+            '(', '').replace(')', '').replace(' ', '').replace('-', '')
         if check[0] == '8' or check[0] == '7':
             check = '+7' + check[1::]
         try:
@@ -109,7 +110,8 @@ class UserCreate(BaseModel):
 
     @validator('phone')
     def check_phone(cls, value):
-        check = value.replace('(', '').replace(')', '').replace(' ', '').replace('-', '')
+        check = value.replace(
+            '(', '').replace(')', '').replace(' ', '').replace('-', '')
         if check[0] == '8' or check[0] == '7':
             check = '+7' + check[1::]
         try:
