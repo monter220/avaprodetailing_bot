@@ -25,7 +25,7 @@ async def start(message: types.Message):
 
     await message.answer(
         text=ANY_MESSAGE_ANSWER.format(
-            user_full_name=html.quote(message.from_user.full_name)   
+            user_full_name=html.quote(message.from_user.full_name)
         ),
         reply_markup=keyboard.as_markup()
     )

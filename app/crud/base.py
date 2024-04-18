@@ -103,7 +103,8 @@ class CRUDBase:
     ):
         if model:
             obj_data = jsonable_encoder(db_obj)
-            event_data: dict[str, dict[str, str]] = dict.fromkeys(['old', 'new'])
+            event_data: dict[str, dict[str, str]] = dict.fromkeys(
+                ['old', 'new'])
             event_data['old'] = obj_data
             await insert_into_events(event_data, model, 3, session, user)
         await session.delete(db_obj)

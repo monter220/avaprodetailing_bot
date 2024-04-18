@@ -4,7 +4,7 @@ from sqlalchemy import Boolean, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .base import CRUDBase
-from app.models import Service, Category, Point
+from app.models import Service, Category
 
 
 class CRUDService(CRUDBase):

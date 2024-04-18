@@ -7,7 +7,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.endpoints.utils import get_current_user
 from app.models import User
-from app.services.report import process_report
 from app.core.db import get_async_session
 from app.tasks.reports import send_report
 

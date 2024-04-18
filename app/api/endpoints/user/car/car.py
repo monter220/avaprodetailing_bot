@@ -2,7 +2,7 @@ import os
 import uuid
 
 from gosnomer import normalize
-from fastapi import APIRouter, Depends, UploadFile, Request
+from fastapi import APIRouter, Depends, Request
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -11,9 +11,9 @@ from aiofiles import open
 
 
 from app.core.config import settings
-from app.crud import car_crud, user_crud
+from app.crud import car_crud
 from app.api.endpoints.utils import get_tg_id_cookie
-from app.schemas.car import CarCreate, CarDB, CarUpdate
+from app.schemas.car import CarCreate, CarUpdate
 from app.core.db import get_async_session
 from app.api.validators import (
     check_exist,
@@ -49,7 +49,12 @@ async def get_add_car_template(
         user_telegram_id=int(user_telegram_id),
         session=session,
     )
-    return templates.TemplateResponse('user/car/add-car.html', {'request': request})
+    return templates.TemplateResponse(
+        'user/car/add-car.html',
+        {
+            'request': request,
+        }
+    )
 
 
 @router.post('/add')
@@ -142,7 +147,8 @@ async def edit_car(
     """Обработка формы для редактирования машины."""
     db_car = await check_exist(car_crud, car_id, session)
     form_data = await request.form()
-    car = dict.fromkeys(['brand', 'model', 'license_plate_number', 'car_id', 'image'])
+    car = dict.fromkeys(
+        ['brand', 'model', 'license_plate_number', 'car_id', 'image'])
     car['car_id'] = car_id
     car['brand'] = form_data.get('brand')
     car['model'] = form_data.get('model')

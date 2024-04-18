@@ -1,6 +1,5 @@
 from typing import Optional
 
-from fastapi.encoders import jsonable_encoder
 from gosnomer import normalize
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -26,9 +25,10 @@ class CRUDCar(CRUDBase):
             obj_in_data['image'] = path
         db_obj = self.model(**obj_in_data)
         if model:
-            event_data: dict[str, dict[str, str]] = dict.fromkeys(['old', 'new'])
+            event_data: dict[str, dict[str, str]] = dict.fromkeys(
+                ['old', 'new'])
             event_data['new'] = obj_in_data
-            await insert_into_events(event_data,model,1,session,user)
+            await insert_into_events(event_data, model, 1, session, user)
         session.add(db_obj)
         await session.commit()
         await session.refresh(db_obj)
