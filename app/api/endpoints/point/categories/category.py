@@ -18,7 +18,6 @@ from app.api.validators import (
     check_category_duplicate_on_point
 )
 
-
 router = APIRouter(
     prefix='/{point_id}/categories',
     tags=['categories']
@@ -92,7 +91,6 @@ async def create_category(
 
     errors = []
 
-    # Проверка на уникальность категории на точке
     try:
         await check_category_duplicate_on_point(
             name=category_data['name'],
@@ -109,8 +107,6 @@ async def create_category(
              'errors': errors}
         )
 
-    # Создание категории, с применением pydantic-схемы
-    # для валидации входных данных
     try:
         await category_crud.create(
             obj_in=CategoryCreate(**category_data),
@@ -128,11 +124,9 @@ async def create_category(
              'errors': errors}
         )
 
-    # Редирект на страницу категорий, привязанных к точке,
-    # при успешном создании категории
     return RedirectResponse(
-        url=f'/points/{point_id}/categories',
-        status_code=status.HTTP_302_FOUND
+        url=f'/points/{point_id}/',
+        status_code=status.HTTP_302_FOUND,
     )
 
 
@@ -153,11 +147,9 @@ async def get_category_edit_page(
         session=session
     )
 
-    # Если категория не найдена - редирект на страницу категорий,
-    # привязанных к точке
     if category is None:
         return RedirectResponse(
-            url=f'/points/{point_id}/categories',
+            url=f'/points/{point_id}/',
             status_code=status.HTTP_302_FOUND
         )
 
@@ -191,14 +183,11 @@ async def update_category(
 
     errors = []
 
-    # Здесь не проверяем, что категория найдена,
-    # подразумевается, что этот сценарий отрабатывается в get-запросе
     category = await category_crud.get(
         obj_id=category_id,
         session=session
     )
 
-    # Проверка на уникальность названия категории на точке
     try:
         await check_category_duplicate_on_point(
             name=category_update_data['name'],
@@ -216,8 +205,6 @@ async def update_category(
              'errors': errors}
         )
 
-    # Обновление категории, с применением pydantic-схемы,
-    # для валидации входных данных
     try:
         await category_crud.update(
             db_obj=category,
@@ -237,15 +224,13 @@ async def update_category(
              'errors': errors}
         )
 
-    # Редирект на страницу категорий, привязанных к точке,
-    # при успешном обновлении категории
     return RedirectResponse(
-        url=f'/points/{point_id}/categories',
-        status_code=status.HTTP_302_FOUND
+        url=f'/points/{point_id}/',
+        status_code=status.HTTP_302_FOUND,
     )
 
 
-@router.get('{category_id}/delete')
+@router.get('/{category_id}/delete')
 async def delete_category(
     request: Request,
     category_id: int,
@@ -261,7 +246,6 @@ async def delete_category(
         session=session
     )
 
-    # Т.к. это get-запрос, то проверяем, что указанная точка существует
     if category is None:
         return RedirectResponse(
             url=f'/points/{point_id}',
@@ -270,7 +254,6 @@ async def delete_category(
 
     errors = []
 
-    # Удаление категории
     try:
         await category_crud.remove(
             db_obj=category,
@@ -289,9 +272,7 @@ async def delete_category(
              'errors': errors}
         )
 
-    # Редирект на страницу категорий, привязанных к точке,
-    # при успешном удалении категории
     return RedirectResponse(
-        url=f'/points/{point_id}/categories',
-        status_code=status.HTTP_302_FOUND
+        url=f'/points/{point_id}/',
+        status_code=status.HTTP_302_FOUND,
     )

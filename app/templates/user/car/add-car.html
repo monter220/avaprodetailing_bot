@@ -18,8 +18,8 @@
       </div>
       <button type="submit" class="btn btn-custom-red mt-4 mb-4">Добавить
       </button>
-      {% if from_admin or from_superadmin %}
-        <a href="/users/{{ user.id }}" class="btn btn-custom-black">Отмена</a>
+      {% if is_client_profile or from_admin or from_superadmin %}
+        <a href="/users/{{ user_id }}" class="btn btn-custom-black">Отмена</a>
       {% else %}
         <a href="/users/me" class="btn btn-custom-black">Отмена</a>
       {% endif %}

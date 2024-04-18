@@ -19,6 +19,8 @@ async def get_current_user(
     Функция для получения текущего пользователя.
     Так же добавляет информацию о роли пользователя.
     """
+    if not user_telegram_id:
+        return None
     user = await user_crud.get_user_by_telegram_id(
         user_telegram_id=int(user_telegram_id),
         session=session

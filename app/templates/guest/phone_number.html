@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-flex">
+  <div class="text-center">
+    <a href="tel:{{ phone_number }}"
+       class="d-flex justify-content-center align-items-center col-1 btn btn-custom-blue"><i
+      class="bi bi-telephone-outbound-fill"></i> {{ phone_number }}</a>
+  </div>
+</div>
+{% endblock content %}
