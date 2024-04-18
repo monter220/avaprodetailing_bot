@@ -26,6 +26,7 @@ class Settings(BaseSettings):
     max_age: int = 40178
     age_error: str = 'Ваш возраст не соответствует допустимому'
     max_phone_len: int = 15
+    max_phone_field_len: int = 25
     phone_error: str = 'invalid phone number format'
     default_bonus: int = 100
     bonus_expiration_period: int = 365
