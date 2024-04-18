@@ -4,7 +4,7 @@
 <div class="container-flex payment">
   <h1>Оплата</h1>
 
-  <form action="{{ url_for('process_payment', user_id=user_id) }}" method="post">
+  <form action="/users/{{ user_id }}/payments" method="post">
     <div class="form-group">
 
       <h2>Выберите автомобиль</h2>
