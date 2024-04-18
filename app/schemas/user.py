@@ -21,6 +21,10 @@ class UserUpdateTG(BaseModel):
         extra = Extra.forbid
 
 
+class UserBan(BaseModel):
+    is_ban: bool
+
+
 class UserUpdate(BaseModel):
     surname: Optional[str] = Field(None, max_length=settings.max_fio_len)
     name: Optional[str] = Field(None, max_length=settings.max_fio_len)
