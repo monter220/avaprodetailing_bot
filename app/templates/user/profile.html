@@ -9,7 +9,11 @@
       {% elif user.role == 2 %}
       <p class="text-start">администратор</p>
       {% else %}
+      {% if user.is_ban == 0 %}
       <p class="text-start">пользователь</p>
+      {% else %}
+      <p class="text-start">заблокированный пользователь</p>
+      {% endif %}
       {% endif %}
     </div>
     <div class="col">

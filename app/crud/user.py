@@ -66,10 +66,11 @@ class CRUDUser(CRUDBase):
         author: User,
         session: AsyncSession,
     ) -> None:
+        user = await self.get(user_id, session)
         ban: dict[str, bool] = dict.fromkeys(['is_ban'])
-        ban['is_ban'] = True
+        ban['is_ban'] = False if user.is_ban else True
         await self.update(
-            db_obj=await self.get(user_id, session),
+            db_obj=user,
             obj_in=UserBan(**ban),
             user=author,
             model='User',
