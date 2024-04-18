@@ -2,9 +2,13 @@ from typing import Optional
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi.encoders import jsonable_encoder
 
+from app.core.managment.utils import insert_into_events
 from app.crud.base import CRUDBase
 from app.models import User
+from app.schemas.user import UserBan
+from app.crud.car import car_crud
 
 
 class CRUDUser(CRUDBase):
@@ -55,6 +59,23 @@ class CRUDUser(CRUDBase):
                 User.id == user_id and User.is_ban == 0)
         )
         return db_user_id.scalars().first()
+
+    async def user_ban(
+        self,
+        user_id: int,
+        author: User,
+        session: AsyncSession,
+    ) -> None:
+        user = await self.get(user_id, session)
+        ban: dict[str, bool] = dict.fromkeys(['is_ban'])
+        ban['is_ban'] = False if user.is_ban else True
+        await self.update(
+            db_obj=user,
+            obj_in=UserBan(**ban),
+            user=author,
+            model='User',
+            session=session,
+        )
 
     @staticmethod
     async def update_bonus_amount(

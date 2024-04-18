@@ -38,9 +38,6 @@ class CarUpdate(BaseModel):
             return cls(**json.loads(value))
         return value
 
-    class Config:
-        extra = Extra.forbid
-
 
 class CarCreate(BaseModel):
     image: Optional[str] = Field(None)

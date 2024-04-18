@@ -12,7 +12,8 @@ from aiofiles import open
 
 from app.core.config import settings
 from app.crud import car_crud
-from app.api.endpoints.utils import get_tg_id_cookie
+from app.api.endpoints.utils import get_tg_id_cookie, get_current_user
+from app.models import User
 from app.schemas.car import CarCreate, CarUpdate
 from app.core.db import get_async_session
 from app.api.validators import (
@@ -42,8 +43,14 @@ async def get_add_car_template(
         user_id: int,
         user_telegram_id: str = Depends(get_tg_id_cookie),
         session: AsyncSession = Depends(get_async_session),
+        current_user: User = Depends(get_current_user),
 ):
     """Форма добавления машины"""
+    if current_user.is_ban:
+        return RedirectResponse(
+            url='/phone',
+            status_code=status.HTTP_302_FOUND,
+        )
     await check_admin_or_myprofile_car(
         user_id=user_id,
         user_telegram_id=int(user_telegram_id),
@@ -53,6 +60,8 @@ async def get_add_car_template(
         'user/car/add-car.html',
         {
             'request': request,
+            'is_client_profile': user_id != current_user.id,
+            'user_id':  user_id,
         }
     )
 
@@ -117,9 +126,15 @@ async def get_edit_car_template(
     user_id: int,
     request: Request,
     user_telegram_id: str = Depends(get_tg_id_cookie),
-    session: AsyncSession = Depends(get_async_session)
+    current_user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_async_session),
 ):
     """Функция для получения формы редактирования машины. """
+    if current_user.is_ban:
+        return RedirectResponse(
+            url='/phone',
+            status_code=status.HTTP_302_FOUND,
+        )
     car = await car_crud.get(
         obj_id=car_id,
         session=session
@@ -132,7 +147,12 @@ async def get_edit_car_template(
     )
     return templates.TemplateResponse(
         'user/car/edit-car.html',
-        {'request': request, 'car': car, 'user_id': user_id}
+        {
+            'request': request,
+            'car': car,
+            'user_id': user_id,
+            'is_client_profile': user_id != current_user.id,
+        }
     )
 
 

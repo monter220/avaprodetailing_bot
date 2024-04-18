@@ -21,6 +21,10 @@ class UserUpdateTG(BaseModel):
         extra = Extra.forbid
 
 
+class UserBan(BaseModel):
+    is_ban: bool
+
+
 class UserUpdate(BaseModel):
     surname: Optional[str] = Field(None, max_length=settings.max_fio_len)
     name: Optional[str] = Field(None, max_length=settings.max_fio_len)
@@ -28,6 +32,8 @@ class UserUpdate(BaseModel):
     date_birth: Optional[date] = Field(None)
     role: int = Field(None, ge=0)
     point_id: Optional[int] = Field(None, ge=-1)
+    phone: Optional[str] = Field(
+        None, max_length=settings.max_phone_field_len)
 
     @validator('surname', 'name')
     def check_alphabet_only(cls, value):
@@ -54,6 +60,20 @@ class UserUpdate(BaseModel):
             return value
         raise ValueError(settings.age_error)
 
+    @validator('phone')
+    def check_phone(cls, value):
+        check = value.replace(
+            '(', '').replace(')', '').replace(' ', '').replace('-', '')
+        if check[0] == '8' or check[0] == '7':
+            check = '+7' + check[1::]
+        try:
+            return phonenumbers.format_number(
+                phonenumbers.parse(check),
+                phonenumbers.PhoneNumberFormat.E164
+            )
+        except phonenumbers.phonenumberutil.NumberParseException:
+            raise ValueError(settings.phone_error)
+
 
 class UserCreate(BaseModel):
     tg_id: Optional[NonNegativeInt] = Field(None)
@@ -61,7 +81,7 @@ class UserCreate(BaseModel):
     name: str = Field(max_length=settings.max_fio_len)
     patronymic: Optional[str] = Field(None, max_length=settings.max_fio_len)
     date_birth: date
-    phone: str = Field(max_length=settings.max_phone_len)
+    phone: str = Field(max_length=settings.max_phone_field_len)
 
     @validator('surname', 'name')
     def check_alphabet_only(cls, value):
@@ -90,11 +110,13 @@ class UserCreate(BaseModel):
 
     @validator('phone')
     def check_phone(cls, value):
-        if value[0] == '8' or value[0] == '7':
-            value = '+7' + value[1::]
+        check = value.replace(
+            '(', '').replace(')', '').replace(' ', '').replace('-', '')
+        if check[0] == '8' or check[0] == '7':
+            check = '+7' + check[1::]
         try:
             return phonenumbers.format_number(
-                phonenumbers.parse(value),
+                phonenumbers.parse(check),
                 phonenumbers.PhoneNumberFormat.E164
             )
         except phonenumbers.phonenumberutil.NumberParseException:

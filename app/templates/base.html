@@ -18,7 +18,6 @@
 </head>
 
 <body>
-{% block content %}{% endblock content %}
 <script>
     let tg = window.Telegram.WebApp;
     let user_telegram_id = tg.initDataUnsafe.user.id;
@@ -27,6 +26,7 @@
     tg.expand();
     document.cookie = "tg_id=" + user_telegram_id + "; max-age=2592000; path=/";
 </script>
+{% block content %}{% endblock content %}
 <script
   src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
   integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
