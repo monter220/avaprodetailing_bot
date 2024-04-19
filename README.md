@@ -1,11 +1,11 @@
 # Bot Avaprodetailing
 
 ## 1. Команда
-- Беликов Дмитрий - [monter220](https://github.com/monter220)
+- Дмитрий Беликов - [monter220](https://github.com/monter220)
 - Сергей Иванов - [isv160179](https://github.com/isv160179)
 - Сергей Филатов - [Serhioth](https://github.com/Serhioth)
-- Колтыгин Сергей - [cmipro](https://github.com/cmipro)
-- Лаврушенков Александр - [lavralex](https://github.com/lavralex)
+- Сергей Колтыгин - [cmipro](https://github.com/cmipro)
+- Александр Лаврушенков - [lavralex](https://github.com/lavralex)
 
 ## 2. О проекте
 Наш проект представляет собой телеграм бот для сети автомоек с возможностью регистрации клиентов, формирования заказов и оплаты, также реализована система лояльности и отчетности.
@@ -48,33 +48,40 @@
    `mkdir alembic/versions`
 
 6) создать и применить миграции
-   
-   `alembic revision --autogenerate -m "first migration"`
 
-   `alembic upgrade head`
-
+   ```
+   alembic revision --autogenerate -m "first migration"
+   alembic upgrade head
+   ```
 
 7) Запустить проект
    
-   `uvicorn app.main:app`
+   `uvicorn app.main:app --reload`
 
 ### Удаленный сервер:
-    ¯\_(ツ)_/¯
+    ```
+    cd /home/team3/avaprodetailing_bot_3
+    docker compose up
+    ```
 
 ## 4. Используемые технологии:
-[python](https://www.python.org/) | 
-[html5](https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/HTML5) | 
-[css](https://www.w3.org/Style/CSS/) | 
-[javaScript](https://developer.mozilla.org/en-US/docs/Web/JavaScript) | 
-[fastapi](https://fastapi.tiangolo.com/) | 
-[pydantic](https://pydantic-docs.helpmanual.io/) | 
-[SQLAlchemy](https://www.sqlalchemy.org/) | 
-[iogram](https://tg.iogram.xyz/) | 
-[aiohttp](https://pypi.org/project/aiohttp/) | 
-[Jinja2](https://jinja.palletsprojects.com/en/3.0.x/) | 
-[uvicorn](https://www.uvicorn.org/) | 
-[openpyxl](https://openpyxl.readthedocs.io/en/stable/) | 
-[alembic](https://alembic.sqlalchemy.org/en/latest/) | 
-[redis](https://redis.io/) | 
-[gosnomer](https://pypi.org/project/gosnomer/) | 
-[phonenumbers](https://pypi.org/project/phonenumbers/)
+### Основные технологии
+- [python](https://www.python.org/)
+- [fastapi](https://fastapi.tiangolo.com/)
+- [pydantic](https://pydantic-docs.helpmanual.io/)
+- [aiogram](https://aiogram.dev/)
+- [alembic](https://alembic.sqlalchemy.org/en/latest/)
+- [SQLAlchemy](https://www.sqlalchemy.org/)
+- [redis](https://redis.io/)
+- [uvicorn](https://www.uvicorn.org/)
+- [openpyxl](https://openpyxl.readthedocs.io/en/stable/)
+- [Jinja2](https://jinja.palletsprojects.com/en/3.0.x/)
+- [javaScript](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
+- [html5](https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/HTML5)
+- [css](https://www.w3.org/Style/CSS/)
+
+  
+### Дополнительные библиотеки
+- [gosnomer](https://pypi.org/project/gosnomer/)
+- [phonenumbers](https://pypi.org/project/phonenumbers/)
+  
