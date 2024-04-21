@@ -36,14 +36,14 @@ class UserUpdate(BaseModel):
         None, max_length=settings.max_phone_field_len)
 
     @validator('surname', 'name')
-    def check_alphabet_only(cls, value):
+    def check_name_surname_only_alphabet(cls, value):
         check = value.replace(' ', '').replace('-', '')
         if check.isalpha():
             return value
         raise ValueError(settings.alphabet_error)
 
     @validator('patronymic')
-    def check_alphabet_only(cls, value):
+    def check_patronymic_only_alphabet(cls, value):
         if value:
             check = value.replace(' ', '').replace('-', '')
             if not check.isalpha():
@@ -75,52 +75,13 @@ class UserUpdate(BaseModel):
             raise ValueError(settings.phone_error)
 
 
-class UserCreate(BaseModel):
+class UserCreate(UserUpdate):
     tg_id: Optional[NonNegativeInt] = Field(None)
     surname: str = Field(max_length=settings.max_fio_len)
     name: str = Field(max_length=settings.max_fio_len)
     patronymic: Optional[str] = Field(None, max_length=settings.max_fio_len)
     date_birth: date
     phone: str = Field(max_length=settings.max_phone_field_len)
-
-    @validator('surname', 'name')
-    def check_alphabet_only(cls, value):
-        check = value.replace(' ', '').replace('-', '')
-        if check.isalpha():
-            return value
-        raise ValueError(settings.alphabet_error)
-
-    @validator('patronymic')
-    def check_alphabet_only(cls, value):
-        if value:
-            check = value.replace(' ', '').replace('-', '')
-            if not check.isalpha():
-                raise ValueError(settings.alphabet_error)
-        return value
-
-    @validator('date_birth')
-    def check_age(cls, value):
-        if (
-                timedelta(days=settings.max_age) >=
-                date.today()-value >=
-                timedelta(days=settings.min_age)
-        ):
-            return value
-        raise ValueError(settings.age_error)
-
-    @validator('phone')
-    def check_phone(cls, value):
-        check = value.replace(
-            '(', '').replace(')', '').replace(' ', '').replace('-', '')
-        if check[0] == '8' or check[0] == '7':
-            check = '+7' + check[1::]
-        try:
-            return phonenumbers.format_number(
-                phonenumbers.parse(check),
-                phonenumbers.PhoneNumberFormat.E164
-            )
-        except phonenumbers.phonenumberutil.NumberParseException:
-            raise ValueError(settings.phone_error)
 
     class Config:
         extra = Extra.forbid

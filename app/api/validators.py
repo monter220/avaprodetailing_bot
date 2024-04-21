@@ -1,4 +1,7 @@
-from typing import Optional
+import phonenumbers
+
+from typing import Optional, Union
+from datetime import datetime, date, timedelta
 from fastapi import HTTPException
 from fastapi.responses import RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -6,6 +9,7 @@ from starlette import status
 
 from app.crud import user_crud, service_crud, category_crud, car_crud
 from app.models import User, Car
+from app.core.config import settings
 from app.translate.ru import (
     ERR_MSG_FIELD_NOT_UNIQUE,
     OBJ_NOT_EXIST,
@@ -199,3 +203,33 @@ def check_is_superadmin(current_user: User):
             url='/users/me',
             status_code=status.HTTP_302_FOUND
         )
+
+
+def valid_phone(phone: str):
+    check = phone.replace(
+        '(', '').replace(')', '').replace(' ', '').replace('-', '')
+    if check[0] == '8' or check[0] == '7':
+        check = '+7' + check[1::]
+    try:
+        return phonenumbers.format_number(
+            phonenumbers.parse(check),
+            phonenumbers.PhoneNumberFormat.E164
+        )
+    except phonenumbers.phonenumberutil.NumberParseException:
+        raise ValueError(settings.phone_error)
+
+
+def valid_user(key: str, value: Union[str, datetime]):
+    if key in ['surname', 'name', 'patronymic']:
+        if value:
+            check = value.replace(' ', '').replace('-', '')
+            if not check.isalpha():
+                raise ValueError(settings.alphabet_error)
+    elif key in ['date_birth']:
+        if (
+                timedelta(days=settings.max_age) >=
+                date.today() - value.date() >=
+                timedelta(days=settings.min_age)
+        ):
+            return value
+        raise ValueError(settings.age_error)
