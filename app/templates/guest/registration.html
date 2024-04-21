@@ -21,6 +21,13 @@
                onfocus="(this.type='date')"
                onblur="if(this.value==''){this.type='text'}" required>
       </div>
+        {% if errors %}
+          <ul class="errors">
+            {% for error in errors %}
+              <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
       <button type="submit" class="btn btn-custom-red mt-4 mb-4">Продолжить
       </button>
       <a href="/users/me" class="btn btn-custom-black">Отмена</a>

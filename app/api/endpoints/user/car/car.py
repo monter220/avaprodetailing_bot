@@ -80,13 +80,29 @@ async def add_car(
     car['brand'] = form_data.get('brand')
     car['model'] = form_data.get('model')
     car['license_plate_number'] = form_data.get('license_plate_number')
-    await check_car_unique(
-        license_plate_number=car['license_plate_number'],
-        session=session
-    )
     file = form_data.get('image')
     user = await check_user_by_tg_exist(int(user_telegram_id), session)
     await check_user_exist(user_id, session)
+
+    errors = []
+    try:
+        await check_car_unique(
+            license_plate_number=car['license_plate_number'],
+            session=session
+        )
+    except Exception as e:
+        errors.append(str(e))
+    if len(errors) > 0:
+        return templates.TemplateResponse(
+            'user/car/add-car.html',
+            {
+                'request': request,
+                'is_client_profile': user_id != user.id,
+                'user_id':  user_id,
+                'errors': errors,
+            }
+        )
+
     if not file.filename:
         await car_crud.create_car(
                     obj_in=CarCreate(**car),
@@ -173,15 +189,32 @@ async def edit_car(
     car['brand'] = form_data.get('brand')
     car['model'] = form_data.get('model')
     car['license_plate_number'] = form_data.get('license_plate_number')
-    if not db_car.license_plate_number == normalize(
-            car['license_plate_number']):
-        await check_car_unique(
-            license_plate_number=car['license_plate_number'],
-            session=session
-        )
     file = form_data.get('image')
     user = await check_user_by_tg_exist(int(user_telegram_id), session)
     await check_user_exist(user_id, session)
+
+    errors = []
+    try:
+        if not db_car.license_plate_number == normalize(
+                car['license_plate_number']):
+            await check_car_unique(
+                license_plate_number=car['license_plate_number'],
+                session=session
+            )
+    except Exception as e:
+        errors.append(str(e))
+    if len(errors) > 0:
+        return templates.TemplateResponse(
+            'user/car/edit-car.html',
+            {
+                'request': request,
+                'car': car,
+                'user_id': user_id,
+                'is_client_profile': user_id != user.id,
+                'errors': errors,
+            }
+        )
+
     if file.filename:
         _, ext = os.path.splitext(file.filename)
         imgdir: str = os.path.join(

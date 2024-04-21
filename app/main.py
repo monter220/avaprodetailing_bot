@@ -3,7 +3,6 @@ from contextlib import asynccontextmanager
 from aiogram import types
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
-# from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
 import uvicorn
 
 from app.api.routers import main_router
@@ -51,10 +50,12 @@ app = FastAPI(title=settings.app_title,
 
 if not settings.testing:
     app.add_middleware(TelegramIDCheckingMiddleware)
-    # app.add_middleware(HTTPSRedirectMiddleware)
 
-app.mount('/static', StaticFiles(directory='app/templates/static'),
-          name='static')  # Подключение статических файлов.
+app.mount(
+    '/static',
+    StaticFiles(directory='app/templates/static'),
+    name='static' # Подключение статических файлов.
+)
 
 app.include_router(main_router)
 

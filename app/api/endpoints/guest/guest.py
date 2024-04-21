@@ -14,7 +14,12 @@ from app.crud import user_crud, bonus_crud
 from app.models import User
 from app.schemas.user import UserCreate, UserUpdateTG
 from app.api.endpoints.utils import get_current_user, get_tg_id_cookie
-from app.api.validators import check_duplicate, check_user_by_tg_exist
+from app.api.validators import (
+    check_duplicate,
+    check_user_by_tg_exist,
+    valid_phone,
+    valid_user,
+)
 
 router = APIRouter(
     tags=['guest']
@@ -84,7 +89,8 @@ async def process_user_phone(
     errors = []
 
     try:
-        user = await check_duplicate(phone_number, session)
+        phone = valid_phone(phone_number)
+        user = await check_duplicate(phone, session)
     except Exception as e:
         errors.append(str(e))
 
@@ -192,6 +198,35 @@ async def registrate_user(
             'patronymic': patronymic,
             'date_birth': datetime.strptime(date_birth, '%Y-%m-%d'),
         }
+
+    errors = []
+    try:
+        for key in user_create_data.keys():
+            try:
+                valid_user(key, user_create_data[key])
+            except Exception as e:
+                if key == 'surname':
+                    errors.append(f'ФАМИЛИЯ({user_create_data[key]}) - {str(e)}')
+                elif key == 'name':
+                    errors.append(f'ИМЯ({user_create_data[key]}) - {str(e)}')
+                elif key == 'patronymic':
+                    errors.append(f'ОТЧЕСТВО({user_create_data[key]}) - {str(e)}')
+                elif key == 'date_birth':
+                    errors.append(f'ДАТА РОЖДЕНИЯ({user_create_data[key].date()}) - {str(e)}')
+                elif key == 'phone':
+                    errors.append(f'ТЕЛЕФОН({user_create_data[key]}) - {str(e)}')
+        valid_phone(phone)
+    except Exception as e:
+        errors.append(str(e))
+    if len(errors) > 0:
+        return templates.TemplateResponse(
+            'guest/registration.html',
+            {
+                'request': request,
+                'title': 'Регистрация',
+                'errors': errors,
+            }
+        )
 
     user = await user_crud.create(
         obj_in=UserCreate(**user_create_data),
