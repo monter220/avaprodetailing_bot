@@ -83,7 +83,8 @@ input.form-control, input.form-control:focus, .custom-file-upload {
     height: 45px;
     color: #c1c1c1;
 }
-textarea.form-control, textarea.form-control:focus{
+
+textarea.form-control, textarea.form-control:focus {
     margin: 10px 0;
     background-color: #333;
     border: none;
@@ -223,7 +224,7 @@ form h2 {
     margin-top: 30px;
 }
 
-.payment h1{
+.payment h1 {
     margin-bottom: 0;
 }
 
@@ -288,11 +289,21 @@ form h2 {
     color: #666;
 }
 
-table a{
+table a {
     color: #fff;
 }
 
-h2 a i{
+h2 a i {
     color: #fff;
     margin-left: 10px;
+}
+
+#list-errors {
+    padding: 10px 4px;
+    margin-bottom: 0;
+}
+
+#list-errors ul {
+    margin-bottom: 0;
+    list-style: square;
 }

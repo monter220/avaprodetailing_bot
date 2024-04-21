@@ -16,13 +16,7 @@
                name="license_plate_number"
                placeholder="НОМЕРНОЙ ЗНАК" required>
       </div>
-      {% if errors %}
-        <ul class="errors">
-          {% for error in errors %}
-            <li>{{ error }}</li>
-          {% endfor %}
-        </ul>
-      {% endif %}
+      {% include 'includes/errors.html' %}
       <button type="submit" class="btn btn-custom-red mt-4 mb-4">Добавить
       </button>
       {% if is_client_profile or from_admin or from_superadmin %}
